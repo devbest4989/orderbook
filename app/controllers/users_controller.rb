@@ -72,8 +72,8 @@ class UsersController < ApplicationController
     else
       redirect_to edit_user_path(current_user.id), flash: {last_action: 'update_avatar', result: 'failed'}
     end
-  rescue => ex
-    redirect_to edit_user_path(current_user.id), flash: {last_action: 'update_avatar', result: 'failed', message: 'Uploading avatar is failed.'}
+  #rescue => ex
+  #  redirect_to edit_user_path(current_user.id), flash: {last_action: 'update_avatar', result: 'failed', message: 'Uploading avatar is failed.'}
   end
 
   # PATCH/PUT /users/
