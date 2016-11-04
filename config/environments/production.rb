@@ -86,5 +86,5 @@ Rails.application.configure do
   Paperclip::Attachment.default_options[:storage] = :fog
   Paperclip::Attachment.default_options[:fog_credentials] = { provider: "Local", local_root: "#{Rails.root}/public"}
   Paperclip::Attachment.default_options[:fog_directory] = ""
-  Paperclip::Attachment.default_options[:fog_host] = "https://orderbookdev.herokuapp.com"
+  Paperclip::Attachment.default_options[:fog_host] = "http://104.236.158.102/"
 end
