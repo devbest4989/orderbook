@@ -1,0 +1,217 @@
+
+<div class="right_col" role="main">
+  <div class="">
+    <div class="page-title">
+      <div class="title_left">
+        <h3>User Profile</h3>
+      </div>
+
+      <div class="title_right">
+        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search for...">
+                <span class="input-group-btn">
+                          <button class="btn btn-default" type="button">Go!</button>
+                      </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+          <div class="x_title">
+            <h2>User Information</h2>
+            <ul class="nav navbar-right panel_toolbox">
+              <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+              </li>
+              <li><a class="close-link"><i class="fa fa-close"></i></a>
+              </li>
+            </ul>
+            <div class="clearfix"></div>
+          </div>
+          <div class="x_content">
+            <div class="col-xs-3">
+              <!-- required for floating -->
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs tabs-left">
+                <li class="active"><a href="#tab_personal" data-toggle="tab">Personal Info</a>
+                </li>
+                <li><a href="#tab_avatar" data-toggle="tab">Change Avatar</a>
+                </li>
+                <li><a href="#tab_password" data-toggle="tab">Change Password</a>
+                </li>
+              </ul>
+            </div>
+            <div class="col-xs-9">
+              <div class="tab-content">
+                <div class="tab-pane active" id="tab_personal">
+                  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: 'form-horizontal form-label-left', 'data-parsley-validate' => '' }) do |f| %>
+                    <div class="form-group">
+                      <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                        <%= devise_error_messages! %>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <%= f.label :first_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        First Name<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.text_field :first_name, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true' %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :last_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        Last Name<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.text_field :last_name, class: 'form-control col-md-7 col-xs-12', :required => 'true' %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :email, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        Email Address<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.email_field :email, class: 'form-control col-md-7 col-xs-12', 'disabled' => 'true' %>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <%= f.label :phone_number, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        Phone Number
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.telephone_field :phone_number, class: 'form-control col-md-7 col-xs-12' %>
+                      </div>
+                    </div>
+                    <div class="ln_solid"></div>
+                    <div class="form-group">
+                      <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                        <%= f.submit "Update", class: 'btn btn-success' %>
+                      </div>
+                    </div>
+                  <% end %>                  
+                </div>
+                <div class="tab-pane" id="tab_avatar">
+                  <form class="text-center" action="/" method="post" enctype="multipart/form-data">
+                    <div id="kv-avatar-errors" class="center-block" style="display:none"></div>
+                    <div class="kv-avatar center-block" style="width:200px">
+                      <input id="user_avatar" name="avatar-2" type="file" class="file-loading">
+                    </div>
+                      <!-- include other inputs if needed and include a form submit (save) button -->
+                  </form>                
+                </div>
+                <div class="tab-pane" id="tab_password">
+                  <%= form_for(resource, as: resource_name, url: update_password_users_path(), html: { method: :put, class: 'form-horizontal form-label-left form-update-password', 'novalidate' => '' }) do |f| %>
+                    <div class="form-group">
+                      <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                      <div class="alert alert-success alert-dismissible fade in" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                            </button>
+                            Test
+                      </div>
+                        <%= devise_error_messages! %>
+                      </div>
+                    </div>
+                    <div class="item form-group">
+                      <%= f.label :current_password, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        Current Password<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.password_field :current_password, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true' %>
+                      </div>
+                    </div>
+
+                    <div class="item form-group">
+                      <%= f.label :password, class: 'control-label col-md-3 col-sm-3 col-xs-12', 'id' => 'password' do %>
+                        New Password<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.password_field :password, class: 'form-control col-md-7 col-xs-12', :required => 'true' %>
+                      </div>
+                    </div>
+
+                    <div class="item form-group">
+                      <%= f.label :password_confirmation, class: 'control-label col-md-3 col-sm-3 col-xs-12' do %>
+                        Re-type Password<span class="required">*</span>
+                      <% end %>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <%= f.password_field :password_confirmation, class: 'form-control col-md-7 col-xs-12', :required => 'true' %>
+                      </div>
+                    </div>
+                    <div class="ln_solid"></div>
+                    <div class="form-group">
+                      <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                        <%= f.button "Update", class: 'btn btn-success', 'id' => 'btn_update_password', 'type' => 'button' %>
+                      </div>
+                    </div>
+                  <% end %>                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+  $('#btn_update_password').on('click', function(e){
+    $('.form-update-password').submit();
+  });
+
+  // initialize the validator function
+  validator.message.date = 'not a real date';
+
+  // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
+  $('form')
+    .on('blur', 'input[required], input.optional, select.required', validator.checkField)
+    .on('change', 'select.required', validator.checkField)
+    .on('keypress', 'input[required][pattern]', validator.keypress);
+
+  $('.multi.required').on('keyup blur', 'input', function() {
+    validator.checkField.apply($(this).siblings().last()[0]);
+  });
+
+  $('.form-update-password').submit(function(e) {
+    e.preventDefault();
+    var submit = true;
+    // evaluate the form using generic validaing
+    if (!validator.checkAll($(this))) {
+      submit = false;
+    }
+    if (submit)
+      this.submit();
+    return false;
+  });  
+
+
+  var btnCust = '<button type="button" class="btn btn-default" title="Add picture tags" ' + 
+      'onclick="alert(\'Call your custom code here.\')">' +
+      '<i class="glyphicon glyphicon-tag"></i>' +
+      '</button>'; 
+  $("#user_avatar").fileinput({
+      overwriteInitial: true,
+      maxFileSize: 1500,
+      showClose: false,
+      showCaption: false,
+      showBrowse: false,
+      browseOnZoneClick: true,
+      removeLabel: '',
+      removeIcon: '<i class="glyphicon glyphicon-remove"></i>',
+      removeTitle: 'Cancel or reset changes',
+      elErrorContainer: '#kv-avatar-errors',
+      msgErrorClass: 'alert alert-block alert-danger',
+      defaultPreviewContent: '<img src="<%=current_user.avatar.url(:medium)%>" alt="Your Avatar" style="width:160px"><h6 class="text-muted">Click to select</h6>',
+      layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
+      allowedFileExtensions: ["jpg", "png", "gif"]
+  });
+});
+</script>

@@ -1,0 +1,98 @@
+.right_col{:role => "main"}
+  %div
+    .page-title
+      .title_left
+        %h3 Customers
+      .title_right
+        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
+          .input-group
+            %input.form-control{:placeholder => "Search for...", :type => "text"}/
+            %span.input-group-btn
+              %button.btn.btn-default{:type => "button"} Go!
+    .clearfix
+    .row
+      .col-md-12
+        .x_panel
+          .x_title
+            %h2 Customer List
+            %ul.nav.navbar-right.panel_toolbox
+              %li
+                %a.collapse-link
+                  %i.fa.fa-chevron-up
+              %li
+                %a.close-link
+                  %i.fa.fa-close
+            .clearfix
+          .x_content.form-group-no-margin
+            .row
+              .col-md-12{:style => "text-align: right"}
+                %a.btn.btn-success.btn-xs{:href => new_customer_path()}
+                  %i.fa.fa-plus
+                  Add Customer
+            .row
+              / start project list
+              %table.table.table-striped.projects
+                %thead
+                  %tr
+                    %th{:style => "width: 1%"} #
+                    %th{:style => "width: 10%"} Customer Name
+                    %th{:style => "width: 10%"} Company Name
+                    %th{:style => "width: 10%"} Trading Name
+                    %th{:style => "width: 10%"} Phone Number
+                    %th{:style => "width: 10%"} Email Address
+                    %th{:style => "width: 15%"} Billing Address
+                    %th{:style => "width: 15%"} Shipping Address
+                    %th{:style => "min-width: 10%"} #Edit                  
+                  %tr
+                    %form#form_search{:action => customers_path(), :method => "get"}
+                    %th{:style => "width: 1%"}
+                    %th{:style => "width: 10%"}
+                      %input.form-control.table-cell{:name => "full_name", :type => "text", :form => "form_search", :value => params[:full_name]}
+                    %th{:style => "width: 10%"}
+                      %input.form-control.table-cell{:name => "company_name", :type => "text", :form => "form_search", :value => params[:company_name]}
+                    %th{:style => "width: 10%"}
+                      %input.form-control.table-cell{:name => "tranding_name", :type => "text", :form => "form_search", :value => params[:tranding_name]}
+                    %th{:style => "width: 10%"}
+                      %input.form-control.table-cell{:name => "phone_number", :type => "text", :form => "form_search", :value => params[:phone_number]}
+                    %th{:style => "width: 10%"}
+                      %input.form-control.table-cell{:name => "email", :type => "text", :form => "form_search", :value => params[:email]}
+                    %th{:style => "width: 15%"}
+                    %th{:style => "width: 15%"}
+                    %th{:style => "min-width: 10%"}
+                      %button.btn.btn-primary.btn-xs{:type => "submit", :form => "form_search" }
+                        %i.fa.fa-search
+                        Search
+                      %a.btn.btn-danger.btn-xs{:href => customers_path()}
+                        %i.fa.fa-close
+                        Reset
+                %tbody
+                - @customers.each do |customer|
+                  %tr
+                    %td #
+                    %td 
+                      =customer.full_name
+                    %td
+                      =customer.company_name
+                    %td
+                      =customer.trading_name
+                    %td
+                      =customer.phone
+                    %td
+                      =customer.email
+                    %td 
+                      =customer.billing_address
+                    %td 
+                      =customer.shipping_address
+                    %td
+                      %a.btn.btn-info.btn-xs{:href => edit_customer_path(customer)}
+                        %i.fa.fa-pencil
+                        Edit
+                      = link_to customer, method: :delete, :class => "btn btn-danger btn-xs" do
+                        %i.fa.fa-trash-o
+                        Delete
+              / end project list
+            .row{:style => "text-align: center;"}  
+              = will_paginate @customers, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
+:javascript
+  jQuery(document).ready(function() {
+  });

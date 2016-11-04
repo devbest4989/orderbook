@@ -1,0 +1,134 @@
+.form-horizontal.form-label-left{:style => "overflow:auto;"}
+  .row.no-margin
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Order Main Information
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
+        %span.col-md-8.col-sm-8.col-xs-12.field-value          
+          = @sales_order.customer.name
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Order #
+        %span.col-md-8.col-sm-8.col-xs-12.field-value          
+          = @sales_order.token
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Order Date
+        %span.col-md-8.col-sm-8.col-xs-12.field-value          
+          = @sales_order.order_date
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimated Ship Date
+        %span.col-md-8.col-sm-8.col-xs-12.field-value          
+          = @sales_order.estimate_ship_date
+    .col-md-6.col-sm-6.col-xs-12.text-right
+      %a#btn_ship_submit.btn.btn-primary{:href => '#'}
+        Save      
+    .col-md-12{:style => "overflow:auto;"}
+      %h4 Product Information
+      / start project list
+      %div{:style => "min-width:900px;"}
+        %table#product_list.table.table-bordered.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+          %thead
+            %tr
+              %th{:style => "width: 15%"} SKU
+              %th{:style => "width: 20%"} Product Name
+              %th{:style => "width: 15%"} Shipped Qty
+              %th{:style => "width: 15%"} Return
+              %th{:style => "width: 35%"} Note
+          %tbody
+          - @sales_order.sales_items.each do |item|
+            %tr
+              %td 
+                =item.sold_item.sku    
+              %td 
+                =item.sold_item.name
+              %td 
+                =item.shipped_quantity
+              %td.editable{"contentEditable" => "true"}
+              %td.editable{"contentEditable" => "true"} 
+              %td{:style => "display: none;"} 
+                =item.id
+  .ln_solid{:style => "margin-bottom: 50px;"}
+  .row.no-margin
+    .col-md-12{:style => "overflow:auto;"}
+      %h4 Past Returning Activities
+      / start project list
+      %div{:style => "min-width:900px;"}
+        %table#activity_list.table.table-bordered.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+          %thead
+            %tr
+              %th{:style => "width: 15%"} SKU
+              %th{:style => "width: 20%"} Product Name
+              %th{:style => "width: 15%"} Returned Date
+              %th{:style => "width: 10%"} Returned Qty
+              %th{:style => "width: 25%"} Note
+              %th{:style => "width: 15%"} Updated By
+          %tbody
+          - @sales_order.return_activities.each do |item|          
+            %tr
+              %td 
+                =item.sales_item.sold_item.sku
+              %td 
+                =item.sales_item.sold_item.name
+              %td 
+                =item.created_at.to_date
+              %td 
+                =item.quantity
+              %td 
+                =item.note
+              %td 
+                =item.updated_by.email
+:javascript
+  $(document).ready(function() {
+    $("#tab_return #product_list td.editable").focus(function(){
+      $(this).addClass("edit-focus");
+    });
+
+    $("#tab_return #product_list td.editable").focusout(function(){
+      $("#product_list td.editable").removeClass("edit-focus");
+    });
+
+    $("#tab_return #product_list td.editable").keydown(function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+       event.preventDefault();
+        break;
+      }
+    });    
+
+    $("#tab_return #btn_ship_submit").click(function(){
+      var returnItemData = new Array();
+      $('#tab_return #product_list tbody tr').each(function(row, tr){
+        returnItemData.push({
+          "quantity" : $(tr).find('td:eq(3)').text().trim(),
+          "note" :$(tr).find('td:eq(4)').text().trim(),
+          "id" :$(tr).find('td:eq(5)').text().trim()
+        });    
+      }); 
+      console.log(returnItemData);
+      var reqUrl = "#{return_sales_order_path(@sales_order)}";
+      $.ajax({
+        url: reqUrl,
+        type: "post",
+        datatype: 'json',
+        data: {return_attributes: returnItemData},
+        success: function(data){
+          if(data.Result == "OK"){
+            window.location.reload();
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Order request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });                              
+    });
+  });

@@ -1,0 +1,189 @@
+.right_col{:role => "main"}
+  %div
+    .page-title
+      .title_left
+        %h3 Product List
+      .title_right
+        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
+          .input-group
+            %input.form-control{:placeholder => "Search for...", :type => "text"}/
+            %span.input-group-btn
+              %button.btn.btn-default{:type => "button"} Go!
+    .clearfix
+    %div{:style => "overflow: auto;"}
+      .col-lg-12
+        .x_panel
+          .x_title
+            %h2
+              %i.fa.fa-bars
+              Products
+            %ul.nav.navbar-right.panel_toolbox
+              %li
+                %a.collapse-link
+                  %i.fa.fa-chevron-up
+              %li
+                %a.close-link
+                  %i.fa.fa-close
+            .clearfix
+          .x_content
+            .row.no-gutter
+              .col-md-10.col-sm-10.col-xs-12
+                .col-md-3.col-sm-3.col-xs-12.form-group
+                  %input#product_sku.form-control{:name => "sku", :placeholder => "Product SKU", :type => "text", :value => ""}
+                .col-md-3.col-sm-3.col-xs-12.form-group
+                  %input#product_name.form-control{:name => "name", :placeholder => "Product Name", :type => "text", :value => ""}
+                .col-md-2.col-sm-2.col-xs-12.form-group
+                  %select#product_category.form-control{:name => "category_id"}
+                    %option{:selected => "selected", :value => "0" } --Select a Category--
+                    - @categories.each do |item|
+                      %option{:value => "#{item.id}" } 
+                        = item.name
+                .col-md-2.col-sm-2.col-xs-12.form-group
+                  %select#product_line.form-control{:name => "product_line_id"}
+                    %option{:selected => "selected", :value => "0" } --Select a Product Line--
+                    - @product_lines.each do |item|
+                      %option{:value => "#{item.id}" } 
+                        = item.name
+                .col-md-2.col-sm-2.col-xs-12.form-group
+                  %select#product_brand.form-control{:name => "brand_id"}
+                    %option{:selected => "selected", :value => "0" } --Select a Brand--
+                    - @brands.each do |item|
+                      %option{:value => "#{item.id}"} 
+                        = item.name
+                .col-md-2.col-sm-2.col-xs-12.form-group
+              .col-md-2.col-sm-2.col-xs-12.text-right
+                .col-md-12.col-sm-12.col-xs-12.form-group
+                  %button#btn_product_search.btn.btn-primary.btn-sm{:type => "button" }
+                    %i.fa.fa-search
+                    Search
+                  %a.btn.btn-dark.btn-sm{:href => "#{product_list_path()}"}
+                    %i.fa.fa-reply
+                    Reset
+                  %button.btn.btn-danger.btn-sm{:type => "button", "data-target" => ".bs-confirm-delete-modal-sm", "data-toggle" => "modal"}
+                    %i.fa.fa-close
+                    Delete Product
+                  .modal.fade.bs-confirm-delete-modal-sm.text-left{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+                    .modal-dialog.modal-sm
+                      .modal-content
+                        .modal-header
+                          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+                            %span{"aria-hidden" => "true"} ×
+                          %h4#myModalLabel2.modal-title Delete Product
+                        .modal-body.text-center
+                          %p Do you want to delete selected products?
+                        .modal-footer-sm
+                          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} No
+                          %button#btn_product_delete.btn.btn-primary{"data-dismiss" => "modal", :type => "button"} Yes
+            .row
+              .col-md-12
+                #product_container
+:javascript
+  $(document).ready(function () {
+    $('#product_container').jtable({
+        title: 'Product List',
+        paging: true, //Enable paging
+        pageSize: 30, //Set page size (default: 10)
+        sorting: true, //Enable sorting
+        defaultSorting: 'Name ASC', //Set default sorting
+        selecting: true, //Enable selecting
+        multiselect: true, //Allow multiple selecting
+        selectingCheckboxes: true, //Show checkboxes on first column
+        actions: {
+            listAction: '#{list_products_path()}',
+            deleteAction: '#{remove_products_path()}',
+            updateAction: '#{change_products_path()}',
+            createAction: '#{append_products_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            sku: {
+                title: 'SKU',
+                width: '10%',
+                inputClass: 'form-control input-sm'
+            },            
+            name: {
+                title: 'Product Name',
+                width: '15%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },
+            description: {
+                title: 'Product Description',
+                type: 'textarea',
+                width: '20%',
+                inputClass: 'form-control'
+            },                        
+            category_id: {
+                title: 'Category',
+                options: '#{list_option_categories_path()}',
+                width: '10%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },                        
+            product_line_id: {
+                title: 'Product Line',
+                options: '#{list_option_product_lines_path()}',
+                width: '10%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },                        
+            perchase_price: {
+                title: 'Perchase Price',
+                width: '10%',
+                inputClass: 'form-control input-sm validate[custom[number]]'
+            },                        
+            selling_price: {
+                title: 'Selling Price',
+                width: '10%',
+                inputClass: 'form-control input-sm validate[custom[number]]'
+            },                        
+            quantity: {
+                title: 'QTY',
+                width: '5%',
+                create: false,
+                edit: false,
+                inputClass: 'form-control input-sm validate[custom[integer]]'
+            },                        
+            brand_id: {
+                title: 'Brand',
+                options: '#{list_option_brands_path()}',
+                width: '10%',
+                inputClass: 'form-control input-sm validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }        
+    });
+
+    $('#btn_product_search').click(function (e) {
+        e.preventDefault();
+        $('#product_container').jtable('load', {
+            sku: $('#product_sku').val(),
+            name: $('#product_name').val(),
+            category_id: $('#product_category').val(),
+            product_line_id: $('#product_line').val(),
+            brand_id: $('#product_brand').val()
+        });
+    });
+
+    //Load all records when page is first shown
+    $('#btn_product_search').click();    //Load student list from server
+
+    $('#btn_product_delete').click(function (e) {
+        var $selectedRows = $('#product_container').jtable('selectedRows');
+        $('#product_container').jtable('deleteRows', $selectedRows);
+    });
+  });

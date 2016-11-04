@@ -1,0 +1,127 @@
+.right_col{:role => "main", :style => "min-height: 95vh;"}
+  %div
+    .page-title
+      .title_left
+        %h3 Sales Order
+      .title_right
+        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
+          .input-group
+            %input.form-control{:placeholder => "Search for...", :type => "text"}/
+            %span.input-group-btn
+              %button.btn.btn-default{:type => "button"} Go!
+    .clearfix
+    .row
+      .col-md-12
+        .x_panel
+          .x_title
+            %h2 Sales Order List for Customers
+            %ul.nav.navbar-right.panel_toolbox
+              %li
+                %a.collapse-link
+                  %i.fa.fa-chevron-up
+              %li
+                %a.close-link
+                  %i.fa.fa-close
+            .clearfix
+          .x_content.form-group-no-margin
+            .row
+              .col-md-12{:style => "text-align: right"}
+                %a.btn.btn-success.btn-xs{:href => '/sales_orders/new'}
+                  %i.fa.fa-plus
+                  Add Sales Order
+            .row
+              / start project list
+              %table.table.table-bordered.projects
+                %thead
+                  %tr{:style => "background: rgba(52,73,94,0.94); color: #ECF0F1;"}
+                    %th{:style => "width: 15%"} Order#
+                    %th{:style => "width: 15%"} Customer
+                    %th{:style => "width: 10%"} Created Date
+                    %th{:style => "width: 10%"} Order Date
+                    %th{:style => "width: 15%"} Amount
+                    %th{:style => "width: 15%"} Status
+                    %th{:style => "min-width: 20%"} Action
+                  %tr
+                    %form#form_search{:action => sales_orders_path(), :method => "get"}
+                    %th{:style => "width: 15%"}
+                      %input.form-control.table-cell{:name => "token", :type => "text", :form => "form_search", :value => @condition[:token]}
+                    %th{:style => "width: 15%"}
+                      %input.form-control.table-cell{:name => "customer_name", :type => "text", :form => "form_search", :value => @condition[:customer_name]}
+                    %th{:style => "width: 10%"}
+                      .input-group.date.date-picker.margin-bottom-5{"data-date-format" => "dd/mm/yyyy"}
+                        %input.form-control{:name => "created_date_from", :form => "form_search", :placeholder => "From", :readonly => "readonly", :type => "text", :value => @condition[:created_date_from]}
+                        %span.input-group-btn
+                          %button.btn.btn-sm.default{:type => "button"}
+                            %i.fa.fa-calendar
+                      .input-group.date.date-picker{"data-date-format" => "dd/mm/yyyy"}
+                        %input.form-control{:name => "created_date_to", :form => "form_search", :placeholder => "To", :readonly => "readonly", :type => "text", :value => @condition[:created_date_to]}
+                        %span.input-group-btn
+                          %button.btn.btn-sm.default{:type => "button"}
+                            %i.fa.fa-calendar
+                    %th{:style => "width: 10%"}
+                      .input-group.date.date-picker.margin-bottom-5{"data-date-format" => "dd/mm/yyyy"}
+                        %input.form-control{:name => "order_date_from", :form => "form_search", :placeholder => "From", :readonly => "readonly", :type => "text", :value => @condition[:order_date_from]}
+                        %span.input-group-btn
+                          %button.btn.btn-sm.default{:type => "button"}
+                            %i.fa.fa-calendar
+                      .input-group.date.date-picker{"data-date-format" => "dd/mm/yyyy"}
+                        %input.form-control{:name => "order_date_to", :form => "form_search", :placeholder => "To", :readonly => "readonly", :type => "text", :value => @condition[:order_date_to]}
+                        %span.input-group-btn
+                          %button.btn.btn-sm.default{:type => "button"}
+                            %i.fa.fa-calendar
+                    %th{:style => "width: 15%"}
+                      .margin-bottom-5
+                        %input.form-control.table-cell{:name => "total_amount_from", :type => "text", :placeholder => "From", :form => "form_search", :value => @condition[:total_amount_from]}
+                      %input.form-control.table-cell{:name => "total_amount_to", :type => "text", :placeholder => "To", :form => "form_search", :value => @condition[:total_amount_to]}
+                    %th{:style => "width: 15%"}
+                      = select_tag :status, options_for_select([['Draft', 'draft'], ['Booked', 'booked'], ['Shipped', 'shipped'], ['Part-Shipped', 'part-shipped'], ['Cancel', 'cancel']], :selected => @condition['status']), prompt: "Select Status", :form => "form_search" , :class => "form-control table-cell"
+                    %th{:style => "min-width: 20%"}
+                      .margin-bottom-5
+                        %button.btn.btn-primary.btn-xs{:type => "submit", :form => "form_search" }
+                          %i.fa.fa-search
+                          Search
+                      %a.btn.btn-danger.btn-xs{:href => '/sales_orders'}
+                        %i.fa.fa-close
+                        Reset
+                %tbody
+                - @sales_orders.each do |order|
+                  %tr
+                    %td 
+                      =link_to order.token, sales_order_path(order)
+                    %td
+                      =order.customer_name
+                    %td 
+                      =order.created_at.to_date
+                    %td
+                      =order.order_date
+                    %td
+                      =order.total_amount
+                    %td
+                      %span{:class => "label label-md #{order.status_class}"}
+                        =order.status.capitalize
+                    %td
+                      - if order.status == 'draft'
+                        = link_to edit_sales_order_path(order), :class => "btn btn-primary btn-xs" do
+                          %i.fa.fa-pencil
+                          Edit
+                        = link_to book_sales_order_path(order), method: :post, :class => "btn btn-success btn-xs" do
+                          %i.fa.fa-check
+                          Book
+                        = link_to sales_order_path(order), method: :delete, :class => "btn btn-danger btn-xs" do
+                          %i.fa.fa-trash-o
+                          Delete
+                      - else
+                        = link_to sales_order_path(order), :class => "btn btn-info btn-xs" do
+                          %i.fa.fa-file-o
+                          View
+              / end project list
+            .row{:style => "text-align: center;"}  
+              = will_paginate @sales_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
+:javascript
+  jQuery(document).ready(function() {
+    $('.date-picker').datepicker({
+        rtl: false,
+        autoclose: true
+    });  
+
+  });

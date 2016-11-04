@@ -1,0 +1,299 @@
+= form_for(@sales_order, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
+  .row
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Order Information
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Order#
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :token, class: 'form-control', :required => 'true', :readonly => 'true', :style => "background:none;"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Order Date *
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Order Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Requested Ship Date
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :req_ship_date, class: 'form-control has-feedback-left', :id => "req_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Requested Ship Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimated Ship Date
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :estimate_ship_date, class: 'form-control has-feedback-left', :id => "estimate_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Estimated Ship Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms *
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Description
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_area :notes, cols: 40, rows: 3, class: 'form-control'
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Customer Information
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:data => {:placeholder => "Select Customer"}, :class => 'form-control select2_customer', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Info
+        .col-md-8.col-sm-8.col-xs-12
+          %address#contact_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Billing Address
+        .col-md-8.col-sm-8.col-xs-12
+          %address#billing_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Address
+        .col-md-8.col-sm-8.col-xs-12
+          %address#shipping_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+    .col-md-12
+      %h4 Product Information
+      .row
+        .col-md-12{:style => "text-align: right"}
+          %button#add_product.btn.btn-success.btn-xs{:type => "button"}
+            %i.fa.fa-plus
+            Add Product      
+      / start project list
+      %table#product_list.table.table-bordered.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+      %table.table.projects
+        %tbody
+          %tr
+            %td{:style => 'border:none; background: white; width:60%;'} 
+            %td{:style => 'border:none; background: white; width:10%;'} 
+              %b SubTotal:
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:15%;'}
+            %td{:style => 'border:none; background: white; width:15%;'}
+          %tr
+            %td{:style => 'border:none; background: white; width:60%;'} 
+            %td{:style => 'border:none; background: white; width:10%;'} 
+              %b Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:15%;'}
+            %td{:style => 'border:none; background: white; width:15%;'}
+          %tr
+            %td{:style => 'border:none; background: white; width:60%;'} 
+            %td{:style => 'border:none; background: white; width:10%;'} 
+              %b Tax:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:15%;'}
+            %td{:style => 'border:none; background: white; width:15%;'}
+          %tr
+            %td{:style => 'border:none; background: white; width:60%;'} 
+            %td{:style => 'border:none; background: white; width:10%;'} 
+              %b Total:
+            %td#total_cell.money{:style => 'border:none; background: white; width:15%;'}
+            %td{:style => 'border:none; background: white; width:15%;'}
+  .ln_solid
+  .col-md-12{:style => 'text-align: right;'}
+    %a#btn_submit.btn.btn-primary{:href => '#'}
+      Save
+:javascript
+  var t = new Table({
+      id: "product_list",
+      fields: {
+          "SKU": {
+              "class": "edit",
+              "type": "string",
+              "css" : 'style = "width: 10%"'
+          }, 
+          "Product Name": {
+              "class": "edit",
+              "type": "string",
+              "css" : 'style = "width: 20%"'
+          },
+          "Quantity": {
+              "class": "edit",
+              "type": "int",
+              "css" : 'style = "width: 10%"',
+              "field_name" : 'quantity'
+          },
+          "Unit Price": {
+              "class": "edit",
+              "type": "money",
+              "css" : 'style = "width: 10%"',
+              "field_name" : 'unit_price'
+          }, 
+          "Discount(%)": {
+              "class": "edit",
+              "type": "float",
+              "css" : 'style = "width: 10%"',
+              "field_name" : 'discount_rate'
+          },
+          "Tax(%)": {
+              "class": "edit",
+              "type": "float",
+              "css" : 'style = "width: 10%"',
+              "field_name" : 'tax_rate'
+          },
+          "Line Total": {
+              "class": "money",
+              "type": "calc",
+              "formula": [
+                  { "multiply": [{ "c": -3 }, { "c": -4 }] }
+              ],
+              "css" : 'style = "width: 15%"'
+          },
+          "Action": {
+              "class": "",
+              "type": "html",
+              "css" : 'style = "width: 15%"'
+          },          
+          "ProductId": {
+              "class": "",
+              "type": "int",
+              "css" : 'style = "width: 0%; display:none;"',
+              "style" : 'display:none;',
+              "field_name" : 'sold_item_id'
+          }          
+      },
+      data: [],
+      direction: "asc"
+  });
+
+  function initCustomerAddress(){
+    if($('#sales_order_customer_id').val() > 0){
+      detail_url = "/customer/detail_info/" + $('#sales_order_customer_id').val();
+      $.ajax({
+        url: detail_url,
+        type: "post",
+        datatype: 'json',
+        success: function(data){
+          contact_info_html =  "Email : " + data.email + "<br/>";
+          contact_info_html += "Phone : " + data.phone + "<br/>";
+          contact_info_html += "Fax : " + data.fax + "<br/>";
+          $('#contact_info').html(contact_info_html);
+          $('#billing_info').html(data.billing);
+          $('#shipping_info').html(data.shipping);
+        },
+        error:function(){
+        }   
+      });                     
+    }
+  }
+
+  $(document).ready(function() {
+    var grid_data = [#{@item_data}];    
+    t.setdata(grid_data);
+    t.render();
+    initCustomerAddress();
+
+    $("#add_product").on("click", function() {
+        t.addRow();
+    });    
+
+    $("#product_list").on("click", '.delete-row', function() {
+      var row_id = $(this).attr('data-id');
+      t.delRow(row_id);
+    });    
+
+    $('#order_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+    }, function(start, end, label) {
+    });
+
+    $('#req_ship_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+      }, function(start, end, label) {
+    });
+
+    $('#estimate_ship_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+      }, function(start, end, label) {
+    });
+
+    $(".select2_customer").select2({
+      placeholder: "Select a Customer",
+      allowClear: true
+    });
+
+    $(".select2_customer").on('change', function(){
+      if($('#sales_order_customer_id').val() > 0){
+        detail_url = "/customer/detail_info/" + $('#sales_order_customer_id').val();
+        $.ajax({
+          url: detail_url,
+          type: "post",
+          datatype: 'json',
+          success: function(data){
+            contact_info_html =  "Email : " + data.email + "<br/>";
+            contact_info_html += "Phone : " + data.phone + "<br/>";
+            contact_info_html += "Fax : " + data.fax + "<br/>";
+            $('#contact_info').html(contact_info_html);
+            $('#billing_info').html(data.billing);
+            $('#shipping_info').html(data.shipping);
+          },
+          error:function(){
+          }   
+        });                     
+      }
+    });
+
+    $.listen('parsley:field:validate', function() {
+      validateFront();
+    });
+
+    var form_id = "#{(@sales_order.id.blank?) ? "#new_sales_order" : "#edit_sales_order_" + @sales_order.id.to_s }";
+    $( form_id + ' #btn_submit').on('click', function() {
+      var validate = $(form_id).parsley().validate();
+      validateFront();
+      if(validate === true){
+        var reqData = $(form_id).serializeArray();
+        reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text()});
+        tdata = t.serialize();
+        for(i = 0; i < tdata.length; i++){
+          for(key in tdata[i]){
+            item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
+            reqData.push({name: item_key, value: tdata[i][key]});
+          }
+        }
+        var reqUrl = "/sales_orders" + "#{(@sales_order.id.blank?) ? "" : "/" + @sales_order.id.to_s}";
+        $.ajax({
+          url: reqUrl,
+          type: "post",
+          datatype: 'json',
+          data: reqData,
+          success: function(data){
+            if(data.Result == "OK"){
+              window.location.href = "/sales_orders";
+            } else {
+              new PNotify({
+                title: 'Error!',
+                text: data.Message,
+                type: 'error'
+              });              
+            }
+          },
+          error:function(){
+            new PNotify({
+              title: 'Error!',
+              text: 'Order request is not processed.',
+              type: 'error'
+            });              
+          }   
+        });                         
+      } else {        
+      }
+      
+    });
+
+    var validateFront = function() {
+      if (true === $(form_id).parsley().isValid()) {
+        $('.bs-callout-info').removeClass('hidden');
+        $('.bs-callout-warning').addClass('hidden');
+      } else {
+        $('.bs-callout-info').addClass('hidden');
+        $('.bs-callout-warning').removeClass('hidden');
+      }
+    };
+
+  });

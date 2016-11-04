@@ -1,0 +1,27 @@
+.right_col{:role => "main", :style => "min-height: 95vh;"}
+  %div
+    .page-title
+      .title_left
+        %h3 Update Sales Order
+      .title_right
+        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
+          .input-group
+            %input.form-control{:placeholder => "Search for...", :type => "text"}/
+            %span.input-group-btn
+              %button.btn.btn-default{:type => "button"} Go!
+    .clearfix
+    .row
+      .col-md-12
+        .x_panel
+          .x_title
+            %h2 Update Sales Order for Customers
+            %ul.nav.navbar-right.panel_toolbox
+              %li
+                %a.collapse-link
+                  %i.fa.fa-chevron-up
+              %li
+                %a.close-link
+                  %i.fa.fa-close
+            .clearfix
+          .x_content.form-group-no-margin
+            = render 'form_sales_order'

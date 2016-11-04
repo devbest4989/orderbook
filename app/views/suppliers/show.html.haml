@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b First name:
+  = @supplier.first_name
+%p
+  %b Last name:
+  = @supplier.last_name
+
+= link_to 'Edit', edit_supplier_path(@supplier)
+\|
+= link_to 'Back', suppliers_path

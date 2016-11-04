@@ -1,0 +1,136 @@
+.kv-avatar{
+  .file-input{
+    display: table-cell;
+    max-width: 220px;  	
+  }
+
+  .file-preview-frame, .file-preview-frame:hover{
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    text-align: center;  	
+  }
+}
+
+div.date-picker.input-group input.form-control,
+select.form-control.table-cell,
+input.form-control.table-cell{
+  height: 25px;
+  font-size: 13px;
+  padding: 4px;
+  font-weight: 400;
+}
+
+div.date-picker span.input-group-btn button.btn{
+  height: 25px;
+  padding: 4px;  
+}
+
+div.date-picker.input-group{
+  margin-bottom: 0;
+}
+
+.input-sm {
+  max-width:200px;
+  margin : 3px;
+}
+
+.no-gutter > [class*='col-'] {
+    padding-right:0;
+    padding-left:0;
+}
+
+.modal-footer-sm{
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+}
+
+.ui-dialog .ui-dialog-content{
+  width: 380px !important;
+}
+
+.label-md{
+  font-size: 90%;
+}
+
+table.projects{
+  tr{
+    .buttons, button, .btn {
+      margin-bottom: 0px;
+      margin-right: 5px;
+    }
+    th, td{
+      padding: 5px;
+    }
+    th{
+      vertical-align:top;
+    }  
+
+    .form-control{
+      box-shadow: none;
+    }
+  }  
+}
+
+.table-bordered > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+table.table-bordered tbody tr:hover td {
+  background: rgba(38,185,154,0.07);
+  border-top: 1px solid rgba(38,185,154,0.11);
+  border-bottom: 1px solid rgba(38,185,154,0.11);
+}
+
+.margin-bottom-5{
+  margin-bottom: 5px !important;
+}
+
+table#product_list> thead,
+table#activity_list> thead
+ {
+  background: rgba(52,73,94,0.94);
+  color: #ECF0F1;
+}
+
+.col-12.form-control-feedback.left {
+  border-right: 1px solid #ccc;
+  left: 3px;
+}
+
+.product-select{
+  .select2-selection--single{
+    min-height: 10px;
+
+    .select2-selection__rendered{
+      padding-top: 0px;
+    }
+    .select2-selection__arrow{
+      height: 26px; 
+    }
+  }  
+
+}
+
+.form-group-no-margin .form-group{
+  margin-right: 0;
+  margin-left: 0;
+  margin-bottom: 0;  
+}
+
+.form-horizontal{
+  .field-value{
+    padding-top: 8px;
+  }
+}
+
+.row.no-margin{
+  margin: 0;
+}
+
+table.projects td.edit-focus{
+  border: solid 1px #777 !important;
+  background: #eee !important;
+}

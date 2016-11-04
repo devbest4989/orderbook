@@ -1,0 +1,26 @@
+class User < ActiveRecord::Base
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :trackable, :validatable
+  
+  has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/avatar/:style/default_image.png"
+  validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
+
+  def full_name
+    "#{first_name} #{last_name}"
+  end  
+
+  def role_name
+  	case self.role
+  	when 0
+  	  "Admin"
+  	when 1
+  	  "Sale"
+  	when 2
+  	  "Manager"
+  	when 3
+  	  "Support"
+  	end  	
+  end
+end

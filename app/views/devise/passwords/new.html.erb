@@ -1,0 +1,31 @@
+<div id="login" class="animate form registration_form">
+  <section class="login_content">
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <h1>Forgot password?</h1>
+      <%= content_tag(:div, flash[:error], :id => "flash_error", :style => 'font-size:14px; color: darkred; padding: 10px 0;') if flash[:error] %>
+      <%= content_tag(:div, flash[:notice], :id => "flash_notice", :style => 'font-size:14px; color: darkred; padding: 10px 0;') if flash[:notice] %>
+      <%= content_tag(:div, flash[:alert], :id => "flash_alert", :style => 'font-size:14px; color: darkred; padding: 10px 0;') if flash[:alert] %>
+      <%= devise_error_messages! %>
+      <div>
+        <%= f.email_field :email, autofocus: true, class: "form-control", placeholder: "Email Address", :required => true%>
+      </div>
+      <div>
+        <%= f.submit "Send me reset password instructions", class: "btn btn-default submit" %>
+      </div>
+      <div class="clearfix"></div>
+      <div class="separator">
+
+        <p class="change_link">
+          <%= link_to "Log In", new_session_path(resource_name), class: "to_register" %>
+        </p>
+        <div class="clearfix"></div>
+        <br />
+        <div>
+          <h1><i class="fa fa-paw" style="font-size: 26px;"></i> OrderBook </h1>
+        </div>
+      </div>
+    <% end %>
+    <!-- form -->
+  </section>
+  <!-- content -->
+</div>

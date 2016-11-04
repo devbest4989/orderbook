@@ -1,0 +1,181 @@
+= form_for(@supplier, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
+  .row
+    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+      - if @supplier.errors.any? && flash[:last_action] == "update_info"
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×   
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+          %ul
+            - @supplier.errors.full_messages.each do |msg|
+              %li= msg
+      - if flash[:result] == "success" && flash[:last_action] == "update_info"
+        .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          Supplier information is stored successfully.
+      - if flash[:result] == "failed" && flash[:last_action] == "update_info"
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          Supplier information is not stored successfully.
+  .form-group
+    %h4 Basic Information
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label First Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :first_name, autofocus: true, class: 'form-control has-feedback-left', :required => 'true', :placeholder => "First Name"
+          %span.fa.fa-user.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Last Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :last_name, class: 'form-control has-feedback-left', :required => 'true', :placeholder => "Last Name"
+          %span.fa.fa-user.form-control-feedback.left{"aria-hidden" => "true"}
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Company Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :company_name, class: 'form-control has-feedback-left', :placeholder => "Company Name"
+          %span.fa.fa-building.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Trading Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :trading_name, class: 'form-control has-feedback-left', :placeholder => "Trading Name"
+          %span.fa.fa-building.form-control-feedback.left{"aria-hidden" => "true"}
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Company Reg Number
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :company_reg_no, class: 'form-control has-feedback-left', :placeholder => "Company Registration Number"
+          %span.fa.fa-info.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Company GST No
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :company_gst_no, class: 'form-control has-feedback-left', :placeholder => "Company GST No"
+          %span.fa.fa-info.form-control-feedback.left{"aria-hidden" => "true"}
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Phone Number
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :phone, class: 'form-control has-feedback-left', :placeholder => "Phone Number"
+          %span.fa.fa-phone.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Fax
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :fax, class: 'form-control has-feedback-left', :placeholder => "Fax"
+          %span.fa.fa-fax.form-control-feedback.left{"aria-hidden" => "true"}
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Email Address
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.email_field :email, class: 'form-control has-feedback-left', :required => 'true', :placeholder => "Email Address"
+          %span.fa.fa-envelope.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        .col-md-12.col-sm-12.col-xs-12.form-group.has-feedback
+  .divider-dashed
+  .row
+    .col-md-6{:style => "padding-right: 0;"}  
+      %h4 Billing Address
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Street Name
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :bill_street, class: 'form-control', :placeholder => "Street Name"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :bill_suburb, class: 'form-control', :placeholder => "Suburb"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :bill_city, class: 'form-control', :placeholder => "City Name"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+        .col-md-8.col-sm-8.col-xs-12
+          = render partial: 'select_bill_state', locals:{ parent_region: f.object.bill_country }
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+        .col-md-8.col-sm-8.col-xs-12
+          = f.country_select :bill_country, priority: %w(NZ), prompt: 'Select a Country'
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :bill_postcode, class: 'form-control', :placeholder => "Postcode"
+    .col-md-6  
+      %h4 Shipping Address
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Street Name
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ship_street, class: 'form-control', :placeholder => "Street Name"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ship_suburb, class: 'form-control', :placeholder => "Suburb"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ship_city, class: 'form-control', :placeholder => "City Name"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+        .col-md-8.col-sm-8.col-xs-12
+          = render partial: 'select_ship_state', locals:{ parent_region: f.object.ship_country }
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+        .col-md-8.col-sm-8.col-xs-12
+          = f.country_select :ship_country, priority: %w(NZ), prompt: 'Select a Country'
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ship_postcode, class: 'form-control', :placeholder => "Postcode"
+  .divider-dashed
+  .row
+    .col-md-6{:style => "padding-right: 0;"}  
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Term
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
+  .divider-dashed
+  .form-group
+    %h4 Bank Information
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Bank Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :bank_name, class: 'form-control has-feedback-left', :placeholder => "Bank Name"
+          %span.fa.fa-bank.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Bank Account Name
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :bank_account_name, class: 'form-control has-feedback-left', :placeholder => "Bank Account Name"
+          %span.fa.fa-user.form-control-feedback.left{"aria-hidden" => "true"}
+    .row
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Bank Number
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          = f.text_field :bank_number, class: 'form-control has-feedback-left', :required => 'true', :placeholder => "Bank Number"
+          %span.fa.fa-info.form-control-feedback.left{"aria-hidden" => "true"}
+      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+        .col-md-12.col-sm-12.col-xs-12.form-group.has-feedback
+  .ln_solid
+  .form-group
+    .col-md-12{:style => 'text-align: right;'}
+      = f.submit "Save", class: 'btn btn-primary'
+:javascript
+  jQuery(document).ready(function() {
+    $.listen('parsley:field:validate', function() {
+      validateFront();
+    });
+    $('#edit_supplier_#{@supplier.id} .btn').on('click', function() {
+      $('#edit_supplier_#{@supplier.id}').parsley().validate();
+      validateFront();
+    });
+    var validateFront = function() {
+      if (true === $('#edit_supplier_#{@supplier.id}').parsley().isValid()) {
+        $('.bs-callout-info').removeClass('hidden');
+        $('.bs-callout-warning').addClass('hidden');
+      } else {
+        $('.bs-callout-info').addClass('hidden');
+        $('.bs-callout-warning').removeClass('hidden');
+      }
+    };
+  });
