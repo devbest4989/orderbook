@@ -114,10 +114,13 @@ table#activity_list> thead
 
 }
 
-.form-group-no-margin .form-group{
-  margin-right: 0;
-  margin-left: 0;
-  margin-bottom: 0;  
+.form-group-no-margin {
+  .form-group,
+  .row{
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 0;    
+  }
 }
 
 .form-horizontal{
@@ -133,4 +136,161 @@ table#activity_list> thead
 table.projects td.edit-focus{
   border: solid 1px #777 !important;
   background: #eee !important;
+}
+
+.sidebar-footer-config{
+  bottom: 0px;
+  clear: both;
+  display: block;
+  padding: 5px 0 0 0;
+  position: fixed;
+  width: 230px;
+  z-index: 1000;
+  background: #172D44;  
+
+  .nav > li > a{
+    padding: 10px 15px;
+    margin-bottom: 0;
+  }
+}
+
+.right_col{
+  .left-sub-sidebar{
+    width: 250px;
+    padding: 0;
+    position: relative;
+    display: flex;
+    float: left;
+
+    .x_content{
+      overflow: auto;
+    }
+  }
+
+  .right-content{
+    margin-left: 260px;
+    height: 100%;
+  }
+}
+
+.panel_toolbox > li{
+  a.add-link{
+    color: #5A738E;
+    font-size: 18px;
+    padding: 2px;
+  }
+}
+
+.sub_menu_side{
+  font-size: 14px;
+  span.fa {
+    float: right;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 10px;
+    min-width: inherit;
+    color: #5A738E;
+  }
+
+  .nav.side-menu > li, 
+  .nav.child_menu > li{
+    >a{
+      color: #5A738E;
+      font-weight: 500;  
+      cursor: pointer;
+      border-bottom: 1px dotted #aaa;
+
+      &:hover,
+      &.nav-active{
+        background: #f0f0f0;
+        border-right: 5px solid #aaa;
+      }
+
+      &:hover{
+        color: #888 !important;    
+      }
+
+      &.nav-active{
+        color: #172D44 !important;    
+      }    
+    }
+
+    &.element{
+      >a{
+        padding: 5px 15px 5px !important;
+        margin-bottom: 3px;
+      }
+    }
+  }
+
+  .fa {
+    width: 26px;
+    opacity: .99;
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+    vertical-align: bottom;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.customer-default-avatar{
+  path{
+    fill: #73879C !important;
+  }
+  max-width: 250px;
+}
+
+.profile-content{
+  padding: 5px;
+
+  ul.user_data{
+    font-size: 14px;
+  }
+}
+
+.contact-list{  
+  h3{
+    float:left;
+  }
+
+  .navbar-right{
+    i{
+      font-size: 24px;
+      vertical-align: bottom;
+      margin-top: 10px;
+    }
+    a{
+      padding: 0 10px;
+    }
+  }  
+}
+
+.overview-payable{
+  h2{
+    font-size: 72px;
+    font-weight: 600;
+    margin-bottom: 40px;
+  }
+}
+
+.customer-address{
+  &.row{
+    margin-bottom: 30px !important;
+  }  
+}
+
+.modal-body{
+  .form-group{
+    margin-bottom: 10px;
+  }
+}
+
+.search-bar{
+  .buttons, button, .btn {
+    margin-bottom: 5px; 
+  }
 }

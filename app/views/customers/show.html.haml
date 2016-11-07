@@ -1,12 +1,41 @@
-%p#notice= notice
-
-%p
-  %b First name:
-  = @customer.first_name
-%p
-  %b Last name:
-  = @customer.last_name
-
-= link_to 'Edit', edit_customer_path(@customer)
-\|
-= link_to 'Back', customers_path
+.right_col{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_people', add_url: new_customer_path(), active_elem: "sub-nav-#{@customer.id}", nav_name: 'Customers', sub_elems: @customers, type: 'show', cat_name: 'Customer'
+  .right-content
+    .x_panel
+      .x_title
+        %a{:href => edit_customer_path(@customer)}
+          %h2
+            =@customer.full_name
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content.form-group-no-margin
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li.active
+            %a{"data-toggle" => "tab", :href => "#tab_overview", "aria-expanded" => "true"} 
+              Overview                                    
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_transaction", "aria-expanded" => "false"} 
+              Transaction
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_productlist", "aria-expanded" => "false"} 
+              Product List
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_statement", "aria-expanded" => "false"} 
+              Statement
+        .tab-content
+          #tab_overview{:class => "tab-pane active"}
+            = render 'partial_overview'
+          #tab_transaction{:class => "tab-pane"}
+            = render 'partial_transaction'
+          #tab_productlist{:class => "tab-pane"}
+            /= render 'form_contact'
+          #tab_statement{:class => "tab-pane"}
+            /= render 'form_contact'

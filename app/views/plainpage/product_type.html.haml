@@ -1,64 +1,55 @@
 .right_col{:role => "main"}
-  %div
-    .page-title
-      .title_left
-        %h3 Product Types
-      .title_right
-        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
-          .input-group
-            %input.form-control{:placeholder => "Search for...", :type => "text"}/
-            %span.input-group-btn
-              %button.btn.btn-default{:type => "button"} Go!
-    .clearfix
-    %div
-      .col-lg-4.col-sm-4.col-xs-12
-        .x_panel{:style => ""}
-          .x_title
-            %h2
-              %i.fa.fa-bars
-              Category
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            #category_container
-      .col-lg-4.col-sm-4.col-xs-12
-        .x_panel
-          .x_title
-            %h2
-              %i.fa.fa-bars
-              Product Line
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            #productline_container
-      .col-lg-4.col-sm-4.col-xs-12
-        .x_panel
-          .x_title
-            %h2
-              %i.fa.fa-bars
-              Brand
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            #brand_container
+  .left-sub-sidebar
+    = render 'nav_product', add_url: '', active_elem: "sub-nav-product-type", nav_name: 'Product'
+  .right-content
+    .col-lg-4.col-sm-4.col-xs-12
+      .x_panel{:style => ""}
+        .x_title
+          %h2
+            %i.fa.fa-bars
+            Category
+          %ul.nav.navbar-right.panel_toolbox
+            %li
+              %a.collapse-link
+                %i.fa.fa-chevron-up
+            %li
+              %a.close-link
+                %i.fa.fa-close
+          .clearfix
+        .x_content
+          #category_container
+    .col-lg-4.col-sm-4.col-xs-12
+      .x_panel
+        .x_title
+          %h2
+            %i.fa.fa-bars
+            Product Line
+          %ul.nav.navbar-right.panel_toolbox
+            %li
+              %a.collapse-link
+                %i.fa.fa-chevron-up
+            %li
+              %a.close-link
+                %i.fa.fa-close
+          .clearfix
+        .x_content
+          #productline_container
+    .col-lg-4.col-sm-4.col-xs-12
+      .x_panel
+        .x_title
+          %h2
+            %i.fa.fa-bars
+            Brand
+          %ul.nav.navbar-right.panel_toolbox
+            %li
+              %a.collapse-link
+                %i.fa.fa-chevron-up
+            %li
+              %a.close-link
+                %i.fa.fa-close
+          .clearfix
+        .x_content
+          #brand_container
 :javascript
   $(document).ready(function () {
     $('#category_container').jtable({

@@ -1,139 +1,92 @@
 .right_col{:role => "main"}
-  %div
-    .page-title
-      .title_left
-        %h3 Edit Supplier
-      .title_right
-        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
-          .input-group
-            %input.form-control{:placeholder => "Search for...", :type => "text"}/
-            %span.input-group-btn
-              %button.btn.btn-default{:type => "button"} Go!
-    .clearfix
-    .row
-      .col-md-12.col-sm-12.col-xs-12
-        .x_panel
-          .x_title
-            %h2 Supplier Information
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content.form-group-no-margin
-            .row            
-              .col-sm-2
-                / required for floating
-                %ul.nav.nav-tabs.tabs-left
-                  %li{:class => (flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}
-                    %a{"data-toggle" => "tab", :href => "#tab_personal"} 
-                      %i.fa.fa-cog
-                      Supplier Info
-                  %li{:class => (flash[:last_action]=="update_document") ? "active" : ""}
-                    %a{"data-toggle" => "tab", :href => "#tab_document"} 
-                      %i.fa.fa-folder-open
-                      Document
-                  %li{:class => (flash[:last_action]=="update_contact") ? "active" : ""}
-                    %a{"data-toggle" => "tab", :href => "#tab_contact"} 
-                      %i.fa.fa-folder-open
-                      Contacts
-              .col-sm-10
-                .tab-content
-                  #tab_personal{:class => "tab-pane #{(flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}"}
-                    .row
-                      .col-md-12{:style => "text-align: right"}
-                        %a.btn.btn-success.btn-xs{:href => "/suppliers/new"}
-                          %i.fa.fa-plus
-                          Add Customer                  
-                    = render 'form_info'
-                  #tab_document{:class => "tab-pane #{(flash[:last_action]=="update_document") ? "active" : ""}"}
-                    .row
-                      = render 'form_document'
-                    .ln_solid
-                    .row
-                      .col-md-12
-                        %table.table.table-striped.projects
-                          %thead
-                            %tr
-                              %th{:style => "width: 1%"} #
-                              %th{:style => "width: 40%"} Document Name
-                              %th{:style => "width: 30%"} Document Size
-                              %th{:style => "min-width: 20%"} #Edit
-                          %tbody
-                          - @supplier.documents.each do |doc|
-                            %tr
-                              %td #
-                              %td
-                                %a{:href => "#{doc.file.url}"}  
-                                  =doc.file.original_filename
-                              %td
-                                =doc.file.size
-                              %td
-                                = link_to doc, method: :delete, :class => "btn btn-danger btn-xs" do
-                                  %i.fa.fa-trash-o
-                                  Delete                    
-                  #tab_contact{:class => "tab-pane #{(flash[:last_action]=="update_contact") ? "active" : ""}"}
-                    .row
-                      = render 'form_contact'
-                    .ln_solid
-                    .row
-                      .col-md-12
-                        %table.table.table-striped.projects
-                          %thead
-                            %tr
-                              %th{:style => "width: 1%"} #
-                              %th{:style => "width: 15%"} Contact Name
-                              %th{:style => "width: 15%"} Mobile Number
-                              %th{:style => "width: 15%"} Landline Number
-                              %th{:style => "width: 20%"} Email Address
-                              %th{:style => "width: 10%"} Designation
-                              %th{:style => "min-width: 15%"} #Edit
-                          %tbody
-                          - @supplier.contacts.each do |cont|
-                            %tr
-                              %td #
-                              %td
-                                =cont.full_name
-                              %td
-                                =cont.mobile_number
-                              %td
-                                =cont.landline_number
-                              %td
-                                =cont.email
-                              %td
-                                =cont.designation
-                              %td
-                                = link_to cont, method: :delete, :class => "btn btn-danger btn-xs" do
-                                  %i.fa.fa-trash-o
-                                  Delete                    
-
-:javascript
-  jQuery(document).ready(function() {
-    // initialize the validator function
-    validator.message.date = 'not a real date';
-  
-    // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
-    $('form')
-      .on('blur', 'input[required], input.optional, select.required', validator.checkField)
-      .on('change', 'select.required', validator.checkField)
-      .on('keypress', 'input[required][pattern]', validator.keypress);
-  
-    $('.multi.required').on('keyup blur', 'input', function() {
-      validator.checkField.apply($(this).siblings().last()[0]);
-    });
-  
-    $('form').submit(function(e) {
-      e.preventDefault();
-      var submit = true;
-      // evaluate the form using generic validaing
-      if (!validator.checkAll($(this))) {
-        submit = false;
-      }
-      if (submit)
-        this.submit();
-      return false;
-    });  
-  });
+  .left-sub-sidebar
+    = render 'nav_people', add_url: new_supplier_path(), active_elem: "sub-nav-#{@supplier.id}", nav_name: 'Suppliers', sub_elems: @suppliers, type: 'edit', cat_name: 'Supplier'
+  .right-content
+    .x_panel
+      .x_title
+        %a{:href => supplier_path(@supplier)}
+          %h2
+            =@supplier.full_name
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content.form-group-no-margin
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li{:class => (flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_personal", "aria-expanded" => "true"} 
+              %i.fa.fa-cog
+              Supplier Info
+          %li{:class => (flash[:last_action]=="update_document") ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_document", "aria-expanded" => "false"} 
+              %i.fa.fa-folder-open
+              Document
+          %li{:class => (flash[:last_action]=="update_contact") ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_contact", "aria-expanded" => "false"} 
+              %i.fa.fa-folder-open
+              Contacts
+        .tab-content
+          #tab_personal{:class => "tab-pane #{(flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}"}
+            = render 'form_info'
+          #tab_document{:class => "tab-pane #{(flash[:last_action]=="update_document") ? "active" : ""}"}
+            .row
+              = render 'form_document'
+            .ln_solid
+            .row
+              .col-md-12
+                %table.table.table-striped.projects
+                  %thead
+                    %tr
+                      %th{:style => "width: 1%"} #
+                      %th{:style => "width: 40%"} Document Name
+                      %th{:style => "width: 30%"} Document Size
+                      %th{:style => "min-width: 20%"} #Edit
+                  %tbody
+                  - @supplier.documents.each do |doc|
+                    %tr
+                      %td #
+                      %td
+                        %a{:href => "#{doc.file.url}"}  
+                          =doc.file.original_filename
+                      %td
+                        =doc.file.size
+                      %td
+                        = link_to doc, method: :delete, :class => "btn btn-danger btn-xs" do
+                          %i.fa.fa-trash-o
+                          Delete                    
+          #tab_contact{:class => "tab-pane #{(flash[:last_action] == "update_contact" || flash[:last_action] == "delete_contact") ? "active" : ""}"}
+            .row
+              = render 'form_contact'
+            .ln_solid
+            .row
+              .col-md-12
+                %table#contact_table.table.table-striped.projects
+                  %thead
+                    %tr
+                      %th{:style => "width: 20%"} Contact Name
+                      %th{:style => "width: 20%"} Email Address
+                      %th{:style => "width: 15%"} Mobile
+                      %th{:style => "width: 15%"} Landline
+                      %th{:style => "width: 15%"} Designation
+                      %th{:style => "min-width: 15%"} Action
+                  %tbody
+                  - @supplier.contacts.each do |cont|
+                    %tr
+                      %td
+                        =cont.full_name
+                      %td
+                        =cont.email
+                      %td
+                        =cont.mobile_number
+                      %td
+                        =cont.landline_number
+                      %td
+                        =cont.designation
+                      %td
+                        %a.contact-delete.btn.btn-danger.btn-xs{:href => "#", "data-id" => cont.id}
+                          %i.fa.fa-trash-o

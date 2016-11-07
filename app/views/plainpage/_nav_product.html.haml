@@ -1,0 +1,30 @@
+.x_panel{:style => "max-height:800px; overflow:auto;"}
+  .x_title
+    %h2 
+      = nav_name
+    .clearfix
+  .x_content
+    .sub_menu_side
+      %ul.nav.side-menu
+        %li.sub-nav-product
+          %a{:href => '/product_list'}
+            %i.fa.fa-angle-double-right
+            Products
+        %li.sub-nav-product-cat
+          %a{:href => '/product_cat'}
+            %i.fa.fa-angle-double-right
+            Categories
+        %li.sub-nav-product-line
+          %a{:href => '/product_line'}
+            %i.fa.fa-angle-double-right
+            Product Lines
+        %li.sub-nav-product-brand
+          %a{:href => '/product_brand'}
+            %i.fa.fa-angle-double-right
+            Brands
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-product').addClass('current-page');
+    $('li.#{active_elem} a').addClass('nav-active');
+  });

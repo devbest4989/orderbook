@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   root 'plainpage#index'
   get '/product_types' => 'plainpage#product_type'
   get '/product_list' => 'plainpage#product_list'
+  get '/product_cat' => 'plainpage#product_cat'
+  get '/product_line' => 'plainpage#product_line'
+  get '/product_brand' => 'plainpage#product_brand'
   get '/order_list' => 'plainpage#order_list'
   get '/order_new' => 'plainpage#order_new'
 
@@ -39,7 +42,11 @@ Rails.application.routes.draw do
   end
 
   resources :documents
-  resources :contacts
+  resources :contacts do
+    member do
+      get :remove, :defaults => { :format => 'json' }
+    end
+  end
 
   resources :sales_orders do
     member do

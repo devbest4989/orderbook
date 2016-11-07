@@ -16,6 +16,18 @@ class PlainpageController < ApplicationController
     @product_lines = ProductLine.all
   end
 
+  def product_cat
+    @categories = Category.all
+  end
+
+  def product_line
+    @product_lines = ProductLine.all
+  end
+
+  def product_brand
+    @brands = Brand.all
+  end
+
   def order_list
   end
 

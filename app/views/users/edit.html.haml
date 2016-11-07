@@ -1,167 +1,155 @@
 .right_col{:role => "main"}
-  %div
-    .page-title
-      .title_left
-        %h3 User Profile
-      .title_right
-        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
-          .input-group
-            %input.form-control{:placeholder => "Search for...", :type => "text"}/
-            %span.input-group-btn
-              %button.btn.btn-default{:type => "button"} Go!
-    .clearfix
-    .row
-      .col-md-12.col-sm-12.col-xs-12
-        .x_panel
-          .x_title
-            %h2 User Information
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            .col-xs-3
-              / required for floating
-              / Nav tabs
-              %ul.nav.nav-tabs.tabs-left
-                %li{:class => (flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}
-                  %a{"data-toggle" => "tab", :href => "#tab_personal"} 
-                    %i.fa.fa-cog
-                    Personal Info
-                %li{:class => (flash[:last_action]=="update_avatar") ? "active" : ""}
-                  %a{"data-toggle" => "tab", :href => "#tab_avatar"} 
-                    %i.fa.fa-picture-o
-                    Change Avatar
-                %li{:class => (flash[:last_action]=="update_password") ? "active" : ""}
-                  %a{"data-toggle" => "tab", :href => "#tab_password"} 
-                    %i.fa.fa-lock
-                    Change Password
-            .col-xs-9
-              .tab-content
-                #tab_personal{:class => "tab-pane #{(flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}"}
-                  = form_for(@user, url: update_info_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'data-parsley-validate' => '' }) do |f|
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-                        - if @user.errors.any? && flash[:last_action] == "update_info"
-                          .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
-                            %ul
-                              - @user.errors.full_messages.each do |msg|
-                                %li= msg
-                        - if flash[:result] == "success" && flash[:last_action] == "update_info"
-                          .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            Your personal information is updated successfully.                        
-                    .form-group
-                      = f.label :first_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        First Name
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.text_field :first_name, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true'
-                    .form-group
-                      = f.label :last_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Last Name
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.text_field :last_name, class: 'form-control col-md-7 col-xs-12', :required => 'true'
-                    .form-group
-                      = f.label :email, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Email Address
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.email_field :email, class: 'form-control col-md-7 col-xs-12', 'disabled' => 'true'
-                    .form-group
-                      = f.label :phone_number, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Phone Number
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.telephone_field :phone_number, class: 'form-control col-md-7 col-xs-12'
-                    .form-group
-                      = f.label :role, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Phone Number
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.select(:role, options_for_select([['Admin', 0], ['Sale', 1], ['Manager', 2], ['Support', 3]]), {}, {class: 'form-control col-md-7 col-xs-12'})
-                    .ln_solid
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-                        = f.submit "Update", class: 'btn btn-success'
-                #tab_avatar{:class => "tab-pane #{(flash[:last_action]=="update_avatar") ? "active" : ""}"}
-                  = form_for(@user, url: update_avatar_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'enctype' => 'multipart/form-data' }) do |f|
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-                        - if @user.errors.any? && flash[:last_action] == "update_avatar"
-                          .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
-                            %ul
-                              - @user.errors.full_messages.each do |msg|
-                                %li= msg
-                        - if flash[:result] == "success" && flash[:last_action] == "update_avatar"
-                          .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            Your avatar is updated successfully.                        
-                        - if flash[:result] == "failed" && flash[:last_action] == "update_avatar"
-                          .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            %ul
-                              %li
-                                =flash[:message]
-                    .item.form-group
-                      #kv-avatar-errors.center-block{:style => "display:none"}
-                      .kv-avatar.center-block{:style => "width:200px"}
-                        = f.file_field :avatar, class: 'file-loading'
-                    .ln_solid
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3{:style => "text-align:center;"}
-                        = f.submit "Update", class: 'btn btn-success'
-                #tab_password{:class => "tab-pane #{(flash[:last_action]=="update_password") ? "active" : ""}"}
-                  = form_for(@user, url: update_password_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'novalidate' => '' }) do |f|
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-                        - if @user.errors.any? && flash[:last_action] == "update_password"
-                          .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
-                            %ul
-                              - @user.errors.full_messages.each do |msg|
-                                %li= msg
-                        - if flash[:result] == "success" && flash[:last_action] == "update_password"
-                          .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
-                            %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-                              %span{"aria-hidden" => "true"} ×   
-                            Your password is updated successfully.                        
-                    .item.form-group
-                      = f.label :current_password, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Current Password
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.password_field :current_password, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true'
-                    .item.form-group
-                      = f.label :password, class: 'control-label col-md-3 col-sm-3 col-xs-12', 'id' => 'password' do
-                        New Password
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.password_field :password, class: 'form-control col-md-7 col-xs-12', :required => 'true'
-                    .item.form-group
-                      = f.label :password_confirmation, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
-                        Re-type Password
-                        %span.required *
-                      .col-md-6.col-sm-6.col-xs-12
-                        = f.password_field :password_confirmation, class: 'form-control col-md-7 col-xs-12', :required => 'true'
-                    .ln_solid
-                    .form-group
-                      .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-                        = f.submit "Update", class: 'btn btn-success'
+  .left-sub-sidebar
+    = render 'nav_people', add_url: '', active_elem: "sub-nav-users", nav_name: 'User', type: 'edit', cat_name: 'People'
+  .right-content
+    .x_panel
+      .x_title
+        %h2
+          =@current_user.full_name
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li{:class => (flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_personal"} 
+              %i.fa.fa-cog
+              Personal Info
+          %li{:class => (flash[:last_action]=="update_avatar") ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_avatar"} 
+              %i.fa.fa-picture-o
+              Change Avatar
+          %li{:class => (flash[:last_action]=="update_password") ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_password"} 
+              %i.fa.fa-lock
+              Change Password
+        .tab-content
+          #tab_personal{:class => "tab-pane #{(flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}"}
+            = form_for(@user, url: update_info_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'data-parsley-validate' => '' }) do |f|
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+                  - if @user.errors.any? && flash[:last_action] == "update_info"
+                    .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+                      %ul
+                        - @user.errors.full_messages.each do |msg|
+                          %li= msg
+                  - if flash[:result] == "success" && flash[:last_action] == "update_info"
+                    .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      Your personal information is updated successfully.                        
+              .form-group
+                = f.label :first_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  First Name
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.text_field :first_name, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true'
+              .form-group
+                = f.label :last_name, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Last Name
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.text_field :last_name, class: 'form-control col-md-7 col-xs-12', :required => 'true'
+              .form-group
+                = f.label :email, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Email Address
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.email_field :email, class: 'form-control col-md-7 col-xs-12', 'disabled' => 'true'
+              .form-group
+                = f.label :phone_number, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Phone Number
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.telephone_field :phone_number, class: 'form-control col-md-7 col-xs-12'
+              .form-group
+                = f.label :role, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Role
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.select(:role, options_for_select([['Admin', 0], ['Sale', 1], ['Manager', 2], ['Support', 3]]), {}, {class: 'form-control col-md-7 col-xs-12'})
+              .ln_solid
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+                  = f.submit "Update", class: 'btn btn-success'
+          #tab_avatar{:class => "tab-pane #{(flash[:last_action]=="update_avatar") ? "active" : ""}"}
+            = form_for(@user, url: update_avatar_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'enctype' => 'multipart/form-data' }) do |f|
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+                  - if @user.errors.any? && flash[:last_action] == "update_avatar"
+                    .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+                      %ul
+                        - @user.errors.full_messages.each do |msg|
+                          %li= msg
+                  - if flash[:result] == "success" && flash[:last_action] == "update_avatar"
+                    .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      Your avatar is updated successfully.                        
+                  - if flash[:result] == "failed" && flash[:last_action] == "update_avatar"
+                    .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      %ul
+                        %li
+                          =flash[:message]
+              .item.form-group
+                #kv-avatar-errors.center-block{:style => "display:none"}
+                .kv-avatar.center-block{:style => "width:200px"}
+                  = f.file_field :avatar, class: 'file-loading'
+              .ln_solid
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3{:style => "text-align:center;"}
+                  = f.submit "Update", class: 'btn btn-success'
+          #tab_password{:class => "tab-pane #{(flash[:last_action]=="update_password") ? "active" : ""}"}
+            = form_for(@user, url: update_password_users_path(), html: { method: :put, class: 'form-horizontal form-label-left', 'novalidate' => '' }) do |f|
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+                  - if @user.errors.any? && flash[:last_action] == "update_password"
+                    .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+                      %ul
+                        - @user.errors.full_messages.each do |msg|
+                          %li= msg
+                  - if flash[:result] == "success" && flash[:last_action] == "update_password"
+                    .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×   
+                      Your password is updated successfully.                        
+              .item.form-group
+                = f.label :current_password, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Current Password
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.password_field :current_password, autofocus: true, class: 'form-control col-md-7 col-xs-12', :required => 'true'
+              .item.form-group
+                = f.label :password, class: 'control-label col-md-3 col-sm-3 col-xs-12', 'id' => 'password' do
+                  New Password
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.password_field :password, class: 'form-control col-md-7 col-xs-12', :required => 'true'
+              .item.form-group
+                = f.label :password_confirmation, class: 'control-label col-md-3 col-sm-3 col-xs-12' do
+                  Re-type Password
+                  %span.required *
+                .col-md-6.col-sm-6.col-xs-12
+                  = f.password_field :password_confirmation, class: 'form-control col-md-7 col-xs-12', :required => 'true'
+              .ln_solid
+              .form-group
+                .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+                  = f.submit "Update", class: 'btn btn-success'
 :javascript
   jQuery(document).ready(function() {
     // initialize the validator function

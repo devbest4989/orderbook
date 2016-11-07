@@ -59,16 +59,25 @@ class ContactsController < ApplicationController
       @customer = Customer.find(@contact.customer.id)    
       @contact.destroy
       respond_to do |format|
-        format.html { redirect_to edit_customer_path(@customer), flash: {last_action: 'update_contact', result: 'success'} }
+        format.html { redirect_to edit_customer_path(@customer), flash: {last_action: 'delete_contact', result: 'success'} }
         format.json { head :no_content }
       end
     else
       @supplier = Supplier.find(@contact.supplier.id)    
       @contact.destroy
       respond_to do |format|
-        format.html { redirect_to edit_supplier_path(@supplier), flash: {last_action: 'update_contact', result: 'success'} }
+        format.html { redirect_to edit_supplier_path(@supplier), flash: {last_action: 'delete_contact', result: 'success'} }
         format.json { head :no_content }      
       end
+    end
+  end
+
+  def remove
+    @contact = Contact.find(params[:id]);
+    @contact.destroy
+    respond_to do |format|
+      result = {:Result => "OK"}
+      format.json { render json: result }
     end
   end
 

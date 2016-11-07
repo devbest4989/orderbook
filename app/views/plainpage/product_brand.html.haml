@@ -1,0 +1,68 @@
+.right_col{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_product', add_url: '', active_elem: "sub-nav-product-brand", nav_name: 'Products'
+  .right-content
+    .col-lg-8.col-sm-8.col-xs-12
+      .x_panel
+        .x_title
+          %h2
+            %i.fa.fa-bars
+            Brand
+          %ul.nav.navbar-right.panel_toolbox
+            %li
+              %a.collapse-link
+                %i.fa.fa-chevron-up
+            %li
+              %a.close-link
+                %i.fa.fa-close
+          .clearfix
+        .x_content
+          #brand_container
+:javascript
+  $(document).ready(function () {
+    $('#brand_container').jtable({
+        title: 'Brand List',
+        paging: true, //Enable paging
+        pageSize: 30, //Set page size (default: 10)
+        sorting: true, //Enable sorting
+        defaultSorting: 'Name ASC', //Set default sorting
+        selecting: true, //Enable selecting
+        multiselect: true, //Allow multiple selecting
+        selectingCheckboxes: true, //Show checkboxes on first column
+        actions: {
+            listAction: '#{list_brands_path()}',
+            deleteAction: '#{remove_brands_path()}',
+            updateAction: '#{change_brands_path()}',
+            createAction: '#{append_brands_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            name: {
+                title: 'Brand Name',
+                width: '100%',
+                inputClass: 'form-control input-sm validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+
+    //Load student list from server
+    $('#brand_container').jtable('load');
+  });

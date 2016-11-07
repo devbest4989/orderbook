@@ -1,54 +1,38 @@
 %form#contact_form.form-horizontal.form-label-left.input_mask{:action => "#", "data-parsley-validate" => "", :method => "post"}
-  .row
-    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-      - if @customer.errors.any? && flash[:last_action] == "update_contact"
-        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-            %span{"aria-hidden" => "true"} ×   
-          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
-          %ul
-            - @customer.errors.full_messages.each do |msg|
-              %li= msg
-      - if flash[:result] == "success" && flash[:last_action] == "update_contact"
-        .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
-          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-            %span{"aria-hidden" => "true"} ×
-          Contact information is stored successfully.
   .form-group
     %input{:name => "customer_id", :type => "hidden", :value => "#{@customer.id}"}
     %h4 Contact Information
-    .row
-      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}
+    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}
+      .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label First Name
         .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
           %input#contact_first_name.form-control.has-feedback-left{:autofocus => "autofocus", :name => "first_name", :placeholder => "First Name", :required => "required", :type => "text", :value => ""}
           %span.fa.fa-user.form-control-feedback.left{"aria-hidden" => "true"}
-      .col-md-6.col-sm-6.col-xs-12
+      .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Last Name
         .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
           %input#contact_last_name.form-control.has-feedback-left{:name => "last_name", :placeholder => "Last Name", :required => "required", :type => "text", :value => ""}
           %span.fa.fa-user.form-control-feedback.left{"aria-hidden" => "true"}
-    .row
-      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Mobile Number
-        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
-          %input#contact_mobile_phone.form-control.has-feedback-left{:name => "mobile_number", :placeholder => "Mobile Number", :type => "text", :value => ""}
-          %span.fa.fa-mobile-phone.form-control-feedback.left{"aria-hidden" => "true"}
-      .col-md-6.col-sm-6.col-xs-12
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Landline Number
-        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
-          %input#contact_phone.form-control.has-feedback-left{:name => "landline_number", :placeholder => "Landline Number", :type => "text", :value => ""}
-          %span.fa.fa-phone.form-control-feedback.left{"aria-hidden" => "true"}
-    .row
-      .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}
+      .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Email Address
         .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
           %input#contact_email.form-control.has-feedback-left{:name => "email", :placeholder => "Email Address", :required => "required", :type => "email", :value => ""}
           %span.fa.fa-envelope.form-control-feedback.left{"aria-hidden" => "true"}
-      .col-md-6.col-sm-6.col-xs-12
+    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Mobile Number
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          %input#contact_mobile_phone.form-control.has-feedback-left{:name => "mobile_number", :placeholder => "Mobile Number", :type => "text", :value => ""}
+          %span.fa.fa-mobile-phone.form-control-feedback.left{"aria-hidden" => "true"}
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Landline Number
+        .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+          %input#contact_phone.form-control.has-feedback-left{:name => "landline_number", :placeholder => "Landline Number", :type => "text", :value => ""}
+          %span.fa.fa-phone.form-control-feedback.left{"aria-hidden" => "true"}
+      .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Designation
         .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
-          %input#contact_designation.form-control.has-feedback-left{:name => "designation", :placeholder => "Designation", :required => "required", :type => "text", :value => ""}
+          %input#contact_designation.form-control.has-feedback-left{:name => "designation", :placeholder => "Designation", :type => "text", :value => ""}
           %span.fa.fa-info.form-control-feedback.left{"aria-hidden" => "true"}
   .form-group
     .col-md-12{:style => "text-align: right;"}
@@ -56,18 +40,5 @@
         %i.fa.fa-plus
         Add Contact
 :javascript
-  jQuery(document).ready(function() {
-    $('#btn_add_contact').on('click', function(){
-      $.ajax({
-        url: "#{update_contact_customer_path(@customer)}",
-        type: "put",
-        datatype: 'json',
-        data: $('#contact_form').serialize(),              
-        success: function(data){
-          window.location.href = '#{edit_customer_path(@customer)}';
-        },
-        error:function(){
-        }
-      });      
-    });
-  });
+  var add_contact_url='/customers/#{@customer.id}/update_contact';
+= javascript_include_tag 'people_overview', 'data-turbolinks-track' => true

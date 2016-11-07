@@ -13,7 +13,11 @@
             %span.fa.fa-angle-down
           %ul.dropdown-menu.dropdown-usermenu.pull-right
             %li
-              = link_to "Profile", edit_user_path(current_user.id)
+              = link_to edit_user_path(current_user.id) do
+                %i.fa.fa-gear.pull-right
+                Configuration
+            %li
+              = link_to "Profile", edit_user_path(current_user.id)                
             %li
               %a{:href => destroy_user_session_path() }
                 %i.fa.fa-sign-out.pull-right

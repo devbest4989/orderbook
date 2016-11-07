@@ -26,12 +26,8 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
-    if params[:full_name] || params[:company_name] || params[:tranding_name] || params[:phone_number] || params[:email]
-      @customers = Customer.name_like(params[:full_name])
-                  .company_name_like(params[:company_name])
-                  .trading_name_like(params[:tranding_name])
-                  .phone_like(params[:phone_number])
-                  .email_like(params[:email])
+    if params[:search_key]
+      @customers = Customer.main_like(params[:search_key])
                   .paginate(page: params[:page])
     else
       @customers = Customer.all.paginate(page: params[:page])
@@ -40,21 +36,25 @@ class CustomersController < ApplicationController
 
   # GET /customers/1
   # GET /customers/1.json
-  def show
+  def show    
+    @customers = Customer.all
+    @sales_orders = @customer.sales_orders
   end
 
   # GET /customers/new
   def new
     @customer = Customer.new
+    @customers = Customer.all
   end
 
   # GET /customers/1/edit
   def edit
+    @customers = Customer.all
   end
 
   # POST /customers
   # POST /customers.json
-  def create
+  def create    
     @customer = Customer.new(customer_params)
 
     respond_to do |format|
@@ -64,7 +64,7 @@ class CustomersController < ApplicationController
             @customer.documents.create(:file => doc) 
           end 
         end
-        format.html { redirect_to edit_customer_url(@customer), flash: {last_action: 'update_info', result: 'success'} }
+        format.html { redirect_to customer_url(@customer) }#, flash: {last_action: 'update_info', result: 'success'} }
         format.json { render :show, status: :created, location: @customer }
       else
         format.html { render :new }
@@ -72,7 +72,7 @@ class CustomersController < ApplicationController
       end
     end
   rescue => ex
-    redirect_to edit_customer_url(@customer), flash: {last_action: 'update_info', result: 'failed', message: 'Saving information is failed.'}      
+    redirect_to customer_url(@customer), flash: {last_action: 'update_info', result: 'failed', message: 'Saving information is failed.'}      
   end
 
   # PATCH/PUT /customers/1
@@ -126,13 +126,13 @@ class CustomersController < ApplicationController
       contact.designation = params[:designation]
       contact.customer = @customer
 
-      flash[:last_action] = "update_contact"
       if contact.save
-        flash[:result] = "success"
+        status = "OK"
       else
-        flash[:result] = "error"
-      end
-      format.json { render json: flash }
+        status = "Error"
+      end      
+      result = {:Result => status, :Records => contact}
+      format.json { render json: result }
     end
   end 
 

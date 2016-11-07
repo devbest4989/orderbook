@@ -27,7 +27,7 @@ $(function () {
             contentHeight = bodyHeight < leftColHeight ? leftColHeight : bodyHeight;
 
         // normalize content
-        contentHeight -= $NAV_MENU.height() + $FOOTER.height();
+        contentHeight -= $FOOTER.outerHeight();
 
         $RIGHT_COL.css('min-height', contentHeight);
     };

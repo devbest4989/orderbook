@@ -1,82 +1,70 @@
 .right_col{:role => "main"}
-  %div
-    .page-title
-      .title_left
-        %h3 Product List
-      .title_right
-        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
-          .input-group
-            %input.form-control{:placeholder => "Search for...", :type => "text"}/
-            %span.input-group-btn
-              %button.btn.btn-default{:type => "button"} Go!
-    .clearfix
-    %div{:style => "overflow: auto;"}
-      .col-lg-12
-        .x_panel
-          .x_title
-            %h2
-              %i.fa.fa-bars
-              Products
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            .row.no-gutter
-              .col-md-10.col-sm-10.col-xs-12
-                .col-md-3.col-sm-3.col-xs-12.form-group
-                  %input#product_sku.form-control{:name => "sku", :placeholder => "Product SKU", :type => "text", :value => ""}
-                .col-md-3.col-sm-3.col-xs-12.form-group
-                  %input#product_name.form-control{:name => "name", :placeholder => "Product Name", :type => "text", :value => ""}
-                .col-md-2.col-sm-2.col-xs-12.form-group
-                  %select#product_category.form-control{:name => "category_id"}
-                    %option{:selected => "selected", :value => "0" } --Select a Category--
-                    - @categories.each do |item|
-                      %option{:value => "#{item.id}" } 
-                        = item.name
-                .col-md-2.col-sm-2.col-xs-12.form-group
-                  %select#product_line.form-control{:name => "product_line_id"}
-                    %option{:selected => "selected", :value => "0" } --Select a Product Line--
-                    - @product_lines.each do |item|
-                      %option{:value => "#{item.id}" } 
-                        = item.name
-                .col-md-2.col-sm-2.col-xs-12.form-group
-                  %select#product_brand.form-control{:name => "brand_id"}
-                    %option{:selected => "selected", :value => "0" } --Select a Brand--
-                    - @brands.each do |item|
-                      %option{:value => "#{item.id}"} 
-                        = item.name
-                .col-md-2.col-sm-2.col-xs-12.form-group
-              .col-md-2.col-sm-2.col-xs-12.text-right
-                .col-md-12.col-sm-12.col-xs-12.form-group
-                  %button#btn_product_search.btn.btn-primary.btn-sm{:type => "button" }
-                    %i.fa.fa-search
-                    Search
-                  %a.btn.btn-dark.btn-sm{:href => "#{product_list_path()}"}
-                    %i.fa.fa-reply
-                    Reset
-                  %button.btn.btn-danger.btn-sm{:type => "button", "data-target" => ".bs-confirm-delete-modal-sm", "data-toggle" => "modal"}
-                    %i.fa.fa-close
-                    Delete Product
-                  .modal.fade.bs-confirm-delete-modal-sm.text-left{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
-                    .modal-dialog.modal-sm
-                      .modal-content
-                        .modal-header
-                          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
-                            %span{"aria-hidden" => "true"} ×
-                          %h4#myModalLabel2.modal-title Delete Product
-                        .modal-body.text-center
-                          %p Do you want to delete selected products?
-                        .modal-footer-sm
-                          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} No
-                          %button#btn_product_delete.btn.btn-primary{"data-dismiss" => "modal", :type => "button"} Yes
-            .row
-              .col-md-12
-                #product_container
+  .left-sub-sidebar
+    = render 'nav_product', add_url: '', active_elem: "sub-nav-product", nav_name: 'Product'
+  .right-content
+    .x_panel
+      .x_title
+        %h2 Products
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        .row.no-gutter
+          .col-md-10.col-sm-10.col-xs-12
+            .col-md-3.col-sm-3.col-xs-12.form-group
+              %input#product_sku.form-control{:name => "sku", :placeholder => "Product SKU", :type => "text", :value => ""}
+            .col-md-3.col-sm-3.col-xs-12.form-group
+              %input#product_name.form-control{:name => "name", :placeholder => "Product Name", :type => "text", :value => ""}
+            .col-md-2.col-sm-2.col-xs-12.form-group
+              %select#product_category.form-control{:name => "category_id"}
+                %option{:selected => "selected", :value => "0" } --Select a Category--
+                - @categories.each do |item|
+                  %option{:value => "#{item.id}" } 
+                    = item.name
+            .col-md-2.col-sm-2.col-xs-12.form-group
+              %select#product_line.form-control{:name => "product_line_id"}
+                %option{:selected => "selected", :value => "0" } --Select a Product Line--
+                - @product_lines.each do |item|
+                  %option{:value => "#{item.id}" } 
+                    = item.name
+            .col-md-2.col-sm-2.col-xs-12.form-group
+              %select#product_brand.form-control{:name => "brand_id"}
+                %option{:selected => "selected", :value => "0" } --Select a Brand--
+                - @brands.each do |item|
+                  %option{:value => "#{item.id}"} 
+                    = item.name
+            .col-md-2.col-sm-2.col-xs-12.form-group
+          .col-md-2.col-sm-2.col-xs-12.text-right
+            .col-md-12.col-sm-12.col-xs-12.form-group.search-bar
+              %button#btn_product_search.btn.btn-primary.btn-sm{:type => "button" }
+                %i.fa.fa-search
+                Search
+              %a.btn.btn-dark.btn-sm{:href => "#{product_list_path()}"}
+                %i.fa.fa-reply
+                Reset
+              %button.btn.btn-danger.btn-sm{:type => "button", "data-target" => ".bs-confirm-delete-modal-sm", "data-toggle" => "modal"}
+                %i.fa.fa-close
+                Delete Product
+              .modal.fade.bs-confirm-delete-modal-sm.text-left{"aria-hidden" => "true", :role => "dialog", :tabindex => "-1"}
+                .modal-dialog.modal-sm
+                  .modal-content
+                    .modal-header
+                      %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+                        %span{"aria-hidden" => "true"} ×
+                      %h4#myModalLabel2.modal-title Delete Product
+                    .modal-body.text-center
+                      %p Do you want to delete selected products?
+                    .modal-footer-sm
+                      %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} No
+                      %button#btn_product_delete.btn.btn-primary{"data-dismiss" => "modal", :type => "button"} Yes
+        .row
+          .col-md-12
+            #product_container
 :javascript
   $(document).ready(function () {
     $('#product_container').jtable({

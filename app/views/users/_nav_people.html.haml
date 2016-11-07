@@ -1,0 +1,36 @@
+.x_panel{:style => "max-height:800px; overflow:auto;"}
+  .x_title
+    %h2 
+      = nav_name
+    .clearfix
+  .x_content
+    .sub_menu_side
+      %ul.nav.side-menu
+        - if cat_name == 'People'
+          %li.sub-nav-customers
+            %a{:href => customers_path()}
+              %i.fa.fa-user
+              Customers
+          %li.sub-nav-suppliers
+            %a{:href => suppliers_path()}
+              %i.fa.fa-building-o
+              Suppliers
+          %li.sub-nav-users
+            %a{:href => edit_user_path(current_user)}
+              %i.fa.fa-male
+              User
+        - else
+          - sub_elems.each do |elem|
+            %li{ :class => "sub-nav-#{elem.id} element" }
+              - if type == 'show'
+                %a{:href => customer_path(elem)}
+                  = elem.full_name                  
+              - else
+                %a{:href => edit_customer_path(elem)}
+                  = elem.full_name                                
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-people').addClass('current-page');
+    $('li.#{active_elem} a').addClass('nav-active');
+  });

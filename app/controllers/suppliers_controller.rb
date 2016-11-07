@@ -6,6 +6,15 @@ class SuppliersController < ApplicationController
     Carmen.i18n_backend.locale = locale if locale
   end
 
+  # POST /supplier/1/info
+  def detail_info
+    @supplier = Supplier.find(params[:id])
+    respond_to do |format|
+      result = {:result => "OK", :phone => @supplier.phone, :fax => @supplier.fax, :email => @supplier.email, :billing => @supplier.billing_address, :shipping =>@supplier.shipping_address }
+      format.json {render :json => result}
+    end
+  end
+
   def bill_state
     render partial: 'select_bill_state'
   end
@@ -17,12 +26,8 @@ class SuppliersController < ApplicationController
   # GET /suppliers
   # GET /suppliers.json
   def index
-    if params[:full_name] || params[:company_name] || params[:tranding_name] || params[:phone_number] || params[:email]
-      @suppliers = Supplier.name_like(params[:full_name])
-                  .company_name_like(params[:company_name])
-                  .trading_name_like(params[:tranding_name])
-                  .phone_like(params[:phone_number])
-                  .email_like(params[:email])
+    if params[:search_key]
+      @suppliers = Supplier.main_like(params[:search_key])
                   .paginate(page: params[:page])
     else
       @suppliers = Supplier.all.paginate(page: params[:page])
@@ -32,15 +37,18 @@ class SuppliersController < ApplicationController
   # GET /suppliers/1
   # GET /suppliers/1.json
   def show
+    @suppliers = Supplier.all
   end
 
   # GET /suppliers/new
   def new
     @supplier = Supplier.new
+    @suppliers = Supplier.all
   end
 
   # GET /suppliers/1/edit
   def edit
+    @suppliers = Supplier.all
   end
 
   # POST /suppliers
@@ -55,7 +63,7 @@ class SuppliersController < ApplicationController
             @supplier.documents.create(:file => doc) 
           end 
         end
-        format.html { redirect_to edit_supplier_url(@supplier), flash: {last_action: 'update_info', result: 'success'} }
+        format.html { redirect_to supplier_url(@supplier) }#, flash: {last_action: 'update_info', result: 'success'} }
         format.json { render :show, status: :created, location: @supplier }
       else
         format.html { render :new }
@@ -63,7 +71,7 @@ class SuppliersController < ApplicationController
       end
     end
   rescue => ex
-    redirect_to edit_supplier_url(@supplier), flash: {last_action: 'update_info', result: 'failed', message: 'Saving information is failed.'}      
+    redirect_to supplier_url(@supplier), flash: {last_action: 'update_info', result: 'failed', message: 'Saving information is failed.'}      
   end
 
   # PATCH/PUT /suppliers/1
@@ -117,13 +125,13 @@ class SuppliersController < ApplicationController
       contact.designation = params[:designation]
       contact.supplier = @supplier
 
-      flash[:last_action] = "update_contact"
       if contact.save
-        flash[:result] = "success"
+        status = "OK"
       else
-        flash[:result] = "error"
-      end
-      format.json { render json: flash }
+        status = "Error"
+      end      
+      result = {:Result => status, :Records => contact}
+      format.json { render json: result }
     end
   end 
 

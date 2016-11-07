@@ -1,25 +1,9 @@
-#ship_state_wrapper
-  - parent_region ||= params[:parent_region]
-  - country = Carmen::Country.coded(parent_region)
-  - if country.nil?
-    = text_field :supplier, :ship_state, {class: 'form-control'}
-  - elsif country.subregions?
-    = subregion_select :supplier, :ship_state, parent_region
-  - else
-    = text_field :supplier, :ship_state, {class: 'form-control'}
-:javascript
-  $(function() {
-    $('select#supplier_ship_country').addClass('form-control');
-    $('select#supplier_ship_state').addClass('form-control');
-    $('select#supplier_ship_country').change(function(event) {
-      var country_code, select_wrapper, url;
-      select_wrapper = $('#ship_state_wrapper');
-      $('select', select_wrapper).attr('disabled', true);
-      country_code = $(this).val();
-      url = "/suppliers/ship_state?parent_region=" + $('#supplier_ship_country').val();
-      select_wrapper.load(url, function(){
-        $('select#supplier_ship_state').addClass('form-control');
-        $('select#supplier_ship_state').after('<ul class="parsley-errors-list"></ul>');
-      });
-    });
-  });
+- parent_region ||= params[:parent_region]
+- country = Carmen::Country.coded(parent_region)
+- if country.nil? || parent_region == 'NZ'
+  = text_field :supplier, :ship_state, {class: 'form-control'}
+- elsif country.subregions?
+  = subregion_select :supplier, :ship_state, parent_region
+- else
+  = text_field :supplier, :ship_state, {class: 'form-control'}
+%ul.parsley-errors-list
