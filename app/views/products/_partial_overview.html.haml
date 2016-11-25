@@ -1,0 +1,60 @@
+.col-md-6.col-sm-6.col-xs-12.overview
+  %h4 Product Details
+  %table.info-list
+    %tr
+      %td Product Name:        
+      %td= @product.name
+    %tr
+      %td Category:
+      %td= @product.category.name
+    %tr
+      %td Product Line:
+      %td= @product.product_line.name
+    %tr
+      %td Brand:
+      %td= @product.brand.name    
+    %tr
+      %td SKU:
+      %td= @product.sku
+  %h4 Sales Details
+  %table.info-list
+    %tr
+      %td Selling Cost:
+      %td= number_to_currency(@product.selling_price)
+    %tr
+      %td Selling Tax:
+      %td
+  %h4 Purchase Details
+  %table.info-list
+    %tr
+      %td Purchase Cost:
+      %td= number_to_currency(@product.selling_price)
+    %tr
+      %td Purchase Tax:
+      %td
+  %h4 Product Description
+  %table.info-list
+    %tr
+      %td= @product.description
+
+.col-md-6.col-sm-6.col-xs-12.overview
+  %table.info-list
+    %tr
+      %td 
+        =image_tag(@product.image)
+    %tr
+      %td Opening Stock
+    %tr
+      %td 100
+    %tr
+      %td On Hand Qty
+    %tr
+      %td 100
+    %tr
+      %td Re-Order Point
+    %tr
+      %td 100
+    %tr
+      %td Qty to Received
+    %tr
+      %td 100

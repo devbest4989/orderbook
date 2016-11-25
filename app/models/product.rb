@@ -9,19 +9,40 @@ class Product < ActiveRecord::Base
   # Stock level adjustments for this product
   has_many :stock_level_adjustments, dependent: :destroy, class_name: 'StockLevelAdjustment', as: :item
 
+  has_attached_file :image, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/nothumb.png"
+  validates_attachment_content_type :image, :content_type => /\Aimage\/.*\Z/
+
+  scope :main_like, ->(search) { where("(name LIKE :search) or (sku LIKE :search)", :search => "%#{search}%") }
   scope :name_like, ->(search) { where("name LIKE :search", :search => "%#{search}%") }
   scope :sku_like, ->(search) { where("sku LIKE :search", :search => "%#{search}%") }
   scope :by_category, ->(search) { where("(category_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_brands, ->(search) { where("(brand_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_line, ->(search) { where("(product_line_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :ordered, -> { order(:name) }
+  scope :actived, -> { where(:status => true) }
+  scope :inactived, -> { where(:status => false) }
 
   def in_stock?
     stock > 0
   end
 
   def stock
-    stock_level_adjustments.sum(:adjustment)
+    #stock_level_adjustments.sum(:adjustment)
+    100
+  end
+
+  def status_label
+    (status == true) ? 'Active' : 'Inactive'
+  end
+
+  def stock_status
+    if stock > 100
+      "In-Stock"
+    elsif stock > 0
+      "Low-Stock"
+    else
+      "Re-Order"
+    end
   end
 
 end

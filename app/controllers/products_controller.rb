@@ -118,6 +118,29 @@ class ProductsController < ApplicationController
     end
   end
 
+  def list_by_type    
+    set_categories
+    set_product_lines
+    set_brands
+
+    case params[:type]
+    when 'all'
+      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+    when 'active'
+      @products = Product.actived.main_like(params[:search_key]).paginate(page: params[:page])
+    when 'inactive'
+      @products = Product.inactived.main_like(params[:search_key]).paginate(page: params[:page])
+    when 'varient'
+      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+    when 'low-stock'
+      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+    else
+      @products = Product.all
+    end
+
+    render "list"
+  end
+
   # GET /products
   # GET /products.json
   def index
@@ -127,6 +150,23 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show
+    set_categories
+    set_product_lines
+    set_brands
+    case params[:type]
+    when 'all'
+      @products = Product.all
+    when 'active'
+      @products = Product.actived
+    when 'inactive'
+      @products = Product.inactived
+    when 'varient'
+      @products = Product.all
+    when 'low-stock'
+      @products = Product.all
+    else
+      @products = Product.all
+    end
   end
 
   # GET /products/new
@@ -136,6 +176,23 @@ class ProductsController < ApplicationController
 
   # GET /products/1/edit
   def edit
+    set_categories
+    set_product_lines
+    set_brands
+    case params[:type]
+    when 'all'
+      @products = Product.all
+    when 'active'
+      @products = Product.actived
+    when 'inactive'
+      @products = Product.inactived
+    when 'varient'
+      @products = Product.all
+    when 'low-stock'
+      @products = Product.all
+    else
+      @products = Product.all
+    end
   end
 
   # POST /products
@@ -171,7 +228,8 @@ class ProductsController < ApplicationController
   # DELETE /products/1
   # DELETE /products/1.json
   def destroy
-    @product.destroy
+    @product.status = false
+    @product.save
     respond_to do |format|
       format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
       format.json { head :no_content }
@@ -186,6 +244,18 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:sku, :name, :description)
+      params.require(:product).permit(:sku, :name, :description, :category_id, :product_line_id, :brand_id, :selling_price, :perchase_price, :image)
+    end
+
+    def set_categories
+      @categories = Category.all
+    end
+
+    def set_product_lines
+      @product_lines = ProductLine.all
+    end
+
+    def set_brands
+      @brands = Brand.all
     end
 end

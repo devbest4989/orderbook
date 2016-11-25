@@ -1,19 +1,92 @@
-= form_for @product do |f|
-  - if @product.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@product.errors.count, "error")} prohibited this product from being saved:"
-      %ul
-        - @product.errors.full_messages.each do |msg|
-          %li= msg
-
-  .field
-    = f.label :sku
-    = f.text_field :sku
-  .field
-    = f.label :name
-    = f.text_field :name
-  .field
-    = f.label :description
-    = f.text_field :description
-  .actions
-    = f.submit 'Save'
+= form_for(@product, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
+  .row
+    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+      - if @product.errors.any? && flash[:last_action] == "update_info"
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×   
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+          %ul
+            - @product.errors.full_messages.each do |msg|
+              %li= msg
+      - if flash[:result] == "success" && flash[:last_action] == "update_info"
+        .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          Product information is stored successfully.
+      - if flash[:result] == "failed" && flash[:last_action] == "update_info"
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          Product information is not stored successfully.
+  .row{:style => 'margin-bottom: 10px;'}
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Primary Details
+    .col-md-6.col-sm-6.col-xs-12.text-right
+      = f.submit "Save", class: 'btn btn-primary'
+  .form-group
+    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Name*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.text_field :name, autofocus: true, class: 'form-control', :required => 'true', :placeholder => "Product Name"
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label SKU*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.text_field :sku, class: 'form-control', :required => 'true', :placeholder => "SKU"
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Category*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.collection_select :category_id, Category.all, :id, :name, {include_blank: true}, {class: 'form-control'}          
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Line*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.collection_select :product_line_id, ProductLine.all, :id, :name, {include_blank: true}, {class: 'form-control'}
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Brand*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.collection_select :brand_id, Brand.all, :id, :name, {include_blank: true}, {class: 'form-control'}
+    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Description
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.text_area :description, class: 'form-control', :placeholder => "Product Description", rows: 10
+      .row
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Image
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.file_field :image, style: 'padding-top: 7px;'
+  .ln_solid
+  .form-group
+    .row
+      .col-md-12
+        %h4 Inventory Details
+    .row
+      .col-md-4.col-sm-6.col-xs-12
+        %h5 Sales Details
+        %table.info-list
+          %tr
+            %td Selling Price
+            %td
+              = f.text_field :selling_price, class: 'form-control', :required => 'true', :placeholder => "Selling Price"            
+          %tr
+            %td Selling Tax
+            %td 10%
+      .col-md-4.col-sm-6.col-xs-12
+        %h5 Purchase Details
+        %table.info-list
+          %tr
+            %td Purchase Price
+            %td
+              = f.text_field :perchase_price, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+      .col-md-4.col-sm-6.col-xs-12
+        %h5 Inventory Details
+        %table.info-list
+          %tr
+            %td Opening Stock Qty
+            %td
+              100
+          %tr
+            %td Re-Order Point Qty
+            %td
+              100
+  .ln_solid

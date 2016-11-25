@@ -18,9 +18,18 @@
               %i.fa.fa-shopping-cart
               Sales Order              
           %li.nav-products
-            %a{:href => "/product_list"}
+            %a{:href => "#"}
               %i.fa.fa-cubes
               Products
+            %ul.nav.child_menu{:style => "display: none"}
+              %li
+                %a{:href => list_by_type_products_path(:type => 'all')} Product
+              %li
+                %a{:href => "/product_cat"} Category
+              %li
+                %a{:href => "/product_line"} Product Line
+              %li
+                %a{:href => "/product_brand"} Brand
           %li.nav-invoices
             %a{:href => "#"}
               %i.fa.fa-file-text

@@ -7,7 +7,7 @@
     .sub_menu_side
       %ul.nav.side-menu
         %li.sub-nav-product
-          %a{:href => '/product_list'}
+          %a{:href => list_by_type_products_path(:type => 'all')}
             %i.fa.fa-angle-double-right
             Products
         %li.sub-nav-product-cat

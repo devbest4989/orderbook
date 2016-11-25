@@ -1,0 +1,30 @@
+.row
+  .col-md-12
+    %table.table.table-hover.projects
+      %thead
+        %tr
+          %th{:style => "width: 1%"}
+          %th{:style => "width: 25%"} Name/SKU
+          %th{:style => "width: 20%"} Product Line
+          %th{:style => "width: 15%"} Avaliable
+          %th{:style => "width: 15%"} Price
+          %th{:style => "width: 15%"} Status
+      %tbody
+      - @products.each do |product|
+        %tr
+          %td 
+          %td 
+            %a{:href => product_path(product, type: params[:type])}
+              =product.name
+              %br
+              =product.sku
+          %td
+            =product.product_line.name
+          %td
+            =product.stock
+          %td
+            =product.selling_price
+          %td 
+            =product.stock_status
+  .col-md-12{:style => "text-align: center;"}  
+    = will_paginate @products, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'

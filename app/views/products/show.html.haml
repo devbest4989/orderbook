@@ -1,15 +1,39 @@
-%p#notice= notice
-
-%p
-  %b Sku:
-  = @product.sku
-%p
-  %b Name:
-  = @product.name
-%p
-  %b Description:
-  = @product.description
-
-= link_to 'Edit', edit_product_path(@product)
-\|
-= link_to 'Back', products_path
+.right_col.products-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_product', add_url: new_product_path, active_elem: "sub-nav-#{@product.id}", nav_name: 'Products', sub_elems: @products, type: 'show', cat_name: 'Product Detail', product_type: params[:type]
+  .right-content
+    .x_panel
+      .x_title
+        %h2=@product.name
+        - if @product.status == true
+          %span.label.label-success= @product.status_label
+        - else
+          %span.label.label-danger= @product.status_label
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            =link_to edit_product_path(@product), class: 'product-header-link' do
+              %i.fa.fa-edit
+          %li
+            =link_to product_path(@product), method: :delete, data: { confirm: 'Are you sure?' }, class: 'product-header-link' do
+              %i.fa.fa-trash              
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li.active
+            %a{"data-toggle" => "tab", :href => "#tab_overview", "aria-expanded" => "true"} 
+              Overview                                    
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_purchase", "aria-expanded" => "false"} 
+              Purchase
+        .tab-content
+          #tab_overview{:class => "tab-pane active"}
+            = render 'partial_overview'
+          #tab_purchase{:class => "tab-pane"}
+            = render 'partial_purchase'

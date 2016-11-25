@@ -1,3 +1,47 @@
 // Place all the styles related to the Products controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+.products-wrapper{
+  .x_panel{
+    .x_title{
+      .label{
+        color: #fff;
+        margin: 0 10px;
+        font-size: 90%;
+        vertical-align: bottom;
+      }
+      .panel_toolbox{
+        .product-header-link{
+          color: #5A738E;
+          font-size: 20px;
+          padding: 0 5px;
+        }      
+      }
+    }
+
+    .overview{
+      font-size: 14px;
+      h4{
+        font-size: 18px;
+        font-weight: 400;
+        margin: 15px 0;
+      }
+    }
+
+    table.info-list{
+      margin-left: 10px;
+      tr{
+        td{
+          padding: 5px;
+          img{
+            width: 150px;
+            height: auto;
+            border: 1px solid #aaa;
+            padding: 5px;
+            border-radius: 3px;
+          }
+        }
+      }
+    }    
+  }   
+}

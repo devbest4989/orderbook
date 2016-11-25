@@ -1,7 +1,17 @@
-%h1 Editing product
-
-= render 'form'
-
-= link_to 'Show', @product
-\|
-= link_to 'Back', products_path
+.right_col.products-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_product', add_url: new_product_path, active_elem: "sub-nav-#{@product.id}", nav_name: 'Products', sub_elems: @products, type: 'show', cat_name: 'Product Detail', product_type: params[:type]
+  .right-content
+    .x_panel
+      .x_title
+        %h2 Edit Product
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content.form-group-no-margin
+        = render 'form'

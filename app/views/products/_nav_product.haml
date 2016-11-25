@@ -1,0 +1,53 @@
+.x_panel{:style => "max-height:800px; overflow:auto;"}
+  .x_title
+    %h2 
+      = nav_name
+    %ul.nav.navbar-right.panel_toolbox
+      %li
+        %a.add-link{ :href => add_url }
+          %i.fa.fa-cart-plus
+    .clearfix
+  .x_content
+    .sub_menu_side
+      %ul.nav.side-menu
+        - if cat_name == 'Product'
+          %li.sub-nav-all
+            %a{:href => list_by_type_products_path(:type => 'all')}
+              %i.fa.fa-angle-double-right
+              All Products
+          %li.sub-nav-active
+            %a.no-border{:href => list_by_type_products_path(:type => 'active')}
+              %i.fa.fa-angle-double-right
+              Active Products
+          %li.sub-nav-inactive
+            %a{:href => list_by_type_products_path(:type => 'inactive')}
+              %i.fa.fa-angle-double-right
+              Inactive Products
+          %li.sub-nav-varient
+            %a.no-border{:href => list_by_type_products_path(:type => 'varient')}
+              %i.fa.fa-angle-double-right
+              Varients Products
+          %li.sub-nav-low-stock
+            %a{:href => list_by_type_products_path(:type => 'low-stock')}
+              %i.fa.fa-angle-double-right
+              Low Stock Products
+        - else
+          - sub_elems.each do |elem|
+            %li{ :class => "sub-nav-#{elem.id} element" }
+              - if type == 'show'
+                %a{:href => product_path(elem, type: product_type)}
+                  = "#{elem.name} / #{elem.category.name}"
+              - else
+                %a{:href => edit_product_path(elem)}
+                  = "#{elem.name} / #{elem.category.name}"
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-products').addClass('active');
+    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu').show();
+
+    $('li.#{active_elem} a').addClass('nav-active');
+  });

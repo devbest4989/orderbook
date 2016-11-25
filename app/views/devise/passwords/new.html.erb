@@ -7,10 +7,11 @@
       <%= content_tag(:div, flash[:alert], :id => "flash_alert", :style => 'font-size:14px; color: darkred; padding: 10px 0;') if flash[:alert] %>
       <%= devise_error_messages! %>
       <div>
+        <h5>Please enter your registered email address and we will send you the instruction on how you can reset your password.</h5>
         <%= f.email_field :email, autofocus: true, class: "form-control", placeholder: "Email Address", :required => true%>
       </div>
-      <div>
-        <%= f.submit "Send me reset password instructions", class: "btn btn-default submit" %>
+      <div style="text-align:center;">
+        <%= f.submit "Reset Password", class: "btn btn-primary submit" %>
       </div>
       <div class="clearfix"></div>
       <div class="separator">
