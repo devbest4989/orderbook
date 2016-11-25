@@ -21,3 +21,12 @@
 
 en:
   hello: "Hello world"
+  product:
+    container:
+      list:
+        header:
+          all: "All Products"
+          active: "Active Products"
+          inactive: "Inactive Products"
+          varient: "Varients Products"
+          low-stock: "Low Stock Products"

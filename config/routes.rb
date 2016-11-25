@@ -96,8 +96,10 @@ Rails.application.routes.draw do
       post :list_by_sku
       post :list_by_name
       post :list_by_id
+      get  ':type/list_products', to: 'products#list_by_type', as: 'list_by_type'
     end
   end
+
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
