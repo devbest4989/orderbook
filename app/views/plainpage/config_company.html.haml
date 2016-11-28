@@ -1,0 +1,58 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-company", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Company Profile
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        = form_tag("/edit_config_company", method: "put", class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '', 'enctype' => 'multipart/form-data')
+        .row{:style => 'margin: 0 0 10px 0;'}
+          .col-md-9.col-sm-9.col-xs-12
+            = image_tag("#{@company_profiles['company.image']}")            
+          .col-md-3.col-sm-3.col-xs-12.text-right
+            = submit_tag "Save", class: 'btn btn-primary'
+        .form-group
+          .col-md-9.col-sm-9.col-xs-12{:style => "padding-right: 0;"}  
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Company Logo
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = file_field_tag 'company.image', value: @company_profiles['company.image'], class: 'form-control'
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Company Name
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.name', @company_profiles['company.name'], class: 'form-control', :placeholder => "Company Name"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Company Trading Name
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.trading', @company_profiles['company.trading'], class: 'form-control', :placeholder => "Trading Name"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Address
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.address', @company_profiles['company.address'], class: 'form-control', :placeholder => "Address"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Company Phone
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.phone', @company_profiles['company.phone'], class: 'form-control', :placeholder => "Company Phone"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Fax
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.fax', @company_profiles['company.fax'], class: 'form-control', :placeholder => "Fax"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Email
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = email_field_tag 'company.email', @company_profiles['company.email'], class: 'form-control', :placeholder => "Email"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Website
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'company.url', @company_profiles['company.url'], class: 'form-control', :placeholder => "Website URL"

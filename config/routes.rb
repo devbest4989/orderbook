@@ -12,6 +12,17 @@ Rails.application.routes.draw do
   get '/order_list' => 'plainpage#order_list'
   get '/order_new' => 'plainpage#order_new'
 
+  #Configure Pane
+  get '/config_company' => 'plainpage#config_company'
+  get '/config_users' => 'plainpage#config_users'
+  get '/config_tax' => 'plainpage#config_tax'
+  get '/config_price' => 'plainpage#config_price'
+  get '/config_format' => 'plainpage#config_format'
+  get '/config_station' => 'plainpage#config_station'
+  get '/config_email' => 'plainpage#config_email'
+
+  put '/edit_config_company' => 'plainpage#edit_config_company'
+
   devise_for :users
 
   resources :users do
@@ -19,6 +30,8 @@ Rails.application.routes.draw do
       put :update_password
       put :update_info
       put :update_avatar
+      post :list
+      post :change
     end
   end
 
@@ -54,6 +67,15 @@ Rails.application.routes.draw do
       post :cancel
       post :return
       post :ship
+    end
+  end
+
+  resources :taxes do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
     end
   end
 

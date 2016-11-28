@@ -2,6 +2,37 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!
 
+  # POST /users/list
+  def list
+    if params[:jtSorting]
+      @users = User.all.order(params[:jtSorting])
+    else
+      @users = User.all
+    end
+    
+    if params[:jtStartIndex] && params[:jtPageSize]
+      @users.paginate(page: params[:jtStartIndex].to_i / params[:jtPageSize].to_i + 1, per_page: params[:jtPageSize].to_i )
+    end
+    respond_to do |format|
+      result = {:Result => "OK", :TotalRecordCount => @users.count, :Records => @users}
+      format.json {render :json => result}
+    end
+  end
+
+  # POST /users/change
+  def change
+    @user = User.find(params[:id])    
+    @user.role = params[:role]    
+    respond_to do |format|
+      if @user.save
+        result = {:Result => "OK"}
+      else
+        result = {:Result => "ERROR", :Message =>@user.errors.full_messages}
+      end
+      format.json {render :json => result}
+    end
+  end
+
   # GET /users
   # GET /users.json
   def index

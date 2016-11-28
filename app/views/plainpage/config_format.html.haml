@@ -1,0 +1,18 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-format", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Format
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content

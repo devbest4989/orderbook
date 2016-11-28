@@ -1,0 +1,42 @@
+.x_panel{:style => "max-height:800px; overflow:auto;"}
+  .x_title
+    %h2 
+      = nav_name
+    .clearfix
+  .x_content
+    .sub_menu_side
+      %ul.nav.side-menu
+        %li.sub-nav-company
+          %a{:href => '/config_company'}
+            %i.fa.fa-angle-double-right
+            Company Profile
+        %li.sub-nav-user
+          %a{:href => '/config_users'}
+            %i.fa.fa-angle-double-right
+            Users & Roles
+        %li.sub-nav-tax
+          %a{:href => '/config_tax'}
+            %i.fa.fa-angle-double-right
+            Tax Details
+        %li.sub-nav-price
+          %a{:href => '/config_price'}
+            %i.fa.fa-angle-double-right
+            Price Book
+        %li.sub-nav-format
+          %a{:href => '/config_format'}
+            %i.fa.fa-angle-double-right
+            Standard & Format
+        %li.sub-nav-station
+          %a{:href => '/config_station'}
+            %i.fa.fa-angle-double-right
+            Stationeries
+        %li.sub-nav-email
+          %a{:href => '/config_email'}
+            %i.fa.fa-angle-double-right
+            Email Template
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-product').addClass('current-page');
+    $('li.#{active_elem} a').addClass('nav-active');
+  });

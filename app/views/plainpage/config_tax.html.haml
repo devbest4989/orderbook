@@ -1,0 +1,67 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-tax", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Tax Details
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        #user_container
+:javascript
+  $(document).ready(function () {
+    $('#user_container').jtable({
+        title: 'Tax Details',
+        paging: false, //Enable paging
+        sorting: true, //Enable sorting
+        actions: {
+          listAction: '#{list_taxes_path()}',
+          deleteAction: '#{remove_taxes_path()}',
+          updateAction: '#{change_taxes_path()}',
+          createAction: '#{append_taxes_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            description: {
+                title: 'Tax Detail',
+                width: '40%',
+                inputClass: 'form-control validate[required]'                
+            },
+            rate: {
+                title: 'Tax Rate(%)',
+                width: '20%',
+                inputClass: 'form-control input-sm validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+
+    //Load student list from server
+    $('#user_container').jtable('load');
+  });

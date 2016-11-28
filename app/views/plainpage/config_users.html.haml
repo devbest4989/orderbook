@@ -1,0 +1,82 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-user", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Users & Role
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        #user_container
+:javascript
+  $(document).ready(function () {
+    $('#user_container').jtable({
+        title: 'User List',
+        paging: true, //Enable paging
+        pageSize: 30, //Set page size (default: 10)
+        sorting: true, //Enable sorting
+        defaultSorting: 'Name ASC', //Set default sorting
+        selecting: true, //Enable selecting
+        multiselect: true, //Allow multiple selecting
+        selectingCheckboxes: true, //Show checkboxes on first column
+        actions: {
+            listAction: '#{list_users_path()}',
+            updateAction: '#{change_users_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            first_name: {
+                title: 'First Name',
+                width: '20%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },
+            last_name: {
+                title: 'Last Name',
+                width: '20%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },
+            email: {
+                title: 'Email',
+                edit: false,
+                width: '40%',
+                inputClass: 'form-control input-sm validate[required]'                
+            },
+            role: {
+                title: 'User Role',
+                width: '15%',
+                options: { 0: 'Admin', 1: 'Sale', 2: 'Manager', 3: 'Support' },
+                inputClass: 'form-control input-sm validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+
+    //Load student list from server
+    $('#user_container').jtable('load');
+  });
