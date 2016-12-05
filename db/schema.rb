@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161128093255) do
+ActiveRecord::Schema.define(version: 20161205080212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,19 +108,25 @@ ActiveRecord::Schema.define(version: 20161128093255) do
     t.string   "sku"
     t.string   "name"
     t.string   "description"
-    t.decimal  "perchase_price",     precision: 8, scale: 2
-    t.decimal  "selling_price",      precision: 8, scale: 2
+    t.decimal  "purchase_price",      precision: 8, scale: 2
+    t.decimal  "selling_price",       precision: 8, scale: 2
     t.integer  "quantity"
     t.integer  "category_id"
     t.integer  "product_line_id"
     t.integer  "brand_id"
-    t.datetime "created_at",                                                null: false
-    t.datetime "updated_at",                                                null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.string   "image_file_name"
     t.string   "image_content_type"
     t.integer  "image_file_size"
     t.datetime "image_updated_at"
-    t.boolean  "status",                                     default: true
+    t.boolean  "status",                                      default: true
+    t.integer  "selling_tax_id"
+    t.integer  "purchase_tax_id"
+    t.decimal  "selling_price_ex",    precision: 8, scale: 2
+    t.decimal  "purchase_price_ex",   precision: 8, scale: 2
+    t.boolean  "selling_price_type"
+    t.boolean  "purchase_price_type"
   end
 
   add_index "products", ["brand_id"], name: "index_products_on_brand_id", using: :btree
@@ -231,10 +237,11 @@ ActiveRecord::Schema.define(version: 20161128093255) do
   end
 
   create_table "taxes", force: :cascade do |t|
-    t.decimal  "rate",        precision: 3, scale: 2
+    t.decimal  "rate",        precision: 5, scale: 2
     t.string   "description"
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.string   "name"
   end
 
   create_table "users", force: :cascade do |t|

@@ -1,17 +1,23 @@
 .right_col.products-wrapper{:role => "main"}
-  .left-sub-sidebar
-    = render 'nav_product', add_url: new_product_path(), active_elem: "sub-nav-#{@product.id}", nav_name: 'Products', sub_elems: @products, type: 'show', cat_name: 'Product'
-  .right-content
-    .x_panel
-      .x_title
-        %h2 New Product
-        %ul.nav.navbar-right.panel_toolbox
-          %li
-            %a.collapse-link
-              %i.fa.fa-chevron-up
-          %li
-            %a.close-link
-              %i.fa.fa-close
-        .clearfix
-      .x_content.form-group-no-margin
-        = render 'form'
+  .x_panel
+    .x_title
+      %h2 New Product
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+        %li
+          %a.close-link
+            %i.fa.fa-close
+      .clearfix
+    .x_content.form-group-no-margin
+      = render 'form'
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-products').addClass('active');
+    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu').show();
+  });

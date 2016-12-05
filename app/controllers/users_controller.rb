@@ -23,9 +23,29 @@ class UsersController < ApplicationController
   def change
     @user = User.find(params[:id])    
     @user.role = params[:role]    
+    @user.first_name = params[:first_name]    
+    @user.last_name = params[:last_name]    
     respond_to do |format|
       if @user.save
         result = {:Result => "OK"}
+      else
+        result = {:Result => "ERROR", :Message =>@user.errors.full_messages}
+      end
+      format.json {render :json => result}
+    end
+  end
+
+  # POST /users/append
+  def append
+    @user = User.new
+    @user.role = params[:role]    
+    @user.first_name = params[:first_name]    
+    @user.last_name = params[:last_name]    
+    @user.email = params[:email]    
+    @user.password = params[:password]    
+    respond_to do |format|
+      if @user.save
+        result = {:Result => "OK", :Record => @user}
       else
         result = {:Result => "ERROR", :Message =>@user.errors.full_messages}
       end

@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       put :update_avatar
       post :list
       post :change
+      post :append
     end
   end
 

@@ -16,11 +16,11 @@ class User < ActiveRecord::Base
   	when 0
   	  "Admin"
   	when 1
-  	  "Sale"
+  	  "Sales Manager"
   	when 2
-  	  "Manager"
+  	  "Seller"
   	when 3
-  	  "Support"
+  	  "Owner"
   	end  	
   end
 end

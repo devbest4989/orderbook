@@ -63,21 +63,42 @@
     .row
       .col-md-4.col-sm-6.col-xs-12
         %h5 Sales Details
-        %table.info-list
-          %tr
+        %table.info-list.selling
+          %tr.selling_exclude_tax
+            %td Selling Price
+            %td
+              = f.text_field :selling_price_ex, class: 'form-control', :required => 'true', :placeholder => "Selling Price"            
+          %tr.selling_include_tax
             %td Selling Price
             %td
               = f.text_field :selling_price, class: 'form-control', :required => 'true', :placeholder => "Selling Price"            
           %tr
             %td Selling Tax
-            %td 10%
+            %td
+              = f.collection_select :selling_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
+          %tr
+            %td Include Tax
+            %td
+              = f.check_box :selling_price_type, class: 'js-switch'
       .col-md-4.col-sm-6.col-xs-12
         %h5 Purchase Details
-        %table.info-list
-          %tr
+        %table.info-list.purchase
+          %tr.purchase_exclude_tax
             %td Purchase Price
             %td
-              = f.text_field :perchase_price, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+              = f.text_field :purchase_price_ex, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+          %tr.purchase_include_tax
+            %td Purchase Price
+            %td
+              = f.text_field :purchase_price, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+          %tr
+            %td Purchase Tax
+            %td 
+              = f.collection_select :purchase_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
+          %tr
+            %td Include Tax
+            %td 
+              = f.check_box :purchase_price_type, class: 'js-switch'
       .col-md-4.col-sm-6.col-xs-12
         %h5 Inventory Details
         %table.info-list
@@ -90,3 +111,84 @@
             %td
               100
   .ln_solid
+:javascript
+  jQuery(document).ready(function() {    
+    function switchSellingPrice(){
+      if($('#product_selling_price_type').is(':checked')){
+        $('.selling_exclude_tax').hide();
+        $('.selling_include_tax').show();
+      } else {
+        $('.selling_exclude_tax').show();
+        $('.selling_include_tax').hide();
+      }    
+    }
+
+    function calculateSellingPrice(){
+      var tax_string = $('#product_selling_tax_id option:selected').text();
+      var tax_rate = tax_string.substring(tax_string.lastIndexOf('-') + 2, tax_string.length -1);
+      if($('#product_selling_price_type').is(':checked')){
+        var exclude_price = $('#product_selling_price').val()/(1 + tax_rate * 0.01);
+        $('#product_selling_price_ex').val(exclude_price.toFixed(2));
+      } else {
+        var include_price = $('#product_selling_price_ex').val()*(1 + tax_rate * 0.01);
+        $('#product_selling_price').val(include_price.toFixed(2));
+      }
+    }    
+
+    switchSellingPrice();
+
+    $('.selling .js-switch').change(function(){
+      switchSellingPrice();
+    });
+
+    $('#product_selling_tax_id').change(function(){
+      calculateSellingPrice();
+    });
+
+    $('#product_selling_price').change(function(){
+      calculateSellingPrice();
+    });
+
+    $('#product_selling_price_ex').change(function(){
+      calculateSellingPrice();
+    });
+
+    function switchPurchasePrice(){
+      if($('#product_purchase_price_type').is(':checked')){
+        $('.purchase_exclude_tax').hide();
+        $('.purchase_include_tax').show();
+      } else {
+        $('.purchase_exclude_tax').show();
+        $('.purchase_include_tax').hide();
+      }    
+    }
+    switchPurchasePrice();
+
+    function calculatePurchasePrice(){
+      var tax_string = $('#product_purchase_tax_id option:selected').text();
+      var tax_rate = tax_string.substring(tax_string.lastIndexOf('-') + 2, tax_string.length -1);
+      if($('#product_purchase_price_type').is(':checked')){
+        var exclude_price = $('#product_purchase_price').val()/(1 + tax_rate * 0.01);
+        $('#product_purchase_price_ex').val(exclude_price.toFixed(2));
+      } else {
+        var include_price = $('#product_purchase_price_ex').val()*(1 + tax_rate * 0.01);
+        $('#product_purchase_price').val(include_price.toFixed(2));
+      }
+    }    
+
+    $('.purchase .js-switch').change(function(){
+      switchPurchasePrice();
+    });
+
+    $('#product_purchase_tax_id').change(function(){
+      calculatePurchasePrice();
+    });
+
+    $('#product_purchase_price').change(function(){
+      calculatePurchasePrice();
+    });
+
+    $('#product_purchase_price_ex').change(function(){
+      calculatePurchasePrice();
+    });
+  });

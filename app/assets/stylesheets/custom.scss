@@ -161,6 +161,7 @@ table.projects td.edit-focus{
     position: relative;
     display: flex;
     float: left;
+    min-height: 300px;
 
     .x_content{
       overflow: auto;
@@ -178,6 +179,7 @@ table.projects td.edit-focus{
     color: #5A738E;
     font-size: 18px;
     padding: 2px;
+    margin-right: 10px;
   }
 }
 

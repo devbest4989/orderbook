@@ -1,35 +1,43 @@
 .right_col.products-wrapper{:role => "main"}
-  .left-sub-sidebar
-    = render 'nav_product', add_url: new_product_path, active_elem: "sub-nav-#{params[:type]}", nav_name: 'Product', cat_name: 'Product'
-  .right-content
-    .x_panel
-      .x_title
-        %h2=t("product.container.list.header.#{params[:type]}")
-        %ul.nav.navbar-right.panel_toolbox
-          %li
-            %a.collapse-link
-              %i.fa.fa-chevron-up
-          %li
-            %a.close-link
-              %i.fa.fa-close
-        .clearfix
-      .x_content
-        .row
-          .title_right
-            .col-md-8.col-sm-8.col-xs-12
-              - if !params[:search_key].blank?
-                %h4
-                  Search by "#{params[:search_key]}"
-            .col-md-4.col-sm-4.col-xs-12.form-group.pull-right.top_search
-              .input-group
-                %input.form-control{:placeholder => "Search for...", :type => "text", :id => "search_key"}
-                %span.input-group-btn
-                  %button.btn.btn-default{:type => "button", :id => "btn_search_list"} 
-                    %i.fa.fa-search
-        = render 'product_list'
+  .x_panel
+    .x_title
+      %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+        %h2
+          =t("product.container.list.header.#{params[:type]}")
+          %span.fa.fa-chevron-down.list-type-down
+      %ul.dropdown-menu
+        %li
+          = link_to list_by_type_products_path(:type => 'all') do
+            All Products            
+        %li
+          = link_to list_by_type_products_path(:type => 'active'), class: "no-border" do
+            Active Products
+        %li
+          = link_to list_by_type_products_path(:type => 'inactive') do
+            Inactive Products
+        %li
+          = link_to list_by_type_products_path(:type => 'varient'), class: "no-border" do
+            Varients Products
+        %li
+          = link_to list_by_type_products_path(:type => 'low-stock'), class: "no-border" do
+            Low Stock Products
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.add-link{ :href => new_product_path }
+            %i.fa.fa-cart-plus
+            %span New Product
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+      .clearfix
+    .x_content
+      = render 'product_list'
 :javascript
   jQuery(document).ready(function() {
-    $('#btn_search_list').on('click', function(){
-      window.location.href = '#{list_by_type_products_path(params[:type])}' + '?search_key=' + $('#search_key').val();
-    });
-  });
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-products').addClass('active');
+    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu').show();
+  });      

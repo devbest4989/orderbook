@@ -20,18 +20,26 @@
   %table.info-list
     %tr
       %td Selling Cost:
-      %td= number_to_currency(@product.selling_price)
+      %td= number_to_currency(@product.main_selling_price)
     %tr
       %td Selling Tax:
-      %td
+      %td= @product.selling_tax.short_desc if @product.selling_tax
+    %tr
+      %td Include Tax
+      %td 
+        = check_box_tag :selling_price_type, "1", @product.selling_price_type,  class: 'js-switch', :disabled => :true
   %h4 Purchase Details
   %table.info-list
     %tr
       %td Purchase Cost:
-      %td= number_to_currency(@product.selling_price)
+      %td= number_to_currency(@product.main_purchase_price)
     %tr
       %td Purchase Tax:
-      %td
+      %td= @product.purchase_tax.short_desc if @product.purchase_tax
+    %tr
+      %td Include Tax
+      %td 
+        = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
   %h4 Product Description
   %table.info-list
     %tr

@@ -10,10 +10,11 @@
           %a{:href => '/config_company'}
             %i.fa.fa-angle-double-right
             Company Profile
-        %li.sub-nav-user
-          %a{:href => '/config_users'}
-            %i.fa.fa-angle-double-right
-            Users & Roles
+        - if current_user.role == 0
+          %li.sub-nav-user
+            %a{:href => '/config_users'}
+              %i.fa.fa-angle-double-right
+              Users & Roles
         %li.sub-nav-tax
           %a{:href => '/config_tax'}
             %i.fa.fa-angle-double-right

@@ -1,7 +1,25 @@
 .x_panel{:style => "max-height:800px; overflow:auto;"}
   .x_title
-    %h2 
-      = nav_name
+    %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+      %h2
+        = nav_name
+        %span.fa.fa-chevron-down.list-type-down
+    %ul.dropdown-menu
+      %li
+        = link_to list_by_type_products_path(:type => 'all') do
+          All Products            
+      %li
+        = link_to list_by_type_products_path(:type => 'active'), class: "no-border" do
+          Active Products
+      %li
+        = link_to list_by_type_products_path(:type => 'inactive') do
+          Inactive Products
+      %li
+        = link_to list_by_type_products_path(:type => 'varient'), class: "no-border" do
+          Varients Products
+      %li
+        = link_to list_by_type_products_path(:type => 'low-stock'), class: "no-border" do
+          Low Stock Products
     %ul.nav.navbar-right.panel_toolbox
       %li
         %a.add-link{ :href => add_url }

@@ -44,10 +44,11 @@ class PlainpageController < ApplicationController
     set_company_config 'company.email'
     set_company_config 'company.url'
 
-    tmp = params['company.image'].tempfile
-    destiny_file = File.join('public', 'images', params['company.image'].original_filename)
-    FileUtils.move tmp.path, destiny_file
-
+    if params['company.image']
+      tmp = params['company.image'].tempfile    
+      destiny_file = File.join('public', 'images', params['company.image'].original_filename)
+      FileUtils.move tmp.path, destiny_file
+    end
     redirect_to config_company_path
   end
 
@@ -88,8 +89,8 @@ class PlainpageController < ApplicationController
 
   def set_company_logo(key)
     setting = Setting.object_by(key)
-    setting.conf_type = 1
-    setting.value = params[key].original_filename
+    setting.conf_type = 1    
+    setting.value = params[key].original_filename if params[key]
     setting.save    
   end
 end

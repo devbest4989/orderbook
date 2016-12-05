@@ -31,7 +31,7 @@ class SalesItem < ActiveRecord::Base
     #
     # @return [BigDecimal]
     def unit_cost_price
-      read_attribute(:unit_cost_price) || sold_item.try(:perchase_price) || BigDecimal(0)
+      read_attribute(:unit_cost_price) || sold_item.try(:purchase_price) || BigDecimal(0)
     end
 
     # The discount rate for the item

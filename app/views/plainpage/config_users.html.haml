@@ -29,6 +29,7 @@
         multiselect: true, //Allow multiple selecting
         selectingCheckboxes: true, //Show checkboxes on first column
         actions: {
+            createAction: '#{append_users_path()}',
             listAction: '#{list_users_path()}',
             updateAction: '#{change_users_path()}'
         },
@@ -58,9 +59,17 @@
             role: {
                 title: 'User Role',
                 width: '15%',
-                options: { 0: 'Admin', 1: 'Sale', 2: 'Manager', 3: 'Support' },
+                options: { 0: 'Admin', 1: 'Sales Manager', 2: 'Seller', 3: 'Owner' },
                 inputClass: 'form-control input-sm validate[required]'                
-            }
+            },
+            password: {
+                title: 'Password',
+                create: true,
+                edit: false,
+                list: false,
+                type: 'password',
+                inputClass: 'form-control input-sm validate[required]'                
+            }            
         },
         //Initialize validation logic when a form is created
         formCreated: function (event, data) {

@@ -6,6 +6,9 @@ class Product < ActiveRecord::Base
   has_many :sales_items, dependent: :restrict_with_exception, as: :sold_item
   has_many :sales_orders, through: :sales_items, class_name: 'SalesOrder'
 
+  belongs_to :selling_tax, class_name: 'Tax'
+  belongs_to :purchase_tax, class_name: 'Tax'
+
   # Stock level adjustments for this product
   has_many :stock_level_adjustments, dependent: :destroy, class_name: 'StockLevelAdjustment', as: :item
 
@@ -21,6 +24,14 @@ class Product < ActiveRecord::Base
   scope :ordered, -> { order(:name) }
   scope :actived, -> { where(:status => true) }
   scope :inactived, -> { where(:status => false) }
+
+  def main_selling_price
+    (selling_price_type == true) ? selling_price : selling_price_ex
+  end
+
+  def main_purchase_price
+    (purchase_price_type == true) ? purchase_price : purchase_price_ex
+  end
 
   def in_stock?
     stock > 0

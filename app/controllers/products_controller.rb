@@ -80,7 +80,7 @@ class ProductsController < ApplicationController
     @product.description = params[:description]
     @product.category = Category.find(params[:category_id])
     @product.product_line = ProductLine.find(params[:product_line_id])
-    @product.perchase_price = BigDecimal.new(params[:perchase_price])
+    @product.purchase_price = BigDecimal.new(params[:purchase_price])
     @product.selling_price = BigDecimal.new(params[:selling_price])
     @product.quantity = params[:quantity]
     @product.brand = Brand.find(params[:brand_id])
@@ -103,7 +103,7 @@ class ProductsController < ApplicationController
     @product.description = params[:description]
     @product.category = Category.find(params[:category_id])
     @product.product_line = ProductLine.find(params[:product_line_id])
-    @product.perchase_price = BigDecimal.new(params[:perchase_price])
+    @product.purchase_price = BigDecimal.new(params[:purchase_price])
     @product.selling_price = BigDecimal.new(params[:selling_price])
     @product.quantity = params[:quantity]
     @product.brand = Brand.find(params[:brand_id])
@@ -244,7 +244,8 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:sku, :name, :description, :category_id, :product_line_id, :brand_id, :selling_price, :perchase_price, :image)
+      params.require(:product).permit(:sku, :name, :description, :category_id, :product_line_id, :brand_id, :selling_price, :purchase_price, :image,
+                                      :selling_price_ex, :purchase_price_ex, :selling_tax_id, :purchase_tax_id, :selling_price_type, :purchase_price_type)
     end
 
     def set_categories

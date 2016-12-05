@@ -32,7 +32,7 @@
 //= require js/moment/moment.min.js
 //= require js/datepicker/daterangepicker.js
 //= require js/select/select2.full
-
+//= require js/switchery/switchery.min
 //= require js/chartjs/chart.min.js
 
 //= require js/pace/pace.min.js

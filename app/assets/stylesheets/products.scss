@@ -9,14 +9,45 @@
         margin: 0 10px;
         font-size: 90%;
         vertical-align: bottom;
+      }      
+      h2{
+        span.list-type-down{
+          padding: 0 5px;
+          font-size: 16px;
+          color: inherit;
+        }        
       }
+
+      .dropdown-menu{
+        top: 40px;
+        left: 17px;
+        width: 200px;
+        li{
+          a{
+            border-bottom: 1px dotted #aaa;                        
+            padding: 10px 15px 5px 10px;
+            font-size: 16px;
+            margin: 5px 10px;
+          }
+        }
+      }
+
       .panel_toolbox{
         .product-header-link{
           color: #5A738E;
           font-size: 20px;
           padding: 0 5px;
+        }
+
+        a{
+          &.add-link{
+            span{
+              font-size: 14px;
+              color: #5A738E;
+            }
+          }
         }      
-      }
+      }      
     }
 
     .overview{

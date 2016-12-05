@@ -35,6 +35,7 @@ class TaxesController < ApplicationController
     @tax = Tax.find(params[:id])    
     @tax.rate = params[:rate]    
     @tax.description = params[:description]    
+    @tax.name = params[:name]    
     respond_to do |format|
       if @tax.save
         result = {:Result => "OK"}
@@ -50,6 +51,7 @@ class TaxesController < ApplicationController
     @tax = Tax.new
     @tax.rate = params[:rate]    
     @tax.description = params[:description]    
+    @tax.name = params[:name]    
     respond_to do |format|
       if @tax.save
         result = {:Result => "OK", :Record => @tax}
