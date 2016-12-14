@@ -48,6 +48,7 @@ class PlainpageController < ApplicationController
       tmp = params['company.image'].tempfile    
       destiny_file = File.join('public', 'images', params['company.image'].original_filename)
       FileUtils.move tmp.path, destiny_file
+      File.chmod(0777, destiny_file)
     end
     redirect_to config_company_path
   end

@@ -32,6 +32,9 @@ gem 'angular-rails-templates'
 gem 'carmen-rails'
 gem "fog"
 
+gem 'execjs'
+gem 'therubyracer'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

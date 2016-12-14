@@ -231,7 +231,7 @@ class ProductsController < ApplicationController
     @product.status = false
     @product.save
     respond_to do |format|
-      format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
+      format.html { redirect_to list_by_type_products_path('inactive'), notice: 'Product was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
