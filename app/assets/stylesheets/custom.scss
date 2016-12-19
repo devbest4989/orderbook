@@ -317,6 +317,8 @@ table.projects td.edit-focus{
 
 
 .company-logo{
-  max-height: 200px;
-  max-width: 200px;
+  img{
+    max-height: 200px;
+    max-width: 200px;
+  }
 }
