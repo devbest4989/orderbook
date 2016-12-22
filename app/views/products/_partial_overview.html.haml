@@ -40,6 +40,14 @@
       %td Include Tax
       %td 
         = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
+  %h4 Extra Information
+  %table.info-list
+    %tr
+      %td Markup:
+      %td= number_to_percentage(@product.markup, precision: 2)
+    %tr
+      %td Gross Profit:
+      %td= number_to_percentage(@product.gross_profit, precision: 2)
   %h4 Product Description
   %table.info-list
     %tr
@@ -49,19 +57,19 @@
   %table.info-list
     %tr
       %td 
-        =image_tag(@product.image)
+        =image_tag(@product.image, class: 'product-thumbnail')
     %tr
       %td Opening Stock
     %tr
-      %td 100
+      %td= @product.quantity
     %tr
       %td On Hand Qty
     %tr
-      %td 100
+      %td= @product.quantity
     %tr
       %td Re-Order Point
     %tr
-      %td 100
+      %td= @product.reorder_qty
     %tr
       %td Qty to Received
     %tr

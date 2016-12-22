@@ -37,15 +37,15 @@
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Category*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.collection_select :category_id, Category.all, :id, :name, {include_blank: true}, {class: 'form-control'}          
+          = select_tag :category_name, options_from_collection_for_select(Category.all, :name, :name, (@product.category.nil?) ? '' : @product.category.name), {class: 'form-control', include_blank: true}          
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Line*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.collection_select :product_line_id, ProductLine.all, :id, :name, {include_blank: true}, {class: 'form-control'}
+          = select_tag :product_line_name, options_from_collection_for_select(ProductLine.all, :name, :name, (@product.product_line.nil?) ? '' : @product.product_line.name), {class: 'form-control', include_blank: true}
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Brand*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.collection_select :brand_id, Brand.all, :id, :name, {include_blank: true}, {class: 'form-control'}
+          = select_tag :brand_name, options_from_collection_for_select(Brand.all, :name, :name, (@product.brand.nil?) ? '' : @product.brand.name), {class: 'form-control', include_blank: true}
     .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Description
@@ -105,14 +105,18 @@
           %tr
             %td Opening Stock Qty
             %td
-              100
+              = f.text_field :quantity, class: 'form-control', :placeholder => "Opening Stock Qty"            
           %tr
             %td Re-Order Point Qty
             %td
-              100
+              = f.text_field :reorder_qty, class: 'form-control', :placeholder => "Re-Order Point Qty"            
   .ln_solid
 :javascript
   jQuery(document).ready(function() {    
+    $('#category_name').editableSelect({ effects: 'slide' });
+    $('#product_line_name').editableSelect({ effects: 'slide' });
+    $('#brand_name').editableSelect({ effects: 'slide' });
+
     function switchSellingPrice(){
       if($('#product_selling_price_type').is(':checked')){
         $('.selling_exclude_tax').hide();

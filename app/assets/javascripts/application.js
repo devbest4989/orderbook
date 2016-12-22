@@ -50,6 +50,8 @@
 //= require js/notify/pnotify.core
 //= require js/notify/pnotify.buttons
 
+//= require plugins/jquery-editable-select/jquery-editable-select
+
 //= require flash.js
 
 

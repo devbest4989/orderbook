@@ -80,10 +80,10 @@ class ProductsController < ApplicationController
     @product.description = params[:description]
     @product.category = Category.find(params[:category_id])
     @product.product_line = ProductLine.find(params[:product_line_id])
+    @product.brand = Brand.find(params[:brand_id])
     @product.purchase_price = BigDecimal.new(params[:purchase_price])
     @product.selling_price = BigDecimal.new(params[:selling_price])
     @product.quantity = params[:quantity]
-    @product.brand = Brand.find(params[:brand_id])
     
     respond_to do |format|
       if @product.save
@@ -122,20 +122,20 @@ class ProductsController < ApplicationController
     set_categories
     set_product_lines
     set_brands
-
+    order_key = get_order_key
     case params[:type]
     when 'all'
-      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'active'
-      @products = Product.actived.main_like(params[:search_key]).paginate(page: params[:page])
+      @products = Product.actived.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'inactive'
-      @products = Product.inactived.main_like(params[:search_key]).paginate(page: params[:page])
+      @products = Product.inactived.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'varient'
-      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'low-stock'
-      @products = Product.all.main_like(params[:search_key]).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     else
-      @products = Product.all
+      @products = Product.all.order(order_key)
     end
 
     render "list"
@@ -155,17 +155,17 @@ class ProductsController < ApplicationController
     set_brands
     case params[:type]
     when 'all'
-      @products = Product.all
+      @products = Product.all.ordered
     when 'active'
-      @products = Product.actived
+      @products = Product.actived.ordered
     when 'inactive'
-      @products = Product.inactived
+      @products = Product.inactived.ordered
     when 'varient'
-      @products = Product.all
+      @products = Product.all.ordered
     when 'low-stock'
-      @products = Product.all
+      @products = Product.all.ordered
     else
-      @products = Product.all
+      @products = Product.all.ordered
     end
   end
 
@@ -199,6 +199,9 @@ class ProductsController < ApplicationController
   # POST /products.json
   def create
     @product = Product.new(product_params)
+    @product.category = Category.find_or_create_by(name: params[:category_name])
+    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
+    @product.brand = Brand.find_or_create_by(name: params[:brand_name])
 
     respond_to do |format|
       if @product.save
@@ -214,6 +217,9 @@ class ProductsController < ApplicationController
   # PATCH/PUT /products/1
   # PATCH/PUT /products/1.json
   def update
+    @product.category = Category.find_or_create_by(name: params[:category_name])
+    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
+    @product.brand = Brand.find_or_create_by(name: params[:brand_name])
     respond_to do |format|
       if @product.update(product_params)
         format.html { redirect_to @product, notice: 'Product was successfully updated.' }
@@ -236,6 +242,11 @@ class ProductsController < ApplicationController
     end
   end
 
+  def upload_file
+    build_products_from_file
+    redirect_to list_by_type_products_path('all')
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_product
@@ -244,8 +255,9 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:sku, :name, :description, :category_id, :product_line_id, :brand_id, :selling_price, :purchase_price, :image,
-                                      :selling_price_ex, :purchase_price_ex, :selling_tax_id, :purchase_tax_id, :selling_price_type, :purchase_price_type)
+      params.require(:product).permit(:sku, :name, :description, :selling_price, :purchase_price, :image,
+                                      :selling_price_ex, :purchase_price_ex, :selling_tax_id, :purchase_tax_id, :selling_price_type, :purchase_price_type,
+                                      :reorder_qty, :quantity)
     end
 
     def set_categories
@@ -258,5 +270,55 @@ class ProductsController < ApplicationController
 
     def set_brands
       @brands = Brand.all
+    end
+
+    def get_order_key
+      case params[:order]
+      when 'name'
+        "products.name #{params[:sort]}"
+      when 'line'
+        "product_lines.name #{params[:sort]}"
+      when 'qty'
+        "products.quantity #{params[:sort]}"
+      when 'price'
+        "products.selling_price #{params[:sort]}"
+      when 'status'
+        "products.quantity #{params[:sort]}"
+      end      
+    end
+
+    def build_products_from_file
+      file_data = params[:excel_file]
+
+      if file_data
+        xlsx = Roo::Spreadsheet.open(file_data.path, extension: :xlsx)
+        if xlsx.sheets.count > 0
+          if xlsx.last_row > 1
+            2.upto(xlsx.last_row) do |line|              
+              product = Product.find_by(name: xlsx.cell(line, 'B').strip)
+              if product.nil? 
+                product = Product.new
+              end
+              product.sku = xlsx.cell(line, 'A').strip unless xlsx.cell(line, 'A').nil?
+              product.name = xlsx.cell(line, 'B').strip unless xlsx.cell(line, 'B').nil?
+              product.description = ''
+              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'C').strip) unless xlsx.cell(line, 'C').nil?
+              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'D').strip) unless xlsx.cell(line, 'D').nil?
+              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'E').strip) unless xlsx.cell(line, 'E').nil?
+              product.purchase_price_ex = xlsx.cell(line, 'F').to_f
+              product.selling_price_ex = xlsx.cell(line, 'G').to_f
+              product.selling_tax = Tax.all.first
+              product.purchase_tax = Tax.all.first
+              product.purchase_price = xlsx.cell(line, 'F').to_f * (product.purchase_tax.rate + 100) / 100.0
+              product.selling_price = xlsx.cell(line, 'G').to_f * (product.selling_tax.rate + 100) / 100.0              
+              product.selling_price_type  = false
+              product.purchase_price_type = false
+              product.quantity = 0
+              product.reorder_qty = 0
+              product.save
+            end        
+          end
+        end
+      end
     end
 end

@@ -120,6 +120,8 @@ Rails.application.routes.draw do
       post :list_by_name
       post :list_by_id
       get  ':type/list_products', to: 'products#list_by_type', as: 'list_by_type'
+      get  :upload
+      post :upload_file
     end
   end
 

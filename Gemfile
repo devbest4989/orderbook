@@ -35,6 +35,10 @@ gem "fog"
 gem 'execjs'
 gem 'therubyracer'
 
+# spreadsheet
+gem 'roo'
+gem 'roo-xls'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

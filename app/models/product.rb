@@ -1,4 +1,6 @@
 class Product < ActiveRecord::Base
+  before_save :update_stock_status
+
   belongs_to :category
   belongs_to :brand
   belongs_to :product_line
@@ -15,7 +17,8 @@ class Product < ActiveRecord::Base
   has_attached_file :image, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/nothumb.png"
   validates_attachment_content_type :image, :content_type => /\Aimage\/.*\Z/
 
-  scope :main_like, ->(search) { where("(name LIKE :search) or (sku LIKE :search)", :search => "%#{search}%") }
+
+  scope :main_like, ->(search) { where("(products.name LIKE :search) or (products.sku LIKE :search)", :search => "%#{search}%") }
   scope :name_like, ->(search) { where("name LIKE :search", :search => "%#{search}%") }
   scope :sku_like, ->(search) { where("sku LIKE :search", :search => "%#{search}%") }
   scope :by_category, ->(search) { where("(category_id = :search) OR (:search = 0)", :search => "#{search}") }
@@ -24,6 +27,8 @@ class Product < ActiveRecord::Base
   scope :ordered, -> { order(:name) }
   scope :actived, -> { where(:status => true) }
   scope :inactived, -> { where(:status => false) }
+
+  enum stock_status: [:instock, :reorderstock, :lowstock]
 
   def main_selling_price
     (selling_price_type == true) ? selling_price : selling_price_ex
@@ -39,20 +44,38 @@ class Product < ActiveRecord::Base
 
   def stock
     #stock_level_adjustments.sum(:adjustment)
-    100
+    quantity
   end
 
   def status_label
     (status == true) ? 'Active' : 'Inactive'
   end
 
-  def stock_status
-    if stock > 100
+  def markup
+    (main_selling_price - main_purchase_price) * 100 / main_purchase_price
+  end
+
+  def gross_profit
+    (main_selling_price - main_purchase_price) * 100 / main_selling_price
+  end
+
+  def stock_status_text    
+    if self.instock?
       "In-Stock"
-    elsif stock > 0
-      "Low-Stock"
-    else
+    elsif self.reorderstock?
       "Re-Order"
+    else
+      "Low-Stock"
+    end
+  end
+
+  def update_stock_status
+    if self.stock.to_i > self.reorder_qty.to_i * 2
+      self.stock_status = :instock
+    elsif self.stock.to_i > self.reorder_qty.to_i && self.stock.to_i <= self.reorder_qty.to_i * 2 && self.stock.to_i > 0
+      self.stock_status = :reorderstock
+    else
+      self.stock_status = :lowstock
     end
   end
 

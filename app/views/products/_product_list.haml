@@ -4,11 +4,21 @@
       %thead
         %tr
           %th{:style => "width: 1%"}
-          %th{:style => "width: 25%"} Name/SKU
-          %th{:style => "width: 20%"} Product Line
-          %th{:style => "width: 15%"} Avaliable
-          %th{:style => "width: 15%"} Price
-          %th{:style => "width: 15%"} Status
+          %th{:style => "width: 25%"} 
+            = link_to '#', class: 'link_order_by', data:{key: 'name', sort: 'asc'} do
+              Name/SKU              
+          %th{:style => "width: 20%"} 
+            = link_to '#', class: 'link_order_by', data:{key: 'line', sort: 'asc'} do
+              Product Line
+          %th{:style => "width: 15%"} 
+            = link_to '#', class: 'link_order_by', data:{key: 'quantity', sort: 'asc'} do
+              Avaliable
+          %th{:style => "width: 15%"} 
+            = link_to '#', class: 'link_order_by', data:{key: 'price', sort: 'asc'} do
+              Price
+          %th{:style => "width: 15%"} 
+            = link_to '#', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
+              Status
           %th{:style => "width: 15%"} Action
       %tbody
       - @products.each do |product|
@@ -22,11 +32,11 @@
           %td
             =product.product_line.name
           %td
-            =product.stock
+            =product.quantity
           %td
             =product.main_selling_price
           %td 
-            =product.stock_status
+            =product.stock_status_text
           %td 
             %a.btn.btn-info.btn-xs{:href => edit_product_path(product)}
               %i.fa.fa-icon.fa-pencil
@@ -34,3 +44,29 @@
               %i.fa.fa-trash-o              
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @products, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
+:javascript
+  jQuery(document).ready(function() {
+    initial_header();
+
+    function initial_header(){
+      var order_key = "#{params[:order]}";
+      var order_sort = "#{params[:sort]}";
+      $('.link_order_by').each(function(){
+        if($(this).data('key') == order_key){
+          var html = '';
+          if(order_sort == "desc"){
+            $(this).data('sort', 'asc');
+            html = '<i class="fa fa-icon fa-angle-down"></i>';
+          } else {
+            $(this).data('sort', 'desc');
+            html = '<i class="fa fa-icon fa-angle-up"></i>';
+          }
+          $(this).append(html);
+        }
+      });
+    }
+
+    $('.link_order_by').click(function(){
+      window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort');
+    });
+  });

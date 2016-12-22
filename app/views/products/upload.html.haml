@@ -1,0 +1,31 @@
+.right_col.products-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %h2 Upload Products
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+        %li
+          %a.close-link
+            %i.fa.fa-close
+      .clearfix
+    .x_content.form-group-no-margin
+      = form_tag upload_file_products_path, method: :post, multipart: true do
+        .row
+          %label.col-md-12
+            Product List Excel File
+          .col-md-12
+            = file_field_tag :excel_file, :class => 'form-control'
+        .row{:style => 'margin: 10px 0;'}
+          .col-md-12.text-right
+            = submit_tag "Upload", class: 'btn btn-primary'
+:javascript
+  jQuery(document).ready(function() {
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-products').addClass('active');
+    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu').show();
+  });
