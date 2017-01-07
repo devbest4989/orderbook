@@ -1,0 +1,47 @@
+@media screen and (min-width: 1200px) {
+  .top_nav{
+    #adv-search {
+      width: 350px;
+    }
+    .dropdown.dropdown-lg .dropdown-menu {
+      width: 320px;
+    }
+  }
+}
+
+/*****************************************************/
+@media screen and (max-width: 1199px) {
+  .top_nav{
+    #adv-search {
+      width: 350px;
+    }
+    .dropdown.dropdown-lg .dropdown-menu {
+      width: 320px;
+    }
+  }
+}
+
+/**********************Tablet **************************************************/
+@media screen and (max-width: 992px) {
+  .top_nav{
+    #adv-search {
+      width: 350px;
+    }
+    .dropdown.dropdown-lg .dropdown-menu {
+      width: 320px;
+    }
+  }
+}
+
+/**********************Mobile **************************************************/
+@media screen and (max-width: 767px) {
+  .top_nav{
+    #adv-search {
+      width: 70%;
+      min-width: 250px;
+    }
+    .dropdown.dropdown-lg .dropdown-menu {
+      width: 220px;
+    }
+  }
+}

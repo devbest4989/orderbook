@@ -125,15 +125,15 @@ class ProductsController < ApplicationController
     order_key = get_order_key
     case params[:type]
     when 'all'
-      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'active'
-      @products = Product.actived.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.actived.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'inactive'
-      @products = Product.inactived.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.inactived.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'varient'
-      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     when 'low-stock'
-      @products = Product.all.main_like(params[:search_key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
     else
       @products = Product.all.order(order_key)
     end

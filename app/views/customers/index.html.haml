@@ -13,19 +13,13 @@
             %a.close-link
               %i.fa.fa-close
         .clearfix
-      .x_content.form-group-no-margin
+      .x_content.form-group-no-margin              
         .row
           .title_right
             .col-md-8.col-sm-8.col-xs-12
-              - if !params[:search_key].blank?
+              - if !params[:key].blank?
                 %h4
-                  Search by "#{params[:search_key]}"
-            .col-md-4.col-sm-4.col-xs-12.form-group.pull-right.top_search
-              .input-group
-                %input.form-control{:placeholder => "Search for...", :type => "text", :id => "search_key"}
-                %span.input-group-btn
-                  %button.btn.btn-default{:type => "button", :id => "btn_search_list"} 
-                    %i.fa.fa-search
+                  Search by "#{params[:key]}"
         .row
           / start project list
           %table.table.table-hover.projects

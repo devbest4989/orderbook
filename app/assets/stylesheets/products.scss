@@ -64,11 +64,15 @@
       tr{
         td{
           padding: 5px;
+          &.product-image{
+            width: 200px;
+            height: 200px;
+            text-align: center;
+            border: 1px solid;
+            vertical-align: middle;
+          }
           img{
-            height: auto;
-            border: 1px solid #aaa;
             padding: 5px;
-            border-radius: 3px;
           }
         }
       }

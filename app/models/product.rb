@@ -52,11 +52,11 @@ class Product < ActiveRecord::Base
   end
 
   def markup
-    (main_selling_price - main_purchase_price) * 100 / main_purchase_price
+    (main_selling_price.to_f - main_purchase_price.to_f) * 100 / main_purchase_price.to_f
   end
 
   def gross_profit
-    (main_selling_price - main_purchase_price) * 100 / main_selling_price
+    (main_selling_price.to_f - main_purchase_price.to_f) * 100 / main_selling_price.to_f
   end
 
   def stock_status_text    

@@ -4,20 +4,20 @@
       %thead
         %tr
           %th{:style => "width: 1%"}
-          %th{:style => "width: 25%"} 
-            = link_to '#', class: 'link_order_by', data:{key: 'name', sort: 'asc'} do
+          %th{:style => "width: 35%"} 
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'name', sort: 'asc'} do
               Name/SKU              
           %th{:style => "width: 20%"} 
-            = link_to '#', class: 'link_order_by', data:{key: 'line', sort: 'asc'} do
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'line', sort: 'asc'} do
               Product Line
-          %th{:style => "width: 15%"} 
-            = link_to '#', class: 'link_order_by', data:{key: 'quantity', sort: 'asc'} do
+          %th{:style => "width: 10%"} 
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'quantity', sort: 'asc'} do
               Avaliable
-          %th{:style => "width: 15%"} 
-            = link_to '#', class: 'link_order_by', data:{key: 'price', sort: 'asc'} do
+          %th{:style => "width: 10%"} 
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'price', sort: 'asc'} do
               Price
           %th{:style => "width: 15%"} 
-            = link_to '#', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
           %th{:style => "width: 15%"} Action
       %tbody
@@ -67,6 +67,11 @@
     }
 
     $('.link_order_by').click(function(){
-      window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort');
+      var searchKey = '#{params[:key]}';
+      if(searchKey){
+        window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort') + '&key=' + searchKey;
+      } else {
+        window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort');
+      }      
     });
   });
