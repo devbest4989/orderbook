@@ -1,5 +1,11 @@
 .row
   .col-md-12
+    .title_right
+      .col-md-8.col-sm-8.col-xs-12
+        - if !params[:key].blank?
+          %h4
+            Search by "#{params[:key]}"
+  .col-md-12
     %table.table.table-hover.projects
       %thead
         %tr
