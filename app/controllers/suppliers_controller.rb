@@ -26,6 +26,7 @@ class SuppliersController < ApplicationController
   # GET /suppliers
   # GET /suppliers.json
   def index
+    params[:key] = '' if params[:key].nil?
     if params[:key]
       @suppliers = Supplier.main_like(params[:key])
                   .paginate(page: params[:page])

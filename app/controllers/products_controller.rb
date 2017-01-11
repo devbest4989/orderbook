@@ -123,6 +123,7 @@ class ProductsController < ApplicationController
     set_product_lines
     set_brands
     order_key = get_order_key
+    params[:key] = '' if params[:key].nil?
     case params[:type]
     when 'all'
       @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])

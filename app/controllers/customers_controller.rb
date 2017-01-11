@@ -26,6 +26,7 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
+    params[:key] = '' if params[:key].nil?
     if params[:key]
       @customers = Customer.main_like(params[:key])
                   .paginate(page: params[:page])

@@ -51,6 +51,7 @@
 
   function handleSmartSearch(){
     if($('.smart-search').val() == ''){
+      $('.search-result-container').hide();
       return;
     }
 
@@ -92,7 +93,8 @@
     $('.smart-search').on('keyup', function(e){      
       var code = e.which; // recommended to use e.which, it's normalized across browsers
       if(code==13) return;
-      $('.search-result-container').hide();
+      //$('.search-result-container').hide();
+      handleSmartSearch();
     });
 
     $('.smart-search').on('change', function(){
