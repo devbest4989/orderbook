@@ -1,0 +1,15 @@
+- sales_orders.each do |item|
+  %li.search-item
+    %i.fa.fa-icon.category-icon{ class: "#{item[:icon]}", }
+    %a.item-detail{href: "/sales_orders/#{item[:id]}"}
+      %i.fa.fa-icon.fa-gear
+    .indent-wrap
+      %a.title{href: "/sales_orders/#{item[:id]}"}
+        = item[:token]
+      |
+      = item[:company_name]
+      %div
+      .details
+        %span.description= item[:order_date]
+        |
+        %span.description= item[:status]

@@ -22,93 +22,58 @@
               %a{:href => destroy_user_session_path() }
                 %i.fa.fa-sign-out.pull-right
                 Log Out
-      #adv-search.input-group
+      .input-group.smart-search-wrapper
+        %input.form-control.smart-search{:placeholder => "Smart Search", :type => "text"}
         .input-group-btn
-          .btn-group{:role => "group"}
-            .dropdown.dropdown-lg
-              %button.btn.btn-default.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
-                %span.glyphicon.glyphicon-search{"aria-hidden" => "true"}
-              .dropdown-menu.dropdown-menu-right{:role => "menu"}
-                .radio
-                  %label
-                    %input.flat{:checked => "checked", :name => "search_type", :type => "radio", :value => "so"}
-                    Sales Order
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "po"}
-                    Purchase Order
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "pr"}
-                    Products
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "sh"}
-                    Shippment
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "iv"}
-                    Invoices
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "bl"}
-                    Bills
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "cu"}
-                    Customers
-                .radio
-                  %label
-                    %input.flat{:name => "search_type", :type => "radio", :value => "su"}
-                    Suppliers
-                %hr
-                .text-center
-                  %a.advanced-link{href: "javascript:;"} Advanced Search
-        %input.form-control.input-search{:placeholder => "Smart Search", :type => "text"}
-        .input-group-btn
-          .btn-group{:role => "group"}
-            %button.btn.btn-search{:type => "button"}
-              %span{"aria-hidden" => "true"}       
-                Go
-/ /top navigation
-:javascript
-  jQuery(document).ready(function() {
-    function smartSearch(){
-      var searchKey = $('.input-search').val();
-      var searchType = $('input[name=search_type]:checked').val();
+          %button.btn.btn-search{:type => "button"}
+            %i.fa.fa-icon.fa-chevron-down
+        .search-result-container{style: "display: none;"}
+          %ul.results
+          .result-footer
+            %a
+              %i.fa.fa-icon.fa-search
+              Advanced Search
 
-      var searchUrl = '';
-      switch(searchType){
-      case 'so':
-        break;
-      case 'po':
-        break;
-      case 'pr':
-        searchUrl = '/products/all/list_products?key=' + searchKey;
-        break;
-      case 'sh':
-        break;
-      case 'iv':
-        break;
-      case 'bl':
-        break;
-      case 'cu':
-        searchUrl = '/customers?key=' + searchKey;
-        break;
-      case 'su':
-        searchUrl = '/suppliers?key=' + searchKey;
-        break;
-      }
-      window.location.href = searchUrl;
+:javascript
+  
+  function handleSmartSearch(){
+    if($('.smart-search').val() == ''){
+      return;
     }
 
-    $('.input-search').on('keyup', function (e) {
-      if (e.keyCode == 13) {
-        smartSearch();
+    $.ajax(
+    {
+      url: '/smart_search',
+      type: 'post',
+      data: {key: $('.smart-search').val()},
+      datatype: 'json',
+      success: function (data)
+      {
+        $('ul.results').html(data.htmls);
+        $('.search-result-container').show();
+      },
+      error:function(){
+        $('.search-result-container').hide();              
       }
+    });
+  }
+
+  $(document).ready(function() {  
+    $('.smart-search').on('keyup', function(e){      
+      var code = e.which; // recommended to use e.which, it's normalized across browsers
+      if(code==13) return;
+      $('.search-result-container').hide();
+    });
+
+    $('.smart-search').on('change', function(){
+      handleSmartSearch();      
     });
 
     $('.btn-search').on('click', function(){
-      smartSearch();
+      if ( $('.search-result-container').css('display') == 'none' ){
+        $('.search-result-container').show();              
+      } else {
+        $('.search-result-container').hide();              
+      }    
     });
   });

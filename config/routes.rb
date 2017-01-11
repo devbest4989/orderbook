@@ -23,6 +23,9 @@ Rails.application.routes.draw do
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
 
+  # Ajax Controller
+  post '/smart_search' => 'plainpage#smart_search', :defaults => { :format => 'json' }
+
   devise_for :users
 
   resources :users do
@@ -38,7 +41,8 @@ Rails.application.routes.draw do
 
   get '/customers/bill_state' => 'customers#bill_state'
   get '/customers/ship_state' => 'customers#ship_state'
-  post '/customer/detail_info/:id' => 'customers#detail_info', :defaults => { :format => 'json' }
+  post '/customer/detail_info/:id' => 'customers#detail_info', :defaults => { :format => 'json' }  
+
   resources :customers do
     member do
       put :update_document

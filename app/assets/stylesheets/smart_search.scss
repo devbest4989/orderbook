@@ -1,0 +1,109 @@
+.smart-search-wrapper{
+  margin: 12px 10px 10px 0;
+  float: right;
+
+  .smart-search{
+    width: 100%;
+    border: 1px solid #ddd;
+    height: 36px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 10px;    
+    box-shadow: none;
+  }
+
+  .input-group-btn{
+    border: 1px solid #ddd;
+    border-left: none;
+
+    .btn-search{
+      margin: 0;
+      background: #fff;
+    }
+  }
+
+  .search-result-container{
+    position: absolute;
+    top: 37px;
+    left: 0;
+    background: #fff;
+    z-index: 9999;
+    width: 100%;
+    border: 1px solid #ddd;    
+    overflow: auto;
+
+    ul.results{
+      padding: 5px 10px;
+      margin: 0;
+      display: block;
+      max-height: 70vh;
+      overflow: auto;
+      list-style: none;      
+
+      li.search-item{
+        padding: 5px 0;
+        border-bottom: 1px solid #ccc;        
+        overflow: hidden;        
+        position: relative;
+        min-height: inherit;
+        margin: 0;
+        list-style-position: outside;
+
+        &:hover{
+          background: #eee;
+        }
+
+        a{
+          cursor: pointer;
+        }
+        
+        i.category-icon{
+          font-size: 28px;
+          line-height: 36px;
+          vertical-align: top;
+          padding: 0 10px 0 5px;
+          float: left;                            
+        }
+
+        .indent-wrap{
+          display: block;
+          line-height: 18px;
+          position: relative;
+          float: left;  
+          font-size: 12px;    
+
+          .title{
+            font-size: 14px;
+          }
+
+          .details{
+            a{
+              color: #999
+            }            
+            .description{
+              color: #999;
+            }            
+          }
+        }
+
+        .item-detail{
+          float:right;
+          padding: 0 5px;          
+          i{
+            font-size: 18px;
+            line-height: 36px;
+            vertical-align: middle;          
+          }
+        }
+      }
+    }
+
+    .result-footer{
+      text-align: center;
+      padding: 5px 10px 10px 10px;
+      font-size: 18px;
+      cursor: pointer;      
+    }
+  }
+}

@@ -1,0 +1,13 @@
+- users.each do |item|
+  %li.search-item
+    %i.fa.fa-icon.category-icon{ class: "#{item[:icon]}", }
+    %a.item-detail{href: "javascript:;"}
+      %i.fa.fa-icon.fa-gear
+    .indent-wrap
+      %a.title{href: "javascript:;"}
+        = item[:name]
+      %div
+      .details
+        %span.description= item[:phone]
+        |
+        %span.description= item[:email]

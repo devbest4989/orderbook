@@ -1,0 +1,19 @@
+- products.each do |item|
+  %li.search-item
+    %i.fa.fa-icon.category-icon{ class: "#{item[:icon]}", }
+    %a.item-detail{href: "/products/#{item[:id]}/edit"}
+      %i.fa.fa-icon.fa-gear
+    .indent-wrap
+      %a.title{href: "/products/#{item[:id]}?type=all"}
+        = item[:name]
+      %div
+      .details
+        %a{href: 'javascript:;'} 
+          = item[:brand]
+        |
+        %a{href: 'javascript:;'} 
+          = item[:category]
+        |
+        %span.description
+          = item[:quantity]
+          qty Available

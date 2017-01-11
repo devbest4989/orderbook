@@ -1,0 +1,13 @@
+- suppliers.each do |item|
+  %li.search-item
+    %i.fa.fa-icon.category-icon{ class: "#{item[:icon]}", }
+    %a.item-detail{href: "/suppliers/#{item[:id]}/edit"}
+      %i.fa.fa-icon.fa-gear
+    .indent-wrap
+      %a.title{href: "/suppliers/#{item[:id]}"}
+        = item[:name]
+      %div
+      .details
+        %span.description= item[:phone]
+        |
+        %span.description= item[:email]
