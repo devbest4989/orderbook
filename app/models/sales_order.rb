@@ -22,7 +22,7 @@ class SalesOrder < ActiveRecord::Base
     scope :order_date_between, ->(from, to) { where(order_date: from..to) }
     scope :total_amount_between, ->(from, to) { where("(total_amount >= ? OR ? = 0) AND (total_amount <= ? OR ? = 0)", from.to_f, from.to_f, to.to_f, to.to_f) }
     scope :by_status, ->(search) { where("status = ? OR '' = ?", "#{search}", "#{search}") }
-    scope :by_customer_name, ->(search) { joins(:customer).where("customers.first_name LIKE ? OR customers.last_name LIKE ? OR customers.company_name LIKE ?", "%#{search}%", "%#{search}%", "%#{search}%") }
+    scope :by_customer_name, ->(search) { joins(:customer).where("LOWER(customers.first_name) LIKE ? OR LOWER(customers.last_name) LIKE ? OR LOWER(customers.company_name) LIKE ?", "%#{search.downcase}%", "%#{search.downcase}%", "%#{search.downcase}%") }
     scope :ordered, -> { order(token: :desc) }
 
     def customer_name

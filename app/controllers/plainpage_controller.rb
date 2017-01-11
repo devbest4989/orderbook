@@ -86,7 +86,7 @@ class PlainpageController < ApplicationController
     result_customer = []
     customers.each do | elem |
       item = {
-        :icon => 'fa-user',
+        :icon => 'fa-building-o',
         :name => elem.name,
         :phone => elem.phone,
         :email => elem.email,

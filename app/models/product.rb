@@ -18,9 +18,9 @@ class Product < ActiveRecord::Base
   validates_attachment_content_type :image, :content_type => /\Aimage\/.*\Z/
 
 
-  scope :main_like, ->(search) { where("(products.name LIKE :search) or (products.sku LIKE :search)", :search => "%#{search}%") }
-  scope :name_like, ->(search) { where("name LIKE :search", :search => "%#{search}%") }
-  scope :sku_like, ->(search) { where("sku LIKE :search", :search => "%#{search}%") }
+  scope :main_like, ->(search) { where("(LOWER(products.name) LIKE :search) or (LOWER(products.sku) LIKE :search)", :search => "%#{search.downcase}%") }
+  scope :name_like, ->(search) { where("LOWER(name) LIKE :search", :search => "%#{search.downcase}%") }
+  scope :sku_like, ->(search) { where("LOWER(sku) LIKE :search", :search => "%#{search.downcase}%") }
   scope :by_category, ->(search) { where("(category_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_brands, ->(search) { where("(brand_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_line, ->(search) { where("(product_line_id = :search) OR (:search = 0)", :search => "#{search}") }

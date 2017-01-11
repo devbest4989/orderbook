@@ -26,7 +26,7 @@
         %input.form-control.smart-search{:placeholder => "Smart Search", :type => "text"}
         .input-group-btn
           %button.btn.btn-search{:type => "button"}
-            %i.fa.fa-icon.fa-chevron-down
+            %i.fa.fa-icon.fa-chevron-down            
         .search-result-container{style: "display: none;"}
           %ul.results
           .result-footer
@@ -35,7 +35,20 @@
               Advanced Search
 
 :javascript
-  
+  function handleComboDown(state){
+    if(state){
+      $('.btn-search i').removeClass('fa-spin');
+      $('.btn-search i').removeClass('fa-circle-o-notch');
+      $('.btn-search i').addClass('fa-icon');
+      $('.btn-search i').addClass('fa-chevron-down');
+    } else {
+      $('.btn-search i').removeClass('fa-icon');
+      $('.btn-search i').removeClass('fa-chevron-down');    
+      $('.btn-search i').addClass('fa-spin');
+      $('.btn-search i').addClass('fa-circle-o-notch');
+    }
+  }
+
   function handleSmartSearch(){
     if($('.smart-search').val() == ''){
       return;
@@ -47,18 +60,35 @@
       type: 'post',
       data: {key: $('.smart-search').val()},
       datatype: 'json',
+      beforeSend: function(){
+        handleComboDown(false);
+      },
       success: function (data)
       {
         $('ul.results').html(data.htmls);
         $('.search-result-container').show();
+        handleComboDown(true);
       },
       error:function(){
         $('.search-result-container').hide();              
+        handleComboDown(true);
       }
     });
   }
 
   $(document).ready(function() {  
+    $('body').on('mousedown', function(e){
+      var element = document.elementFromPoint(e.pageX, e.pageY);
+      var isSearchBox = false;
+      $(element).parents().each(function(){
+        if($(this).hasClass('smart-search-wrapper')){
+          isSearchBox = true;
+        }
+      });
+
+      if(!isSearchBox) $('.search-result-container').hide(); 
+    });
+
     $('.smart-search').on('keyup', function(e){      
       var code = e.which; // recommended to use e.which, it's normalized across browsers
       if(code==13) return;

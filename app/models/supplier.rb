@@ -6,10 +6,10 @@ class Supplier < ActiveRecord::Base
 
   self.per_page = 25
 
-  scope :main_like, ->(search) { where("(first_name LIKE :search) or (last_name LIKE :search) or (company_name LIKE :search)", :search => "%#{search}%") }
-  scope :name_like, ->(search) { where("(first_name LIKE :search) or (last_name LIKE :search)", :search => "%#{search}%") }
-  scope :company_name_like, ->(search) { where("company_name LIKE ?", "%#{search}%") }
-  scope :trading_name_like, ->(search) { where("trading_name LIKE ?", "%#{search}%") }
+  scope :main_like, ->(search) { where("(LOWER(first_name) LIKE :search) or (LOWER(last_name) LIKE :search) or (LOWER(company_name) LIKE :search)", :search => "%#{search.downcase}%") }
+  scope :name_like, ->(search) { where("(LOWER(first_name) LIKE :search) or (LOWER(last_name) LIKE :search)", :search => "%#{search.downcase}%") }
+  scope :company_name_like, ->(search) { where("LOWER(company_name) LIKE ?", "%#{search.downcase}%") }
+  scope :trading_name_like, ->(search) { where("LOWER(trading_name) LIKE ?", "%#{search.downcase}%") }
   scope :phone_like, ->(search) { where("phone LIKE ?", "%#{search}%") }
   scope :email_like, ->(search) { where("email LIKE ?", "%#{search}%") }
 
