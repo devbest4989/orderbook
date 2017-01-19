@@ -96,7 +96,7 @@ class PlainpageController < ApplicationController
     end
     customer_html = render_to_string :template => 'plainpage/snippet/customer_result', :layout => false, :locals => {customers: result_customer}, formats: :html
 
-    products = Product.main_like(params[:key])
+    products = Product.lived.main_like(params[:key])
     result_product = []
     products.each do | elem |
       item = {

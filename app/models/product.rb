@@ -8,6 +8,9 @@ class Product < ActiveRecord::Base
   has_many :sales_items, dependent: :restrict_with_exception, as: :sold_item
   has_many :sales_orders, through: :sales_items, class_name: 'SalesOrder'
 
+  has_many :sell_prices,          -> { where(price_type: 0) }, class_name: 'Price'
+  has_many :purchase_prices,      -> { where(price_type: 1) }, class_name: 'Price'
+
   belongs_to :selling_tax, class_name: 'Tax'
   belongs_to :purchase_tax, class_name: 'Tax'
 
@@ -25,17 +28,19 @@ class Product < ActiveRecord::Base
   scope :by_brands, ->(search) { where("(brand_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_line, ->(search) { where("(product_line_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :ordered, -> { order(:name) }
-  scope :actived, -> { where(:status => true) }
-  scope :inactived, -> { where(:status => false) }
+  scope :actived, -> { where(:status => true, :removed => false) }
+  scope :inactived, -> { where(:status => false, :removed => false) }
+  scope :removed, -> { where(:removed => true) }
+  scope :lived, -> { where(:removed => false) }
 
-  enum stock_status: [:instock, :reorderstock, :lowstock]
+  enum stock_status: [:instock, :lowstock]
 
   def main_selling_price
-    (selling_price_type == true) ? selling_price : selling_price_ex
+    (selling_price_type == false) ? selling_price : selling_price_ex
   end
 
   def main_purchase_price
-    (purchase_price_type == true) ? purchase_price : purchase_price_ex
+    (purchase_price_type == false) ? purchase_price : purchase_price_ex
   end
 
   def in_stock?
@@ -62,18 +67,14 @@ class Product < ActiveRecord::Base
   def stock_status_text    
     if self.instock?
       "In-Stock"
-    elsif self.reorderstock?
-      "Re-Order"
     else
       "Low-Stock"
     end
   end
 
   def update_stock_status
-    if self.stock.to_i > self.reorder_qty.to_i * 2
+    if self.stock.to_i > self.reorder_qty.to_i
       self.stock_status = :instock
-    elsif self.stock.to_i > self.reorder_qty.to_i && self.stock.to_i <= self.reorder_qty.to_i * 2 && self.stock.to_i > 0
-      self.stock_status = :reorderstock
     else
       self.stock_status = :lowstock
     end

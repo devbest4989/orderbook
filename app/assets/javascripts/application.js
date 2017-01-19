@@ -51,7 +51,8 @@
 //= require js/notify/pnotify.buttons
 
 //= require plugins/jquery-editable-select/jquery-editable-select
+//= require plugins/uniform/jquery.uniform.min
 
 //= require flash.js
-
-
+//= require global.js
+//= require products.js

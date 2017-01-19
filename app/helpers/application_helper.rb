@@ -6,4 +6,17 @@ module ApplicationHelper
     '20th of Following Month : Due on 20th of following month'
     ].freeze  
 
+  def custom_link_to_add_fields name, f, association, opts={}
+    new_object = f.object.class.reflect_on_association(association).klass.new
+    fields = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|
+        render(association.to_s.singularize + "_fields", :f => builder)
+    end
+    __custom_link_to_function(name, "add_fields(this, \"#{association}\", \"#{escape_javascript(fields)}\")", 'green', class: opts[:class])
+  end
+
+  private
+  def __custom_link_to_function name, on_click_event, button_color, opts={}
+    link_to(name.html_safe, 'javascript:void(0);', {onclick: on_click_event, class: "btn btn-#{button_color} btn-xs #{opts[:class]}"})
+  end
+
 end

@@ -331,3 +331,21 @@ table.projects td.edit-focus{
 .pagination{
   margin: 10px 0 !important;
 }
+
+/**********Main Container*************/
+.main_container{
+  .left_col{
+    position: fixed;
+  }
+
+  .form-control{
+    box-shadow: none;
+  }
+
+  .file-input{
+    text-align: center;
+    .file-preview{
+      border-radius: 0;      
+    }  
+  }
+}

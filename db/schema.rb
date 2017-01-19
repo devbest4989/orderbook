@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161221234443) do
+ActiveRecord::Schema.define(version: 20170117075616) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,6 +96,16 @@ ActiveRecord::Schema.define(version: 20161221234443) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "prices", force: :cascade do |t|
+    t.integer  "product_id"
+    t.string   "name"
+    t.integer  "price_type"
+    t.decimal  "value",      precision: 8, scale: 2
+    t.integer  "cond"
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+  end
+
   create_table "product_lines", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at", null: false
@@ -114,8 +124,8 @@ ActiveRecord::Schema.define(version: 20161221234443) do
     t.integer  "category_id"
     t.integer  "product_line_id"
     t.integer  "brand_id"
-    t.datetime "created_at",                                                 null: false
-    t.datetime "updated_at",                                                 null: false
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
     t.string   "image_file_name"
     t.string   "image_content_type"
     t.integer  "image_file_size"
@@ -129,6 +139,8 @@ ActiveRecord::Schema.define(version: 20161221234443) do
     t.boolean  "purchase_price_type"
     t.integer  "reorder_qty"
     t.integer  "stock_status"
+    t.boolean  "removed",                                     default: false
+    t.string   "barcode"
   end
 
   add_index "products", ["brand_id"], name: "index_products_on_brand_id", using: :btree

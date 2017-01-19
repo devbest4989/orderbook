@@ -47,7 +47,7 @@ class ProductsController < ApplicationController
                   .by_line(params[:product_line_id])
                   .order(orderString)
     else
-      @customers = Product.all.order(orderString)
+      @products = Product.all.order(orderString)
     end
 
     if params[:jtStartIndex] && params[:jtPageSize]
@@ -126,15 +126,47 @@ class ProductsController < ApplicationController
     params[:key] = '' if params[:key].nil?
     case params[:type]
     when 'all'
-      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     when 'active'
-      @products = Product.actived.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.actived.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     when 'inactive'
-      @products = Product.inactived.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.inactived.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
+    when 'removed'
+      @products = Product.removed.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     when 'varient'
-      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     when 'low-stock'
-      @products = Product.all.main_like(params[:key]).includes(:product_line).order(order_key).paginate(page: params[:page])
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     else
       @products = Product.all.order(order_key)
     end
@@ -150,7 +182,7 @@ class ProductsController < ApplicationController
 
   # GET /products/1
   # GET /products/1.json
-  def show
+  def show    
     set_categories
     set_product_lines
     set_brands
@@ -202,10 +234,11 @@ class ProductsController < ApplicationController
     @product = Product.new(product_params)
     @product.category = Category.find_or_create_by(name: params[:category_name])
     @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
-    @product.brand = Brand.find_or_create_by(name: params[:brand_name])
+    @product.brand = Brand.find_or_create_by(name: params[:brand_name])    
 
     respond_to do |format|
       if @product.save
+        generate_product_sku
         format.html { redirect_to @product, notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
       else
@@ -223,6 +256,7 @@ class ProductsController < ApplicationController
     @product.brand = Brand.find_or_create_by(name: params[:brand_name])
     respond_to do |format|
       if @product.update(product_params)
+        generate_product_sku
         format.html { redirect_to @product, notice: 'Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @product }
       else
@@ -235,17 +269,48 @@ class ProductsController < ApplicationController
   # DELETE /products/1
   # DELETE /products/1.json
   def destroy
-    @product.status = false
+    @product.removed = true
     @product.save
     respond_to do |format|
-      format.html { redirect_to list_by_type_products_path('inactive'), notice: 'Product was successfully destroyed.' }
+      format.html { redirect_to list_by_type_products_path('removed'), notice: 'Product was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def bulk_action
+    case params[:bulk_action]
+    when '1'
+      @products = Product.where("products.id IN (#{params[:product_ids]})")
+      @products.each do |item|
+        item.removed = false
+        item.status = true
+        item.save
+      end
+    when '2'
+      @products = Product.where("products.id IN (#{params[:product_ids]})")
+      @products.each do |item|
+        item.removed = false
+        item.status = false
+        item.save
+      end
+    when '3'
+      @products = Product.where("products.id IN (#{params[:product_ids]})")
+      @products.each do |item|
+        item.removed = true
+        item.save
+      end
+    end
+      
+    redirect_to list_by_type_products_path(type: params[:type], key: params[:key], sort: params[:sort], order: params[:order])
   end
 
   def upload_file
     build_products_from_file
     redirect_to list_by_type_products_path('all')
+  end
+
+  def download
+
   end
 
   private
@@ -256,7 +321,7 @@ class ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
-      params.require(:product).permit(:sku, :name, :description, :selling_price, :purchase_price, :image,
+      params.require(:product).permit(:barcode, :name, :description, :selling_price, :purchase_price, :image,
                                       :selling_price_ex, :purchase_price_ex, :selling_tax_id, :purchase_tax_id, :selling_price_type, :purchase_price_type,
                                       :reorder_qty, :quantity)
     end
@@ -285,7 +350,32 @@ class ProductsController < ApplicationController
         "products.selling_price #{params[:sort]}"
       when 'status'
         "products.quantity #{params[:sort]}"
+      when 'category'
+        "categories.name #{params[:sort]}"
+      when 'brand'
+        "brands.name #{params[:sort]}"
+      else
+        "products.created_at #{params[:sort]}"
       end      
+    end
+
+    def generate_product_sku
+      name_array = @product.name.split(' ')
+      category_array = @product.category.name.split(' ')
+      
+      sku_string = ""
+      name_array.each do |item|
+        sku_string += item[0].upcase
+      end
+
+      sku_string += '-'
+
+      category_array.each do |item|
+        sku_string += item[0].upcase
+      end
+
+      @product.sku = sku_string + '-' + @product.id.to_s
+      @product.save
     end
 
     def build_products_from_file

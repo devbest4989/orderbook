@@ -10,6 +10,24 @@
         font-size: 90%;
         vertical-align: bottom;
       }      
+
+      .product-name{
+        .label{
+          float: left;
+          margin: 5px 0px 0 10px;
+        }
+        .product-status-link{
+          color: #5A738E;
+          font-size: 20px;
+          padding: 0 5px;
+          float: left;
+          cursor: pointer;
+        }
+        h2{
+          float: left;
+        }
+      }
+
       h2{
         span.list-type-down{
           padding: 0 5px;
@@ -64,6 +82,14 @@
       tr{
         td{
           padding: 5px;
+          
+          a.add-sell-price{
+            padding: 0;
+            i{
+              font-size: 20px;
+            }
+          }
+
           &.product-image{
             width: 200px;
             height: 200px;
@@ -77,5 +103,42 @@
         }
       }
     }    
+
+    .action-box{
+      margin-bottom: 10px;
+      select{
+        width: 150px;
+        display: inline-block;
+        box-shadow: none;
+      }
+
+      span{
+        display: inline-block; 
+        padding-right: 10px;
+        font-size: 14px;    
+        vertical-align: bottom;      
+      }
+
+      button{
+        vertical-align: top;  
+      }
+    }
+
+    table.projects{
+      tr{
+        .btn{
+          margin-bottom: 3px;
+        }
+      }
+      tr.status-inactive{
+        color: #aaa;
+        a{
+          color: #aaa;
+          &.btn{
+            color: #fff;
+          }
+        }
+      }
+    }
   }   
 }

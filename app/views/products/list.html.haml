@@ -13,8 +13,11 @@
           = link_to list_by_type_products_path(:type => 'active'), class: "no-border" do
             Active Products
         %li
-          = link_to list_by_type_products_path(:type => 'inactive') do
+          = link_to list_by_type_products_path(:type => 'inactive'), class: "no-border" do
             Inactive Products
+        %li
+          = link_to list_by_type_products_path(:type => 'removed') do
+            Deleted Products
         %li
           = link_to list_by_type_products_path(:type => 'varient'), class: "no-border" do
             Varients Products
@@ -25,11 +28,15 @@
         %li
           %a.add-link{ :href => new_product_path }
             %i.fa.fa-cart-plus
-            %span New Product
+            %span New
         %li
           %a.add-link{ :href => upload_products_path }
             %i.fa.fa-cloud-upload
-            %span Upload Products
+            %span Import
+        %li
+          %a.add-link{ :href => download_products_path }
+            %i.fa.fa-cloud-download
+            %span Export
         %li
           %a.collapse-link
             %i.fa.fa-chevron-up
@@ -38,10 +45,5 @@
       = render 'product_list'
 :javascript
   jQuery(document).ready(function() {
-    $('#sidebar-menu li').removeClass('current-page');
-    $('#sidebar-menu li').removeClass('active');
-    $('#sidebar-menu li.nav-products').addClass('active');
-    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
-    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
-    $('#sidebar-menu li.nav-products ul.child_menu').show();
+    Products.initProductListPage();
   });      

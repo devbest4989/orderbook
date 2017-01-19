@@ -14,7 +14,7 @@
       = form_tag upload_file_products_path, method: :post, multipart: true do
         .row
           %label.col-md-12
-            Product List Excel File
+            Please upload .xlxs(Excel File) to import product information
           .col-md-12
             = file_field_tag :excel_file, :class => 'form-control'
         .row{:style => 'margin: 10px 0;'}
