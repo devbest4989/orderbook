@@ -1,5 +1,0 @@
-%tr
-  %td
-    = f.select :name, options_from_collection_for_select(Price.all.group_by(&:name), :name, :name, ''), {include_blank: false}, {class: 'form-control additional-price'}
-  %td
-    = f.text_field :value, class: 'form-control', :placeholder => "Additional Price"

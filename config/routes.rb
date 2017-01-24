@@ -126,8 +126,11 @@ Rails.application.routes.draw do
       post :bulk_action
       get  ':type/list_products', to: 'products#list_by_type', as: 'list_by_type'
       get  :upload
-      get  :download
       post :upload_file
+      get  :download
+    end
+    member do
+      get  :action
     end
   end
 

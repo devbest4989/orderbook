@@ -1,0 +1,12 @@
+%table.table.table-bordered.projects
+  %thead
+    %tr{:style => "background: rgba(52,73,94,0.94); color: #ECF0F1;"}
+      %th Warehouse Name
+      %th{:style => "width: 20%"} Available
+      %th{:style => "width: 20%"} Incoming Qty
+  %tbody
+    %tr
+      %th= @product.warehouse.name unless @product.warehouse.nil?
+      %th= @product.quantity
+      %th= @product.quantity
+      

@@ -58,18 +58,20 @@
             %li{ :class => "sub-nav-#{elem.id} element" }
               - if type == 'show'
                 %a{:href => product_path(elem, type: product_type)}
-                  = "#{elem.name} / #{elem.category.name}"
+                  %p.product-name= "#{elem.name}"
+                  %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
+                  %p.product-stock
+                    %span= "#{elem.stock}"
+                    available
               - else
                 %a{:href => edit_product_path(elem)}
-                  = "#{elem.name} / #{elem.category.name}"
+                  %p.product-name= "#{elem.name}"
+                  %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
+                  %p.product-stock
+                    %span= "#{elem.stock}"
+                    available
+      %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
 :javascript
   jQuery(document).ready(function() {
-    $('#sidebar-menu li').removeClass('current-page');
-    $('#sidebar-menu li').removeClass('active');
-    $('#sidebar-menu li.nav-products').addClass('active');
-    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
-    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
-    $('#sidebar-menu li.nav-products ul.child_menu').show();
-
-    $('li.#{active_elem} a').addClass('nav-active');
+    ProductDetail.initProductNavList();
   });

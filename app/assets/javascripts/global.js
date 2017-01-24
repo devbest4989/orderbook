@@ -10,3 +10,11 @@ function add_fields(link, association, content) {
     }
 }
 
+function remove_fields(link) {
+  $(link).prev("input[type=hidden]").val("1");
+
+  if ($(link).hasClass('remove-sell-price')) {
+  	$(link).parent().parent().remove();
+  }
+  return false;
+}

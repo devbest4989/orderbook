@@ -6,6 +6,10 @@ module ApplicationHelper
     '20th of Following Month : Due on 20th of following month'
     ].freeze  
 
+  def custom_link_to_remove_fields name, f, opts={}
+    f.hidden_field(:_destroy) + __custom_link_to_function(name, "remove_fields(this)", 'red', class: opts[:class])
+  end
+
   def custom_link_to_add_fields name, f, association, opts={}
     new_object = f.object.class.reflect_on_association(association).klass.new
     fields = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|

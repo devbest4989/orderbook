@@ -4,6 +4,7 @@
 .products-wrapper{
   .x_panel{
     .x_title{
+      height: 45px;
       .label{
         color: #fff;
         margin: 0 10px;
@@ -48,6 +49,29 @@
             margin: 5px 10px;
           }
         }
+        &.more-action{
+          top: auto;
+          left: auto;
+          width: auto;        
+          li{
+            a{
+              border-bottom: none;
+              padding: 3px 20px;
+              font-size: 14px;
+              margin: 2px 0px;
+            }
+          }
+        }
+      }
+
+      .btn-more{
+        padding: 3px 7px;
+        border-color: #5A738E;
+        background-color: #5A738E;
+        color: #fff;
+        span{
+          color: #fff;
+        }        
       }
 
       .panel_toolbox{
@@ -83,7 +107,8 @@
         td{
           padding: 5px;
           
-          a.add-sell-price{
+          a.add-sell-price,
+          a.remove-sell-price{
             padding: 0;
             i{
               font-size: 20px;
@@ -105,7 +130,9 @@
     }    
 
     .action-box{
-      margin-bottom: 10px;
+      float: left;
+      margin-left: 15px;
+      display: none;
       select{
         width: 150px;
         display: inline-block;

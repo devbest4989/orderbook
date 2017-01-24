@@ -5,16 +5,6 @@
         - if !params[:key].blank?
           %h4
             Search by "#{params[:key]}"
-  .col-md-12.col-sm-12.col-xs-12.text-right.action-box
-    = form_tag bulk_action_products_path, id: 'form_bulk_action', method: :post do
-      %span.selected-record 
-      = select_tag :bulk_action, options_for_select([['Mark as Active', 1], ['Mark as Inactive', 2], ['Delete', 3]]), {:include_blank => 'Select Action', class: 'form-control'}
-      = hidden_field_tag :key, params[:key]
-      = hidden_field_tag :sort, params[:sort]
-      = hidden_field_tag :order, params[:order]
-      = hidden_field_tag :type, params[:type]
-      = hidden_field_tag :product_ids, params[:product_ids]
-      %button.btn.btn-primary.action-submit Submit      
   .col-md-12
     %table.table.table-hover.projects
       %thead

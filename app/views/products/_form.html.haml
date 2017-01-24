@@ -38,15 +38,15 @@
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Category*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :category_name, options_from_collection_for_select(Category.all, :name, :name, (@product.category.nil?) ? '' : @product.category.name), {class: 'form-control', include_blank: true}          
+          = select_tag :category_name, options_from_collection_for_select(Category.all, :name, :name, (@product.category.nil?) ? '' : @product.category.name), {class: 'form-control', include_blank: true, :required => 'true'}          
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Line*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :product_line_name, options_from_collection_for_select(ProductLine.all, :name, :name, (@product.product_line.nil?) ? '' : @product.product_line.name), {class: 'form-control', include_blank: true}
+          = select_tag :product_line_name, options_from_collection_for_select(ProductLine.all, :name, :name, (@product.product_line.nil?) ? '' : @product.product_line.name), {class: 'form-control', include_blank: true, :required => 'true'}
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Brand*
         .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :brand_name, options_from_collection_for_select(Brand.all, :name, :name, (@product.brand.nil?) ? '' : @product.brand.name), {class: 'form-control', include_blank: true}
+          = select_tag :brand_name, options_from_collection_for_select(Brand.all, :name, :name, (@product.brand.nil?) ? '' : @product.brand.name), {class: 'form-control', include_blank: true, :required => 'true'}
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Description
         .col-md-8.col-sm-8.col-xs-12.form-group
@@ -55,13 +55,14 @@
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Image
         .col-md-8.col-sm-8.col-xs-12.form-group
+          %input{type: 'hidden', id: 'product_image_url', value: @product.image.url}
           #kv-avatar-errors.center-block{:style => "display:none"}
           = f.file_field :image, style: 'padding-top: 7px;'
   .ln_solid
   .form-group
     .row
       .col-md-12
-        %h4 Inventory Details
+        %h4 Price Information
     .row
       .col-md-4.col-sm-6.col-xs-12
         %h5 Purchase Details
@@ -69,47 +70,69 @@
           %tr.purchase_exclude_tax
             %td Purchase Price
             %td
-              = f.text_field :purchase_price_ex, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+              = f.text_field :purchase_price_ex, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"
           %tr.purchase_include_tax
             %td Purchase Price
             %td
-              = f.text_field :purchase_price, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"            
+              = f.text_field :purchase_price, class: 'form-control', :required => 'true', :placeholder => "Purchase Price"
           %tr
             %td Purchase Tax
             %td 
               = f.collection_select :purchase_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
           %tr
-            %td.purchase-tax Include Tax
+            %td.purchase-tax Including Tax
             %td 
-              = f.check_box :purchase_price_type, class: 'js-switch', data: {target: '.purchase-tax'}
-      .col-md-4.col-sm-6.col-xs-12
+              = f.check_box :purchase_price_type, class: 'js-switch purchase-tax-checkbox', data: {target: '.purchase-tax'}, :checked => true
+      .col-md-8.col-sm-6.col-xs-12
         %h5 Sales Details
-        %table.info-list.selling
-          %tr.selling_exclude_tax
+        %table#selling_price_table.info-list.selling
+          %tr.selling_exclude_tax.sell-price-row
             %td Selling Price
             %td
-              = f.text_field :selling_price_ex, class: 'form-control', :required => 'true', :placeholder => "Selling Price"            
+              = f.text_field :selling_price_ex, class: 'form-control sell-price', :required => 'true', :placeholder => "Selling Price"
             %td.text-left{style: 'padding-left: 0'} 
-              = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :sell_prices, {class: 'add-sell-price'}
-          %tr.selling_include_tax
+              = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :prices, {class: 'add-sell-price'}
+            %td MP(%):
+            %td
+              = text_field_tag :mp_percent_ex, '', class: 'form-control mp-percent', :required => 'true', :placeholder => "Markup %"
+            %td GP(%):
+            %td
+              = text_field_tag :gp_percent_ex, '', class: 'form-control gp-percent', :required => 'true', :placeholder => "GP %", :readonly => true
+          %tr.selling_include_tax.sell-price-row
             %td Selling Price
             %td
-              = f.text_field :selling_price, class: 'form-control', :required => 'true', :placeholder => "Selling Price"            
+              = f.text_field :selling_price, class: 'form-control sell-price', :required => 'true', :placeholder => "Selling Price"
             %td.text-left{style: 'padding-left: 0'} 
-              = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :sell_prices, {class: 'add-sell-price'}
+              = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :prices, {class: 'add-sell-price'}
+            %td MP(%):
+            %td
+              = text_field_tag :mp_percent, '', class: 'form-control mp-percent', :required => 'true', :placeholder => "Markup %"
+            %td GP(%):
+            %td
+              = text_field_tag :gp_percent, '', class: 'form-control gp-percent', :required => 'true', :placeholder => "GP %", :readonly => true
+            = f.fields_for :prices do |price|
+              = render partial: 'price_fields', locals: { f: price }
           %tr.selling-tax-box
             %td Selling Tax
             %td
               = f.collection_select :selling_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
             %td 
           %tr
-            %td.selling-tax Include Tax
+            %td.selling-tax Including Tax
             %td
-              = f.check_box :selling_price_type, class: 'js-switch', data: {target: '.selling-tax'}
+              = f.check_box :selling_price_type, class: 'js-switch selling-tax-checkbox', data: {target: '.selling-tax'}
             %td 
-      .col-md-4.col-sm-6.col-xs-12
-        %h5 Inventory Details
+  .ln_solid
+  .form-group
+    .row
+      .col-md-12
+        %h4 Inventory Information
+      .col-md-12.col-sm-12.col-xs-12
         %table.info-list
+          %tr
+            %td Product Location*
+            %td
+              = select_tag :warehouse_name, options_from_collection_for_select(Warehouse.all, :id, :name, (@product.warehouse.nil?) ? '' : @product.warehouse.id), {class: 'form-control', include_blank: true, :required => 'true'}
           %tr
             %td Opening Stock Qty
             %td

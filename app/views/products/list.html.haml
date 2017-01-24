@@ -24,6 +24,15 @@
         %li
           = link_to list_by_type_products_path(:type => 'low-stock'), class: "no-border" do
             Low Stock Products
+      .action-box
+        = form_tag bulk_action_products_path, id: 'form_bulk_action', method: :post do
+          = select_tag :bulk_action, options_for_select([['Mark as Active', 1], ['Mark as Inactive', 2], ['Delete', 3]]), {:include_blank => 'Select Action', class: 'form-control'}
+          = hidden_field_tag :key, params[:key]
+          = hidden_field_tag :sort, params[:sort]
+          = hidden_field_tag :order, params[:order]
+          = hidden_field_tag :type, params[:type]
+          = hidden_field_tag :product_ids, params[:product_ids]
+          %button.btn.btn-primary.action-submit Submit                  
       %ul.nav.navbar-right.panel_toolbox
         %li
           %a.add-link{ :href => new_product_path }
@@ -34,7 +43,7 @@
             %i.fa.fa-cloud-upload
             %span Import
         %li
-          %a.add-link{ :href => download_products_path }
+          %a.add-link{ :href => list_by_type_products_path(type: params[:type], key: params[:key], sort: params[:sort], order: params[:order], format: 'csv') }
             %i.fa.fa-cloud-download
             %span Export
         %li

@@ -171,7 +171,15 @@ class ProductsController < ApplicationController
       @products = Product.all.order(order_key)
     end
 
-    render "list"
+    respond_to do |format|
+      format.html { render "list" }
+      format.csv do
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'attachment; filename=invoice.csv'    
+        render :template => "/products/download.csv.haml"
+      end
+    end
+    
   end
 
   # GET /products
@@ -183,6 +191,7 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show    
+    generate_product_sku
     set_categories
     set_product_lines
     set_brands
@@ -214,17 +223,17 @@ class ProductsController < ApplicationController
     set_brands
     case params[:type]
     when 'all'
-      @products = Product.all
+      @products = Product.all.ordered
     when 'active'
-      @products = Product.actived
+      @products = Product.actived.ordered
     when 'inactive'
-      @products = Product.inactived
+      @products = Product.inactived.ordered
     when 'varient'
-      @products = Product.all
+      @products = Product.all.ordered
     when 'low-stock'
-      @products = Product.all
+      @products = Product.all.ordered
     else
-      @products = Product.all
+      @products = Product.all.ordered
     end
   end
 
@@ -235,10 +244,12 @@ class ProductsController < ApplicationController
     @product.category = Category.find_or_create_by(name: params[:category_name])
     @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
     @product.brand = Brand.find_or_create_by(name: params[:brand_name])    
+    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name])    
 
     respond_to do |format|
       if @product.save
         generate_product_sku
+        create_product_prices
         format.html { redirect_to @product, notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
       else
@@ -254,9 +265,13 @@ class ProductsController < ApplicationController
     @product.category = Category.find_or_create_by(name: params[:category_name])
     @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
     @product.brand = Brand.find_or_create_by(name: params[:brand_name])
+    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name])    
+
+    puts params[:prices_attributes].to_yaml
     respond_to do |format|
       if @product.update(product_params)
         generate_product_sku
+        save_product_prices
         format.html { redirect_to @product, notice: 'Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @product }
       else
@@ -304,13 +319,30 @@ class ProductsController < ApplicationController
     redirect_to list_by_type_products_path(type: params[:type], key: params[:key], sort: params[:sort], order: params[:order])
   end
 
+  def action
+    case params[:action_name]
+    when 'status'
+      set_invert_status
+    when 'clone'
+      set_clone_product
+    end
+
+    redirect_to product_path(@product)
+  end
+
   def upload_file
     build_products_from_file
     redirect_to list_by_type_products_path('all')
   end
 
-  def download
-
+  def download    
+    respond_to do |format|
+      format.csv do
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'attachment; filename=invoice.csv'    
+        render :template => "/products/download.csv.haml"
+      end
+    end
   end
 
   private
@@ -359,6 +391,32 @@ class ProductsController < ApplicationController
       end      
     end
 
+    def set_invert_status
+      @product = Product.find(params[:id])
+      @product.status = !@product.status
+      @product.save
+    end
+
+    def set_clone_product
+      old_product = Product.find(params[:id])
+      @product = old_product.dup      
+      @product.image = old_product.image
+      @product.save
+
+      old_product.prices.each do |item|
+        new_price = Price.new(product_id: @product.id, name: item.name, price_type: item.price_type, value: item.value)
+        new_price.save
+      end
+    end
+
+    def save_product_prices
+      Price.where(product_id: @product.id).destroy_all
+      params[:product][:prices_attributes].each do |index, item|
+        price = @product.prices.new(name: item[:name], value: item[:value], price_type: @product.selling_price_type)
+        price.save
+      end
+    end
+
     def generate_product_sku
       name_array = @product.name.split(' ')
       category_array = @product.category.name.split(' ')
@@ -376,6 +434,17 @@ class ProductsController < ApplicationController
 
       @product.sku = sku_string + '-' + @product.id.to_s
       @product.save
+    end
+
+    def create_product_prices
+      params[:product][:prices_attributes].each do |index, elem|
+        price = Price.where(product_id: @product.id, name: elem[:name]).first
+        unless price.nil?
+          price.destroy_all
+        end
+        price = @product.prices.new(name: elem[:name], value: elem[:value], price_type: @product.selling_price_type)
+        price.save          
+      end
     end
 
     def build_products_from_file

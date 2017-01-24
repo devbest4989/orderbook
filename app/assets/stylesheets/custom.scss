@@ -156,12 +156,12 @@ table.projects td.edit-focus{
 
 .right_col{
   .left-sub-sidebar{
-    width: 250px;
+    width: 350px;
     padding: 0;
     position: relative;
     display: flex;
     float: left;
-    min-height: 300px;
+    min-height: 30px;
 
     .x_content{
       overflow: auto;
@@ -169,7 +169,7 @@ table.projects td.edit-focus{
   }
 
   .right-content{
-    margin-left: 260px;
+    margin-left: 360px;
     height: 100%;
   }
 }
@@ -214,6 +214,32 @@ table.projects td.edit-focus{
 
       &.nav-active{
         color: #172D44 !important;    
+      }
+
+      p{
+        margin: 0;
+        &.product-name{
+          font-size: 14px;
+          text-align: left;
+        }
+
+        &.product-info{
+          text-align: left;
+        }
+
+        &.product-info,
+        &.product-stock{
+          font-size: 12px;
+          color: #555 ;
+        }
+
+        &.product-stock{
+          text-align: right;
+          span{
+            font-size: 14px;
+            color: #333;
+          }
+        }
       }    
     }
 

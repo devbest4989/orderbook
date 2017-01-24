@@ -62,9 +62,9 @@ var Products = function () {
   var updateSelectedRecordLabel = function() {
     var n = $(".bulk_action input[name='table_records']:checked").length;
     if( n > 0)
-      $('.selected-record').html(n + ' Records Selected');
+      $('.action-box').show();
     else 
-      $('.selected-record').html('');    
+      $('.action-box').hide();
   }
 
   var initialListPage = function() {
@@ -80,6 +80,7 @@ var Products = function () {
     $('#category_name').editableSelect({ effects: 'slide' });
     $('#product_line_name').editableSelect({ effects: 'slide' });
     $('#brand_name').editableSelect({ effects: 'slide' });
+    $('#warehouse_name').editableSelect({ effects: 'slide' });    
 
     switchSellingPrice();
     switchPurchasePrice();
@@ -102,18 +103,19 @@ var Products = function () {
 
     $('.selling .js-switch').change(function(){
       switchSellingPrice();
+      calculatePercents(4);
     });
 
     $('#product_selling_tax_id').change(function(){
       calculateSellingPrice();
     });
 
-    $('#product_selling_price').change(function(){
+    $('#selling_price_table').on('change', '.sell-price', function(){
       calculateSellingPrice();
     });
 
-    $('#product_selling_price_ex').change(function(){
-      calculateSellingPrice();
+    $('#selling_price_table').on('change', '.mp-percent', function(){
+      calculatePercents(3);
     });
 
     $('.add-sell-price').on('click', function(){
@@ -131,7 +133,7 @@ var Products = function () {
     }    
   }
 
-  var calculateSellingPrice = function (){
+  var calculateSellingPrice = function (percent = true){
     var tax_string = $('#product_selling_tax_id option:selected').text();
     var tax_rate = tax_string.substring(tax_string.lastIndexOf('-') + 2, tax_string.length -1);
     if(!$('#product_selling_price_type').is(':checked')){
@@ -141,6 +143,8 @@ var Products = function () {
       var include_price = $('#product_selling_price_ex').val()*(1 + tax_rate * 0.01);
       $('#product_selling_price').val(include_price.toFixed(2));
     }
+
+    if(percent) calculatePercents(2);
   }    
 
   var switchPurchasePrice = function (){
@@ -150,7 +154,9 @@ var Products = function () {
     } else {
       $('.purchase_exclude_tax').show();
       $('.purchase_include_tax').hide();
-    }    
+    }
+
+    calculatePercents(1);    
   }
 
   var calculatePurchasePrice = function (){
@@ -163,6 +169,8 @@ var Products = function () {
       var include_price = $('#product_purchase_price_ex').val()*(1 + tax_rate * 0.01);
       $('#product_purchase_price').val(include_price.toFixed(2));
     }
+
+    calculatePercents(1);
   }    
 
   var handleImageUploader = function (){
@@ -170,6 +178,7 @@ var Products = function () {
       'onclick="alert(\'Call your custom code here.\')">' +
       '<i class="glyphicon glyphicon-tag"></i>' +
       '</button>'; 
+    var product_image_url = ($('#product_image_url').val() == '' ) ? '/images/nothumb.png' : $('#product_image_url').val();
     $("#product_image").fileinput({
       overwriteInitial: true,
       maxFileSize: 2000,
@@ -182,7 +191,7 @@ var Products = function () {
       removeTitle: 'Cancel or reset changes',
       elErrorContainer: '#kv-avatar-errors',
       msgErrorClass: 'alert alert-block alert-danger',
-      defaultPreviewContent: '<img src="/images/nothumb.png" alt="Product Picture" style="width:200px"><h6 class="text-muted">Click to select</h6>',
+      defaultPreviewContent: '<img src="'+product_image_url+'" alt="Product Picture" style="width:200px"><h6 class="text-muted">Click to select</h6>',
       layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
       allowedFileExtensions: ["jpg", "png", "gif"]
     });      
@@ -192,9 +201,81 @@ var Products = function () {
     $('.js-switch').on('change', function(){
       var target = $(this).data('target');
       if($(this).is(':checked')){
-        $(target).html('Excluding Tax');
+        //$(target).html('Excluding Tax');
       } else {
-        $(target).html('Including Tax');
+        //$(target).html('Including Tax');
+      }
+    });
+  }
+
+  var calculatePercents = function(type){
+    var purchase_price = ($('.purchase-tax-checkbox').is(':checked')) ? ($('#product_purchase_price_ex').val()) : ($('#product_purchase_price').val());
+    if(purchase_price == 0 || purchase_price == '') return;
+
+    purchase_price = parseFloat(purchase_price);
+
+    $('.sell-price-row').each(function(){
+      if($(this).find('.sell-price').val() == '' && $(this).find('.mp-percent').val() == ''){
+        return;
+      }
+
+      switch (type){
+      case 1: // change purchase
+        if($(this).find('.sell-price').val() == ''){
+          var mp_percent = parseFloat($(this).find('.mp-percent').val());
+          var selling_price = (purchase_price * (mp_percent / 100)) + purchase_price;
+          var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+          $(this).find('.sell-price').val(selling_price.toFixed(2));
+          $(this).find('.gp-percent').val(gp_percent.toFixed(2));
+        } else {
+          var selling_price = parseFloat($(this).find('.sell-price').val());
+          var mp_percent = (selling_price - purchase_price) * 100 / purchase_price;
+          var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+          $(this).find('.mp-percent').val(mp_percent.toFixed(2));
+          $(this).find('.gp-percent').val(gp_percent.toFixed(2));        
+        }
+        break;
+      case 2: // change sell
+        var selling_price = parseFloat($(this).find('.sell-price').val());
+        var mp_percent = (selling_price - purchase_price) * 100 / purchase_price;
+        var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+        $(this).find('.mp-percent').val(mp_percent.toFixed(2));
+        $(this).find('.gp-percent').val(gp_percent.toFixed(2));        
+        break;
+      case 3: // change mp
+        var mp_percent = parseFloat($(this).find('.mp-percent').val());
+        var selling_price = (purchase_price * (mp_percent / 100)) + purchase_price;
+        var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+        $(this).find('.sell-price').val(selling_price.toFixed(2));
+        $(this).find('.gp-percent').val(gp_percent.toFixed(2));
+        calculateSellingPrice( false );
+        break;
+      case 4: // change including switch
+        var tax_string = $('#product_selling_tax_id option:selected').text();
+        var tax_rate = tax_string.substring(tax_string.lastIndexOf('-') + 2, tax_string.length -1);
+        if($(this).find('.sell-price').attr('id') == 'product_selling_price' || $(this).find('.sell-price').attr('id') == 'product_selling_price_ex')
+          return;
+        var original_price = parseFloat($(this).find('.sell-price').val());
+        if($('#product_selling_price_type').is(':checked')){
+          var exclude_price = original_price /(1 + tax_rate * 0.01);
+          $(this).find('.sell-price').val(exclude_price.toFixed(2));
+        } else {
+          var include_price = original_price*(1 + tax_rate * 0.01);
+          $(this).find('.sell-price').val(include_price.toFixed(2));
+        }
+
+        var selling_price = parseFloat($(this).find('.sell-price').val());
+        var mp_percent = (selling_price - purchase_price) * 100 / purchase_price;
+        var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+        $(this).find('.mp-percent').val(mp_percent.toFixed(2));
+        $(this).find('.gp-percent').val(gp_percent.toFixed(2));        
+
+        break;
       }
     });
   }
@@ -218,3 +299,46 @@ var Products = function () {
     }
   };
 }();
+
+var ProductDetail = function () {
+  var initialNavigatorList = function(){
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-products').addClass('active');
+    $('#sidebar-menu li.nav-products ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-products ul.child_menu').show();
+
+    var active_elem = 'li.' + $('#active_elem').data('elem') + ' a';
+    $(active_elem).addClass('nav-active');    
+
+    $('.left-sub-sidebar .x_content').scrollTop($(active_elem).parent().position().top);    
+  }
+
+  var calculateOverviewPercents = function(){
+    var purchase_price = $('.info-list .purchase_value').val();
+    $('.sell-price-row').each(function(){
+      if(purchase_price == '' || ($(this).find('.sell-price').val() == '' && $(this).find('.mp-percent').val() == '')){
+        return;
+      }
+
+      var selling_price = parseFloat($(this).find('.sell-price').val());
+      var mp_percent = (selling_price - purchase_price) * 100 / purchase_price;
+      var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+      $(this).find('.mp-percent').html(mp_percent.toFixed(2) + " %");
+      $(this).find('.gp-percent').html(gp_percent.toFixed(2) + " %");              
+    });    
+  }
+
+  return {
+    //main function to initiate the module
+    initProductNavList: function () {
+      initialNavigatorList();
+    },
+
+    initProductOverview: function(){
+      calculateOverviewPercents();
+    }
+  };
+}();  
