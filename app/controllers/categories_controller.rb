@@ -48,7 +48,7 @@ class CategoriesController < ApplicationController
   # POST /categories/change
   def change
     @category = Category.find(params[:id])    
-    @category.name = params[:name]    
+    @category.name = params[:name].capitalize    
     respond_to do |format|
       if @category.save
         result = {:Result => "OK"}
@@ -62,7 +62,7 @@ class CategoriesController < ApplicationController
   # POST /categories/append
   def append
     @category = Category.new
-    @category.name = params[:name]
+    @category.name = params[:name].capitalize
     respond_to do |format|
       if @category.save
         result = {:Result => "OK", :Record => @category}

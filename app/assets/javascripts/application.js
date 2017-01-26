@@ -52,6 +52,7 @@
 
 //= require plugins/jquery-editable-select/jquery-editable-select
 //= require plugins/uniform/jquery.uniform.min
+//= require plugins/malihu-custom-scrollbar/jquery.mCustomScrollbar.concat.min
 
 //= require flash.js
 //= require global.js

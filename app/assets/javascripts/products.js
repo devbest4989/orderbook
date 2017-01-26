@@ -191,7 +191,7 @@ var Products = function () {
       removeTitle: 'Cancel or reset changes',
       elErrorContainer: '#kv-avatar-errors',
       msgErrorClass: 'alert alert-block alert-danger',
-      defaultPreviewContent: '<img src="'+product_image_url+'" alt="Product Picture" style="width:200px"><h6 class="text-muted">Click to select</h6>',
+      defaultPreviewContent: '<img src="'+product_image_url+'" alt="Product Picture" style="max-width: 200px;max-height: 200px;"><h6 class="text-muted">Click to select</h6>',
       layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
       allowedFileExtensions: ["jpg", "png", "gif"]
     });      
@@ -309,10 +309,11 @@ var ProductDetail = function () {
     $('#sidebar-menu li.nav-products ul.child_menu li:nth-child(1)').addClass('current-page');
     $('#sidebar-menu li.nav-products ul.child_menu').show();
 
+    $('#product_side_menu').mCustomScrollbar({theme:"minimal-dark", scrollbarPosition: "outside"});    
+
     var active_elem = 'li.' + $('#active_elem').data('elem') + ' a';
     $(active_elem).addClass('nav-active');    
-
-    $('.left-sub-sidebar .x_content').scrollTop($(active_elem).parent().position().top);    
+    $('#product_side_menu').mCustomScrollbar("scrollTo", active_elem);
   }
 
   var calculateOverviewPercents = function(){

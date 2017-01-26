@@ -156,7 +156,7 @@ table.projects td.edit-focus{
 
 .right_col{
   .left-sub-sidebar{
-    width: 350px;
+    width: 300px;
     padding: 0;
     position: relative;
     display: flex;
@@ -165,11 +165,12 @@ table.projects td.edit-focus{
 
     .x_content{
       overflow: auto;
+      padding-right: 5px;
     }
   }
 
   .right-content{
-    margin-left: 360px;
+    margin-left: 305px;
     height: 100%;
   }
 }
@@ -205,7 +206,7 @@ table.projects td.edit-focus{
       &:hover,
       &.nav-active{
         background: #f0f0f0;
-        border-right: 5px solid #aaa;
+        border-left: 5px solid #aaa;
       }
 
       &:hover{
@@ -245,7 +246,7 @@ table.projects td.edit-focus{
 
     &.element{
       >a{
-        padding: 5px 15px 5px !important;
+        padding: 2px 5px 2px 5px !important;
         margin-bottom: 3px;
       }
     }
@@ -374,4 +375,33 @@ table.projects td.edit-focus{
       border-radius: 0;      
     }  
   }
+
+  .x_panel{
+    padding: 10px 10px !important;
+  }
+
+  .no-padding{
+    padding: 0 !important;
+  }
+
+  .alert-dismissable, 
+  .alert-dismissible{
+    padding-right: 25px !important;
+  }
+
+  .alert{
+    padding: 5px;
+    margin-bottom: 5px !important;    
+  }
+
+  .product-image img {
+    width: auto;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
 }
+
+.nav-md .container.body .right_col{
+  padding: 10px 5px 0 !important;
+}  

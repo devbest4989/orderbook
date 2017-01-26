@@ -23,10 +23,10 @@
   %table.info-list
     %tr
       %td.product-image 
-        =image_tag(@product.image, class: 'product-thumbnail')        
+        =image_tag(@product.image.url(:medium), class: 'product-thumbnail')        
 .col-md-12.col-sm-12.col-xs-12.overview
   %h4 Price Information
-  .col-md-6.col-sm-6.col-xs-12.overview
+  .col-lg-4.col-md-12.col-sm-12.col-xs-12.overview.no-padding
     %span Purchase Price
     %table.info-list
       %tr
@@ -41,7 +41,7 @@
         %td Including Tax:
         %td 
           = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
-  .col-md-6.col-sm-6.col-xs-12.overview
+  .col-lg-8.col-md-12.col-sm-12.col-xs-12.overview.no-padding
     %span Selling Price
     %table.info-list
       %tr.sell-price-row

@@ -1,24 +1,14 @@
 = form_for(@product, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
   .row
     .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-      - if @product.errors.any? && flash[:last_action] == "update_info"
+      - if @product.errors.any?
         .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
           %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
             %span{"aria-hidden" => "true"} ×   
-          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@user.errors.count, "error")}."
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@product.errors.count, "error")}."
           %ul
             - @product.errors.full_messages.each do |msg|
               %li= msg
-      - if flash[:result] == "success" && flash[:last_action] == "update_info"
-        .alert.alert-success.alert-dismissible.fade.in{:role => "alert"}
-          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-            %span{"aria-hidden" => "true"} ×
-          Product information is stored successfully.
-      - if flash[:result] == "failed" && flash[:last_action] == "update_info"
-        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
-          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
-            %span{"aria-hidden" => "true"} ×
-          Product information is not stored successfully.
   .row{:style => 'margin-bottom: 10px;'}
     .col-md-6.col-sm-6.col-xs-12
       %h4 Primary Details
@@ -55,7 +45,7 @@
       .row
         %label.col-md-4.col-sm-4.col-xs-12.control-label Product Image
         .col-md-8.col-sm-8.col-xs-12.form-group
-          %input{type: 'hidden', id: 'product_image_url', value: @product.image.url}
+          %input{type: 'hidden', id: 'product_image_url', value: @product.image.url(:medium)}
           #kv-avatar-errors.center-block{:style => "display:none"}
           = f.file_field :image, style: 'padding-top: 7px;'
   .ln_solid
@@ -64,7 +54,7 @@
       .col-md-12
         %h4 Price Information
     .row
-      .col-md-4.col-sm-6.col-xs-12
+      .col-md-12.col-sm-12.col-xs-12
         %h5 Purchase Details
         %table.info-list.purchase
           %tr.purchase_exclude_tax
@@ -83,7 +73,7 @@
             %td.purchase-tax Including Tax
             %td 
               = f.check_box :purchase_price_type, class: 'js-switch purchase-tax-checkbox', data: {target: '.purchase-tax'}, :checked => true
-      .col-md-8.col-sm-6.col-xs-12
+      .col-md-12.col-sm-12.col-xs-12
         %h5 Sales Details
         %table#selling_price_table.info-list.selling
           %tr.selling_exclude_tax.sell-price-row
@@ -94,10 +84,10 @@
               = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :prices, {class: 'add-sell-price'}
             %td MP(%):
             %td
-              = text_field_tag :mp_percent_ex, '', class: 'form-control mp-percent', :required => 'true', :placeholder => "Markup %"
+              = text_field_tag :mp_percent_ex, '', class: 'form-control mp-percent', :placeholder => "Markup %"
             %td GP(%):
             %td
-              = text_field_tag :gp_percent_ex, '', class: 'form-control gp-percent', :required => 'true', :placeholder => "GP %", :readonly => true
+              = text_field_tag :gp_percent_ex, '', class: 'form-control gp-percent', :placeholder => "GP %", :readonly => true
           %tr.selling_include_tax.sell-price-row
             %td Selling Price
             %td
@@ -106,10 +96,10 @@
               = custom_link_to_add_fields '<i class="fa fa-icon fa-plus-circle"></i>', f, :prices, {class: 'add-sell-price'}
             %td MP(%):
             %td
-              = text_field_tag :mp_percent, '', class: 'form-control mp-percent', :required => 'true', :placeholder => "Markup %"
+              = text_field_tag :mp_percent, '', class: 'form-control mp-percent', :placeholder => "Markup %"
             %td GP(%):
             %td
-              = text_field_tag :gp_percent, '', class: 'form-control gp-percent', :required => 'true', :placeholder => "GP %", :readonly => true
+              = text_field_tag :gp_percent, '', class: 'form-control gp-percent', :placeholder => "GP %", :readonly => true
             = f.fields_for :prices do |price|
               = render partial: 'price_fields', locals: { f: price }
           %tr.selling-tax-box

@@ -195,20 +195,7 @@ class ProductsController < ApplicationController
     set_categories
     set_product_lines
     set_brands
-    case params[:type]
-    when 'all'
-      @products = Product.all.ordered
-    when 'active'
-      @products = Product.actived.ordered
-    when 'inactive'
-      @products = Product.inactived.ordered
-    when 'varient'
-      @products = Product.all.ordered
-    when 'low-stock'
-      @products = Product.all.ordered
-    else
-      @products = Product.all.ordered
-    end
+    get_sub_produts
   end
 
   # GET /products/new
@@ -221,36 +208,23 @@ class ProductsController < ApplicationController
     set_categories
     set_product_lines
     set_brands
-    case params[:type]
-    when 'all'
-      @products = Product.all.ordered
-    when 'active'
-      @products = Product.actived.ordered
-    when 'inactive'
-      @products = Product.inactived.ordered
-    when 'varient'
-      @products = Product.all.ordered
-    when 'low-stock'
-      @products = Product.all.ordered
-    else
-      @products = Product.all.ordered
-    end
+    get_sub_produts
   end
 
   # POST /products
   # POST /products.json
   def create
     @product = Product.new(product_params)
-    @product.category = Category.find_or_create_by(name: params[:category_name])
-    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
-    @product.brand = Brand.find_or_create_by(name: params[:brand_name])    
-    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name])    
+    @product.category = Category.find_or_create_by(name: params[:category_name].capitalize)
+    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name].capitalize)
+    @product.brand = Brand.find_or_create_by(name: params[:brand_name].capitalize)    
+    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name].capitalize)    
 
     respond_to do |format|
       if @product.save
         generate_product_sku
-        create_product_prices
-        format.html { redirect_to @product, notice: 'Product was successfully created.' }
+        save_product_prices
+        format.html { redirect_to product_path(@product), notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
       else
         format.html { render :new }
@@ -262,19 +236,19 @@ class ProductsController < ApplicationController
   # PATCH/PUT /products/1
   # PATCH/PUT /products/1.json
   def update
-    @product.category = Category.find_or_create_by(name: params[:category_name])
-    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name])
-    @product.brand = Brand.find_or_create_by(name: params[:brand_name])
-    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name])    
+    @product.category = Category.find_or_create_by(name: params[:category_name].capitalize)
+    @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name].capitalize)
+    @product.brand = Brand.find_or_create_by(name: params[:brand_name].capitalize)
+    @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name].capitalize)    
 
-    puts params[:prices_attributes].to_yaml
     respond_to do |format|
       if @product.update(product_params)
         generate_product_sku
         save_product_prices
-        format.html { redirect_to @product, notice: 'Product was successfully updated.' }
+        format.html { redirect_to product_path(@product), notice: 'Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @product }
       else
+        get_sub_produts
         format.html { render :edit }
         format.json { render json: @product.errors, status: :unprocessable_entity }
       end
@@ -323,11 +297,11 @@ class ProductsController < ApplicationController
     case params[:action_name]
     when 'status'
       set_invert_status
+      redirect_to product_path(@product)
     when 'clone'
       set_clone_product
-    end
-
-    redirect_to product_path(@product)
+      render 'new'
+    end    
   end
 
   def upload_file
@@ -400,20 +374,20 @@ class ProductsController < ApplicationController
     def set_clone_product
       old_product = Product.find(params[:id])
       @product = old_product.dup      
-      @product.image = old_product.image
-      @product.save
+      #@product.save
 
       old_product.prices.each do |item|
-        new_price = Price.new(product_id: @product.id, name: item.name, price_type: item.price_type, value: item.value)
-        new_price.save
+        new_price = @product.prices.new(product_id: @product.id, name: item.name, price_type: item.price_type, value: item.value)
       end
     end
 
     def save_product_prices
       Price.where(product_id: @product.id).destroy_all
-      params[:product][:prices_attributes].each do |index, item|
-        price = @product.prices.new(name: item[:name], value: item[:value], price_type: @product.selling_price_type)
-        price.save
+      unless params[:product][:prices_attributes].nil? 
+        params[:product][:prices_attributes].each do |index, item| 
+          price = @product.prices.new(name: item[:name], value: item[:value], price_type: @product.selling_price_type)
+          price.save
+        end        
       end
     end
 
@@ -444,6 +418,23 @@ class ProductsController < ApplicationController
         end
         price = @product.prices.new(name: elem[:name], value: elem[:value], price_type: @product.selling_price_type)
         price.save          
+      end
+    end
+
+    def get_sub_produts
+      case params[:type]
+      when 'all'
+        @products = Product.all.ordered
+      when 'active'
+        @products = Product.actived.ordered
+      when 'inactive'
+        @products = Product.inactived.ordered
+      when 'varient'
+        @products = Product.all.ordered
+      when 'low-stock'
+        @products = Product.all.ordered
+      else
+        @products = Product.all.ordered
       end
     end
 
