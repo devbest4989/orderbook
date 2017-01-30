@@ -70,9 +70,10 @@
             %td 
               = f.collection_select :purchase_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
           %tr
-            %td.purchase-tax Including Tax
-            %td 
+            %td.purchase-tax{colspan: 2} 
+              Including Tax
               = f.check_box :purchase_price_type, class: 'js-switch purchase-tax-checkbox', data: {target: '.purchase-tax'}, :checked => true
+              Excluding Tax
       .col-md-12.col-sm-12.col-xs-12
         %h5 Sales Details
         %table#selling_price_table.info-list.selling
@@ -108,9 +109,10 @@
               = f.collection_select :selling_tax_id, Tax.all, :id, :short_desc, {include_blank: false}, {class: 'form-control'}
             %td 
           %tr
-            %td.selling-tax Including Tax
-            %td
+            %td.selling-tax{colspan: 2} 
+              Including Tax
               = f.check_box :selling_price_type, class: 'js-switch selling-tax-checkbox', data: {target: '.selling-tax'}
+              Excluding Tax
             %td 
   .ln_solid
   .form-group

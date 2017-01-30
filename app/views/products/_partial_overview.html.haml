@@ -38,9 +38,10 @@
         %td Purchase Tax:
         %td= @product.purchase_tax.short_desc if @product.purchase_tax
       %tr
-        %td Including Tax:
-        %td 
+        %td{colspan: 2} 
+          Including Tax
           = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
+          Excluding Tax
   .col-lg-8.col-md-12.col-sm-12.col-xs-12.overview.no-padding
     %span Selling Price
     %table.info-list
@@ -67,9 +68,10 @@
         %td Selling Tax:
         %td= @product.selling_tax.short_desc if @product.selling_tax
       %tr
-        %td Including Tax:
-        %td 
+        %td{colspan: 2} 
+          Including Tax
           = check_box_tag :selling_price_type, "1", @product.selling_price_type,  class: 'js-switch', :disabled => :true
+          Excluding Tax
 .col-md-12.col-sm-12.col-xs-12.overview
   %h4 Inventory Information
   %table.info-list
