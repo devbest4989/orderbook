@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get '/config_format' => 'plainpage#config_format'
   get '/config_station' => 'plainpage#config_station'
   get '/config_email' => 'plainpage#config_email'
+  get '/config_warehouse' => 'plainpage#config_warehouse'
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
 
@@ -76,6 +77,15 @@ Rails.application.routes.draw do
   end
 
   resources :taxes do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+    end
+  end
+
+  resources :warehouses do
     collection do
       post :list
       post :remove

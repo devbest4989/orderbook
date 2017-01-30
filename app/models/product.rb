@@ -56,7 +56,7 @@ class Product < ActiveRecord::Base
   end
 
   def status_label
-    (status == true) ? 'Active' : 'Inactive'
+    (removed == true) ? 'Deleted' : ((status == true) ? 'Active' : 'Inactive')
   end
 
   def markup

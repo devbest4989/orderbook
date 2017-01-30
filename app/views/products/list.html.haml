@@ -43,7 +43,7 @@
             %i.fa.fa-cloud-upload
             %span Import
         %li
-          %a.add-link{ :href => list_by_type_products_path(type: params[:type], key: params[:key], sort: params[:sort], order: params[:order], format: 'csv') }
+          %a.add-link{ :href => download_products_path(type: params[:type], key: params[:key], sort: params[:sort], order: params[:order], format: 'csv') }
             %i.fa.fa-cloud-download
             %span Export
         %li

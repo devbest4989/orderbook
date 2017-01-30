@@ -1,1 +1,5 @@
-Test
+- CSV.generate({}) do |csv|
+  - csv.add_row %()
+  - @products.each do |foo|
+    - values = foo.attributes.slice(*foo_attributes).values
+    - csv.add_row values

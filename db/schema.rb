@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170122214045) do
+ActiveRecord::Schema.define(version: 20170128025616) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -142,6 +142,7 @@ ActiveRecord::Schema.define(version: 20170122214045) do
     t.boolean  "removed",                                     default: false
     t.string   "barcode"
     t.integer  "warehouse_id"
+    t.integer  "open_qty"
   end
 
   add_index "products", ["brand_id"], name: "index_products_on_brand_id", using: :btree

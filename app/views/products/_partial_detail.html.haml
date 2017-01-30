@@ -48,7 +48,7 @@
     %span Selling Price
     %table.info-list
       %tr.sell-price-row
-        %td Default Price:
+        %td RRP:
         %td
           = number_to_currency(@product.main_selling_price)
           %input.sell-price{type: 'hidden', value: "#{@product.main_selling_price}"}
@@ -81,7 +81,7 @@
       %td= @product.warehouse.name unless @product.warehouse.nil?
     %tr
       %td Opening Stock:
-      %td= @product.quantity
+      %td= @product.open_qty
     %tr
       %td On Hand Qty:
       %td= @product.quantity

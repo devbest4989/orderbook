@@ -34,7 +34,7 @@ class ProductLinesController < ApplicationController
 
   # POST /product_lines/remove
   def remove
-    @product_line = ProductLine.find(params[:id])        
+    @product_line = ProductLine.find(params[:id])
     respond_to do |format|
       if @product_line.destroy
         result = {:Result => "OK"}
@@ -48,7 +48,7 @@ class ProductLinesController < ApplicationController
   # POST /product_lines/change
   def change
     @product_line = ProductLine.find(params[:id])    
-    @product_line.name = params[:name]
+    @product_line.name = params[:name].capitalize
     
     respond_to do |format|
       if @product_line.save
@@ -63,7 +63,7 @@ class ProductLinesController < ApplicationController
   # POST /product_lines/append
   def append
     @product_line = ProductLine.new
-    @product_line.name = params[:name]
+    @product_line.name = params[:name].capitalize
     
     respond_to do |format|
       if @product_line.save

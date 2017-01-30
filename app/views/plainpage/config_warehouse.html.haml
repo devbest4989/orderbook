@@ -1,0 +1,61 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-warehouse", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Warehouse Details
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        #warehouse_container
+:javascript
+  $(document).ready(function () {
+    $('#warehouse_container').jtable({
+        title: '',
+        paging: false, //Enable paging
+        sorting: true, //Enable sorting
+        actions: {
+          listAction: '#{list_warehouses_path()}',
+          deleteAction: '#{remove_warehouses_path()}',
+          updateAction: '#{change_warehouses_path()}',
+          createAction: '#{append_warehouses_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            name: {
+                title: 'Warehouse Name',
+                inputClass: 'form-control validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+
+    //Load student list from server
+    $('#warehouse_container').jtable('load');
+  });

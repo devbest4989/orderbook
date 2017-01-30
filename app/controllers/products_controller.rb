@@ -1,4 +1,6 @@
 class ProductsController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   before_action :set_product, only: [:show, :edit, :update, :destroy]
 
   # POST /products/list_by_sku
@@ -173,13 +175,7 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       format.html { render "list" }
-      format.csv do
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = 'attachment; filename=invoice.csv'    
-        render :template => "/products/download.csv.haml"
-      end
-    end
-    
+    end    
   end
 
   # GET /products
@@ -305,17 +301,111 @@ class ProductsController < ApplicationController
   end
 
   def upload_file
-    build_products_from_file
+    build_products_from_excel_file
+    build_products_from_csv_file
     redirect_to list_by_type_products_path('all')
   end
 
-  def download    
-    respond_to do |format|
-      format.csv do
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = 'attachment; filename=invoice.csv'    
-        render :template => "/products/download.csv.haml"
+  def download  
+    order_key = get_order_key
+    params[:key] = '' if params[:key].nil?
+    case params[:type]
+    when 'all'
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    when 'active'
+      @products = Product.actived.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    when 'inactive'
+      @products = Product.inactived.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    when 'removed'
+      @products = Product.removed.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    when 'varient'
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    when 'low-stock'
+      @products = Product.all.main_like(params[:key])
+                  .includes(:product_line)
+                  .includes(:category)
+                  .includes(:brand)
+                  .order(order_key)
+    else
+      @products = Product.all.order(order_key)
+    end
+
+    col_names = []
+    col_names << 'Barcode'
+    col_names << 'Item Name'
+    col_names << 'Brand'
+    col_names << 'Category'
+    col_names << 'Product Line'
+    col_names << 'Re-oder Point'
+    col_names << 'Opening Stock'
+    col_names << 'Purchase Price'
+    col_names << 'Retail Price'
+    col_names << 'RRP-Markup%'
+    col_names << 'RRP-GP%'
+    col_names << 'Wholesale Price'
+    col_names << 'WS-Mark-up %'
+    col_names << 'WS-GP %'
+    col_names << 'Stock Location'
+    col_names << 'Stock Status'
+    col_names << 'State'
+    col_names << 'TaxType'
+
+    csv_data = CSV.generate({}) do |csv|
+      csv.add_row col_names
+      @products.each do |item|
+        row_values = []
+        row_values << item.barcode
+        row_values << item.name
+        row_values << item.brand.name
+        row_values << item.category.name
+        row_values << item.product_line.name
+        row_values << item.reorder_qty
+        row_values << item.open_qty
+        row_values << item.main_purchase_price
+        row_values << item.main_selling_price
+        row_values << calculate_mp(item.main_purchase_price, item.main_selling_price)
+        row_values << calculate_gp(item.main_purchase_price, item.main_selling_price)
+
+        wholeprice = item.prices.where(name: 'Wholesale').first
+        if wholeprice.nil?
+          row_values << ''
+          row_values << ''
+          row_values << ''
+        else
+          row_values << wholeprice.value
+          row_values << calculate_mp(item.main_purchase_price, wholeprice.value)
+          row_values << calculate_gp(item.main_purchase_price, wholeprice.value)
+        end
+        row_values << item.warehouse.name
+        row_values << item.stock_status_text
+        row_values << item.status_label
+        row_values << item.selling_tax.name
+        csv.add_row row_values
       end
+    end
+
+    respond_to do |format|
+      format.csv {send_data csv_data, filename: 'products.csv'}
     end
   end
 
@@ -421,6 +511,14 @@ class ProductsController < ApplicationController
       end
     end
 
+    def calculate_mp (purchase, selling)
+      number_to_percentage((selling - purchase) * 100 / purchase, precision: 2)
+    end
+
+    def calculate_gp (purchase, selling)
+      number_to_percentage((selling - purchase) * 100 / selling, precision: 2)
+    end
+
     def get_sub_produts
       case params[:type]
       when 'all'
@@ -438,7 +536,10 @@ class ProductsController < ApplicationController
       end
     end
 
-    def build_products_from_file
+    def build_products_from_csv_file
+    end
+
+    def build_products_from_excel_file
       file_data = params[:excel_file]
 
       if file_data
@@ -446,27 +547,56 @@ class ProductsController < ApplicationController
         if xlsx.sheets.count > 0
           if xlsx.last_row > 1
             2.upto(xlsx.last_row) do |line|              
-              product = Product.find_by(name: xlsx.cell(line, 'B').strip)
+              product = Product.find_by(barcode: xlsx.cell(line, 'A').to_s.strip)
               if product.nil? 
                 product = Product.new
               end
-              product.sku = xlsx.cell(line, 'A').strip unless xlsx.cell(line, 'A').nil?
-              product.name = xlsx.cell(line, 'B').strip unless xlsx.cell(line, 'B').nil?
+              product.barcode = xlsx.cell(line, 'A').to_s.strip unless xlsx.cell(line, 'A').nil?
+              product.name = xlsx.cell(line, 'B').to_s.strip unless xlsx.cell(line, 'B').nil?
               product.description = ''
-              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'C').strip) unless xlsx.cell(line, 'C').nil?
-              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'D').strip) unless xlsx.cell(line, 'D').nil?
-              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'E').strip) unless xlsx.cell(line, 'E').nil?
-              product.purchase_price_ex = xlsx.cell(line, 'F').to_f
-              product.selling_price_ex = xlsx.cell(line, 'G').to_f
-              product.selling_tax = Tax.all.first
-              product.purchase_tax = Tax.all.first
-              product.purchase_price = xlsx.cell(line, 'F').to_f * (product.purchase_tax.rate + 100) / 100.0
-              product.selling_price = xlsx.cell(line, 'G').to_f * (product.selling_tax.rate + 100) / 100.0              
+              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'C').to_s.strip.capitalize) unless xlsx.cell(line, 'C').nil?
+              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'D').to_s.strip.capitalize) unless xlsx.cell(line, 'D').nil?
+              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'E').to_s.strip.capitalize) unless xlsx.cell(line, 'E').nil?
+              product.warehouse = Warehouse.find_or_create_by(name: xlsx.cell(line, 'O').to_s.strip.capitalize) unless xlsx.cell(line, 'O').nil?
+              product.reorder_qty = xlsx.cell(line, 'F').to_i unless xlsx.cell(line, 'F').nil?
+              product.open_qty = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
+              product.selling_tax = Tax.find_by(name: xlsx.cell(line, 'R'))
+              product.purchase_tax = Tax.find_by(name: xlsx.cell(line, 'R'))
+
+              purchase_value = 0
+              sell_value = 0
+              unless xlsx.cell(line, 'H').nil?                
+                purchase_value = (xlsx.cell(line, 'H').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'H').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'H').to_f
+                product.purchase_price_ex = purchase_value
+                product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
+              end
+
+              if xlsx.cell(line, 'I').nil? && !xlsx.cell(line, 'J').nil?
+                product.selling_price = product.purchase_price_ex * (100 + xlsx.cell(line, 'J').to_f) * 0.01
+                product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+              elsif !xlsx.cell(line, 'I').nil?
+                sell_value = (xlsx.cell(line, 'I').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'I').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'I').to_f
+                product.selling_price = sell_value
+                product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+              end
               product.selling_price_type  = false
-              product.purchase_price_type = false
-              product.quantity = 0
-              product.reorder_qty = 0
+              product.purchase_price_type = true
+              product.quantity = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
               product.save
+
+              price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
+              if price.nil?
+                price = product.prices.new(name: "Wholesale")
+              end
+              price.price_type = 0
+
+              if xlsx.cell(line, 'L').nil? && !xlsx.cell(line, 'M').nil?
+                price.value = product.purchase_price_ex * (100 + xlsx.cell(line, 'M').to_f) * 0.01
+              elsif !xlsx.cell(line, 'L').nil?
+                sell_value = (xlsx.cell(line, 'L').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'L').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'L').to_f
+                price.value = sell_value
+              end
+              price.save
             end        
           end
         end

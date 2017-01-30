@@ -6,7 +6,9 @@
       .x_title
         .product-name
           %h2="Edit #{@product.name}"
-          - if @product.status == true
+          - if @product.removed == true
+            %span.label.label-default= @product.status_label
+          - elsif @product.status == true
             %span.label.label-success= @product.status_label
           - else
             %span.label.label-danger= @product.status_label

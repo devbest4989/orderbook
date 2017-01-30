@@ -49,7 +49,7 @@ class BrandsController < ApplicationController
   # POST /brands/change
   def change
     @brand = Brand.find(params[:id])    
-    @brand.name = params[:name]    
+    @brand.name = params[:name].capitalize    
     respond_to do |format|
       if @brand.save
         result = {:Result => "OK"}
@@ -63,7 +63,7 @@ class BrandsController < ApplicationController
   # POST /brands/append
   def append
     @brand = Brand.new
-    @brand.name = params[:name]    
+    @brand.name = params[:name].capitalize
     respond_to do |format|
       if @brand.save
         result = {:Result => "OK", :Record => @brand}

@@ -77,7 +77,7 @@
         %h5 Sales Details
         %table#selling_price_table.info-list.selling
           %tr.selling_exclude_tax.sell-price-row
-            %td Selling Price
+            %td RRP
             %td
               = f.text_field :selling_price_ex, class: 'form-control sell-price', :required => 'true', :placeholder => "Selling Price"
             %td.text-left{style: 'padding-left: 0'} 
@@ -89,7 +89,7 @@
             %td
               = text_field_tag :gp_percent_ex, '', class: 'form-control gp-percent', :placeholder => "GP %", :readonly => true
           %tr.selling_include_tax.sell-price-row
-            %td Selling Price
+            %td RRP
             %td
               = f.text_field :selling_price, class: 'form-control sell-price', :required => 'true', :placeholder => "Selling Price"
             %td.text-left{style: 'padding-left: 0'} 
@@ -126,7 +126,7 @@
           %tr
             %td Opening Stock Qty
             %td
-              = f.text_field :quantity, class: 'form-control', :placeholder => "Opening Stock Qty"            
+              = f.text_field :open_qty, class: 'form-control', :placeholder => "Opening Stock Qty"            
           %tr
             %td Re-Order Point Qty
             %td
