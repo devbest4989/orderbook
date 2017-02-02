@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170128025616) do
+ActiveRecord::Schema.define(version: 20170202170820) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -196,6 +196,21 @@ ActiveRecord::Schema.define(version: 20170128025616) do
     t.date     "req_ship_date"
     t.date     "estimate_ship_date"
     t.integer  "payment_term"
+    t.integer  "shipping_method_id"
+    t.integer  "contact_id"
+    t.string   "bill_street"
+    t.string   "bill_suburb"
+    t.string   "bill_city"
+    t.string   "bill_state"
+    t.string   "bill_postcode"
+    t.string   "bill_country"
+    t.string   "ship_street"
+    t.string   "ship_suburb"
+    t.string   "ship_city"
+    t.string   "ship_state"
+    t.string   "ship_postcode"
+    t.string   "ship_country"
+    t.string   "price_name"
   end
 
   add_index "sales_orders", ["customer_id"], name: "index_sales_orders_on_customer_id", using: :btree
@@ -207,6 +222,12 @@ ActiveRecord::Schema.define(version: 20170128025616) do
     t.string   "description"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+  end
+
+  create_table "shipping_methods", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "stock_level_adjustments", force: :cascade do |t|

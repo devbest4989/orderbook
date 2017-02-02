@@ -1,23 +1,36 @@
 = form_for(@sales_order, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
   .row
+    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+      - if @sales_order.errors.any?
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×   
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@sales_order.errors.count, "error")}."
+          %ul
+            - @sales_order.errors.full_messages.each do |msg|
+              %li= msg
+  .row
     .col-md-6.col-sm-6.col-xs-12
-      %h4 Order Information
+      .form-group{style: 'margin-top: 10px;'}
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Customer Name*
+        .col-md-8.col-sm-8.col-xs-12.form-group
+          = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+    .col-md-6.col-sm-6.col-xs-12.text-right
+      %h3
+        = @sales_order.token
+      = f.hidden_field :token
+  .ln_solid_narrow
+  .row
+    .col-md-6.col-sm-6.col-xs-12
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Order#
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Person*
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_field :token, class: 'form-control', :required => 'true', :readonly => 'true', :style => "background:none;"
+          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Order Date *
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date *
         .col-md-8.col-sm-8.col-xs-12
           %fieldset.xdisplay_inputx.has-feedback
-            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Order Date"
-            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
-            %span#inputSuccess2Status4.sr-only (success)        
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Requested Ship Date
-        .col-md-8.col-sm-8.col-xs-12
-          %fieldset.xdisplay_inputx.has-feedback
-            = f.text_field :req_ship_date, class: 'form-control has-feedback-left', :id => "req_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Requested Ship Date"
+            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
             %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
             %span#inputSuccess2Status4.sr-only (success)        
       .form-group
@@ -28,6 +41,14 @@
             %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
             %span#inputSuccess2Status4.sr-only (success)        
       .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :shipping_method_id, ShippingMethod.all, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+      .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms *
         .col-md-8.col-sm-8.col-xs-12
           = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
@@ -36,7 +57,6 @@
         .col-md-8.col-sm-8.col-xs-12
           = f.text_area :notes, cols: 40, rows: 3, class: 'form-control'
     .col-md-6.col-sm-6.col-xs-12
-      %h4 Customer Information
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
         .col-md-8.col-sm-8.col-xs-12
@@ -88,10 +108,11 @@
               %b Total:
             %td#total_cell.money{:style => 'border:none; background: white; width:15%;'}
             %td{:style => 'border:none; background: white; width:15%;'}
-  .ln_solid
-  .col-md-12{:style => 'text-align: right;'}
-    %a#btn_submit.btn.btn-primary{:href => '#'}
-      Save
+:javascript
+  jQuery(document).ready(function() {
+    SalesOrdersNew.initSalesOrderNewForm();
+  });
+
 :javascript
   var t = new Table({
       id: "product_list",

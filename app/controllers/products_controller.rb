@@ -187,7 +187,7 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show    
-    generate_product_sku
+    generate_product_sku @product
     set_categories
     set_product_lines
     set_brands
@@ -239,7 +239,7 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       if @product.update(product_params)
-        generate_product_sku
+        generate_product_sku @product
         save_product_prices
         format.html { redirect_to product_path(@product), notice: 'Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @product }
@@ -481,23 +481,19 @@ class ProductsController < ApplicationController
       end
     end
 
-    def generate_product_sku
-      name_array = @product.name.split(' ')
-      category_array = @product.category.name.split(' ')
-      
+    def generate_product_sku product
       sku_string = ""
+
+      sku_string += product.category.name[0].upcase unless product.category.nil?
+      sku_string += product.brand.name[0].upcase unless product.brand.nil?
+
+      name_array = product.name.split(' ')
       name_array.each do |item|
-        sku_string += item[0].upcase
+        sku_string += item[0].upcase if %w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z).include? (item[0].upcase)
       end
 
-      sku_string += '-'
-
-      category_array.each do |item|
-        sku_string += item[0].upcase
-      end
-
-      @product.sku = sku_string + '-' + @product.id.to_s
-      @product.save
+      product.sku = sku_string + product.id.to_s
+      product.save
     end
 
     def create_product_prices
@@ -537,6 +533,63 @@ class ProductsController < ApplicationController
     end
 
     def build_products_from_csv_file
+      file_data = params[:csv_file]
+      if file_data
+        CSV.foreach(file_data.path, headers: true) do |row|
+          product = Product.find_by(barcode: row[0])
+          if product.nil? 
+            product = Product.new
+          end
+          product.barcode = row[0]
+          product.name = row[1] unless row[1].blank?
+          product.description = ''
+          product.brand = Brand.find_or_create_by(name: row[2].capitalize) unless row[2].blank?
+          product.category = Category.find_or_create_by(name: row[3].capitalize) unless row[3].blank?
+          product.product_line = ProductLine.find_or_create_by(name: row[4].capitalize) unless row[4].blank?
+          product.warehouse = Warehouse.find_or_create_by(name: row[14].capitalize) unless row[14].blank?
+          product.reorder_qty = row[5].to_i unless row[5].blank?
+          product.open_qty = row[6].to_i unless row[6].blank?
+          product.selling_tax = Tax.find_by(name: row[17])
+          product.purchase_tax = Tax.find_by(name: row[17])
+
+          purchase_value = 0
+          sell_value = 0
+          unless row[7].blank?                
+            purchase_value = (row[7].strip.chars.first == '$') ? row[7].slice!(1..-1).to_f : row[7].to_f
+            product.purchase_price_ex = purchase_value
+            product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
+          end
+
+          if row[8].blank? && !row[9].blank?
+            product.selling_price = product.purchase_price_ex * (100 + row[9].to_f) * 0.01
+            product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+          elsif !row[8].blank?
+            sell_value = (row[8].strip.chars.first == '$') ? row[8].slice!(1..-1).to_f : row[8].to_f
+            product.selling_price = sell_value
+            product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+          end
+          product.selling_price_type  = false
+          product.purchase_price_type = true
+          product.quantity = row[6].to_i unless row[6].blank?
+          product.save
+
+          price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
+          if price.nil?
+            price = product.prices.new(name: "Wholesale")
+          end
+          price.price_type = 0
+
+          if row[11].blank? && !row[12].blank?
+            price.value = product.purchase_price_ex * (100 + row[12].to_f) * 0.01
+          elsif !row[11].blank?
+            sell_value = (row[11].strip.chars.first == '$') ? row[11].strip.slice!(1..-1).to_f : row[11].to_f
+            price.value = sell_value
+          end
+          price.save
+
+          generate_product_sku product
+        end
+      end
     end
 
     def build_products_from_excel_file
@@ -597,6 +650,8 @@ class ProductsController < ApplicationController
                 price.value = sell_value
               end
               price.save
+
+              generate_product_sku product
             end        
           end
         end

@@ -6,7 +6,7 @@ class GlobalMap < ActiveRecord::Base
   def self.sale_number
     order_number = GlobalMap.value_by('sales_no').to_i + 1
     GlobalMap.set_object('sales_no', order_number)
-    return "SO-" + order_number.to_s.rjust(6, '0')
+    return "SO#" + order_number.to_s.rjust(6, '0')
   end
 
   def self.set_object(key, value)

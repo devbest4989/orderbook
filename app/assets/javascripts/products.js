@@ -192,7 +192,7 @@ var Products = function () {
       elErrorContainer: '#kv-avatar-errors',
       msgErrorClass: 'alert alert-block alert-danger',
       defaultPreviewContent: '<img src="'+product_image_url+'" alt="Product Picture" style="max-width: 200px;max-height: 200px;"><h6 class="text-muted">Click to select</h6>',
-      layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
+      layoutTemplates: {main2: '{preview}  {remove} {browse}'},
       allowedFileExtensions: ["jpg", "png", "gif"]
     });      
   }
