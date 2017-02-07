@@ -16,7 +16,7 @@
         .col-md-8.col-sm-8.col-xs-12.form-group
           = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
     .col-md-6.col-sm-6.col-xs-12.text-right
-      %h3
+      %h3{style: 'padding-right: 15px;'}
         = @sales_order.token
       = f.hidden_field :token
   .ln_solid_narrow
@@ -27,7 +27,7 @@
         .col-md-8.col-sm-8.col-xs-12
           = f.collection_select :booked_by_id, User.all, :id, :full_name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date *
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date*
         .col-md-8.col-sm-8.col-xs-12
           %fieldset.xdisplay_inputx.has-feedback
             = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
@@ -48,31 +48,40 @@
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
         .col-md-8.col-sm-8.col-xs-12
           = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+    .col-md-6.col-sm-6.col-xs-12
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms *
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Person
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :contact_name, {}, {:include_blank => true}, {:class => 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Phone
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :contact_phone, class: 'form-control', :placeholder => "Contact Phone"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Email
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :contact_email, class: 'form-control', :placeholder => "Contact Email"
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms*
         .col-md-8.col-sm-8.col-xs-12
           = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
       .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number"
+      .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Description
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_area :notes, cols: 40, rows: 3, class: 'form-control'
-    .col-md-6.col-sm-6.col-xs-12
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
-        .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:data => {:placeholder => "Select Customer"}, :class => 'form-control select2_customer', :required => "true"}
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Info
-        .col-md-8.col-sm-8.col-xs-12
-          %address#contact_info{:style => "padding-top: 8px; margin-bottom: 0;"}
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Billing Address
-        .col-md-8.col-sm-8.col-xs-12
+          = f.text_area :notes, cols: 40, rows: 2, class: 'form-control'
+      .row
+        .col-md-6.col-sm-6.col-xs-12
+          %label Billing Address
           %address#billing_info{:style => "padding-top: 8px; margin-bottom: 0;"}
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Address
-        .col-md-8.col-sm-8.col-xs-12
+        .col-md-6.col-sm-6.col-xs-12
+          %label Shipping Address
           %address#shipping_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+  .ln_solid_narrow
+  .row
     .col-md-12
       %h4 Product Information
       .row
@@ -81,7 +90,19 @@
             %i.fa.fa-plus
             Add Product      
       / start project list
-      %table#product_list.table.table-bordered.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+      %table.table.table-hover.projects.margin-bottom-5
+        %thead
+          %tr
+            %th
+              Product Details
+            %th Quantity
+            %th Unit Price
+            %th Discount(%)
+            %th Tax(%)
+            %th Amount
+            %th Action
+        %tbody
+
       %table.table.projects
         %tbody
           %tr
@@ -212,51 +233,9 @@
       t.delRow(row_id);
     });    
 
-    $('#order_date').daterangepicker({
-      singleDatePicker: true,
-      calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
-    }, function(start, end, label) {
-    });
-
-    $('#req_ship_date').daterangepicker({
-      singleDatePicker: true,
-      calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
-      }, function(start, end, label) {
-    });
-
-    $('#estimate_ship_date').daterangepicker({
-      singleDatePicker: true,
-      calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
-      }, function(start, end, label) {
-    });
-
     $(".select2_customer").select2({
       placeholder: "Select a Customer",
       allowClear: true
-    });
-
-    $(".select2_customer").on('change', function(){
-      if($('#sales_order_customer_id').val() > 0){
-        detail_url = "/customer/detail_info/" + $('#sales_order_customer_id').val();
-        $.ajax({
-          url: detail_url,
-          type: "post",
-          datatype: 'json',
-          success: function(data){
-            contact_info_html =  "Email : " + data.email + "<br/>";
-            contact_info_html += "Phone : " + data.phone + "<br/>";
-            contact_info_html += "Fax : " + data.fax + "<br/>";
-            $('#contact_info').html(contact_info_html);
-            $('#billing_info').html(data.billing);
-            $('#shipping_info').html(data.shipping);
-          },
-          error:function(){
-          }   
-        });                     
-      }
     });
 
     $.listen('parsley:field:validate', function() {

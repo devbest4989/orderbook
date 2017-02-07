@@ -15,9 +15,6 @@ class SalesOrder < ActiveRecord::Base
     # The order can belong to a customer
     belongs_to :customer
     belongs_to :shipping_method
-    belongs_to :contact
-
-    accepts_nested_attributes_for :contact
 
     self.per_page = 25
 

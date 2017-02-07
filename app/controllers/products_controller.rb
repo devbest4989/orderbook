@@ -187,7 +187,6 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show    
-    generate_product_sku @product
     set_categories
     set_product_lines
     set_brands
@@ -541,36 +540,37 @@ class ProductsController < ApplicationController
             product = Product.new
           end
           product.barcode = row[0]
-          product.name = row[1] unless row[1].blank?
+          product.sku = row[1] unless row[1].blank?
+          product.name = row[2] unless row[2].blank?
           product.description = ''
-          product.brand = Brand.find_or_create_by(name: row[2].capitalize) unless row[2].blank?
-          product.category = Category.find_or_create_by(name: row[3].capitalize) unless row[3].blank?
-          product.product_line = ProductLine.find_or_create_by(name: row[4].capitalize) unless row[4].blank?
-          product.warehouse = Warehouse.find_or_create_by(name: row[14].capitalize) unless row[14].blank?
-          product.reorder_qty = row[5].to_i unless row[5].blank?
-          product.open_qty = row[6].to_i unless row[6].blank?
-          product.selling_tax = Tax.find_by(name: row[17])
-          product.purchase_tax = Tax.find_by(name: row[17])
+          product.brand = Brand.find_or_create_by(name: row[3].capitalize) unless row[3].blank?
+          product.category = Category.find_or_create_by(name: row[4].capitalize) unless row[4].blank?
+          product.product_line = ProductLine.find_or_create_by(name: row[5].capitalize) unless row[5].blank?
+          product.warehouse = Warehouse.find_or_create_by(name: row[15].capitalize) unless row[15].blank?
+          product.reorder_qty = row[6].to_i unless row[6].blank?
+          product.open_qty = row[7].to_i unless row[7].blank?
+          product.selling_tax = Tax.find_by(name: row[18])
+          product.purchase_tax = Tax.find_by(name: row[18])
 
           purchase_value = 0
           sell_value = 0
-          unless row[7].blank?                
-            purchase_value = (row[7].strip.chars.first == '$') ? row[7].slice!(1..-1).to_f : row[7].to_f
+          unless row[8].blank?                
+            purchase_value = (row[8].strip.chars.first == '$') ? row[8].slice!(1..-1).to_f : row[8].to_f
             product.purchase_price_ex = purchase_value
             product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
           end
 
-          if row[8].blank? && !row[9].blank?
-            product.selling_price = product.purchase_price_ex * (100 + row[9].to_f) * 0.01
+          if row[9].blank? && !row[10].blank?
+            product.selling_price = product.purchase_price_ex * (100 + row[10].to_f) * 0.01
             product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
-          elsif !row[8].blank?
-            sell_value = (row[8].strip.chars.first == '$') ? row[8].slice!(1..-1).to_f : row[8].to_f
+          elsif !row[9].blank?
+            sell_value = (row[9].strip.chars.first == '$') ? row[9].slice!(1..-1).to_f : row[9].to_f
             product.selling_price = sell_value
             product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
           end
           product.selling_price_type  = false
           product.purchase_price_type = true
-          product.quantity = row[6].to_i unless row[6].blank?
+          product.quantity = row[7].to_i unless row[7].blank?
           product.save
 
           price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
@@ -579,15 +579,15 @@ class ProductsController < ApplicationController
           end
           price.price_type = 0
 
-          if row[11].blank? && !row[12].blank?
-            price.value = product.purchase_price_ex * (100 + row[12].to_f) * 0.01
-          elsif !row[11].blank?
-            sell_value = (row[11].strip.chars.first == '$') ? row[11].strip.slice!(1..-1).to_f : row[11].to_f
+          if row[12].blank? && !row[13].blank?
+            price.value = product.purchase_price_ex * (100 + row[13].to_f) * 0.01
+          elsif !row[12].blank?
+            sell_value = (row[12].strip.chars.first == '$') ? row[12].strip.slice!(1..-1).to_f : row[12].to_f
             price.value = sell_value
           end
           price.save
 
-          generate_product_sku product
+          generate_product_sku product if row[1].blank?
         end
       end
     end
@@ -605,36 +605,37 @@ class ProductsController < ApplicationController
                 product = Product.new
               end
               product.barcode = xlsx.cell(line, 'A').to_s.strip unless xlsx.cell(line, 'A').nil?
-              product.name = xlsx.cell(line, 'B').to_s.strip unless xlsx.cell(line, 'B').nil?
+              product.sku = xlsx.cell(line, 'B').to_s.strip unless xlsx.cell(line, 'B').nil?
+              product.name = xlsx.cell(line, 'C').to_s.strip unless xlsx.cell(line, 'C').nil?
               product.description = ''
-              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'C').to_s.strip.capitalize) unless xlsx.cell(line, 'C').nil?
-              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'D').to_s.strip.capitalize) unless xlsx.cell(line, 'D').nil?
-              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'E').to_s.strip.capitalize) unless xlsx.cell(line, 'E').nil?
-              product.warehouse = Warehouse.find_or_create_by(name: xlsx.cell(line, 'O').to_s.strip.capitalize) unless xlsx.cell(line, 'O').nil?
-              product.reorder_qty = xlsx.cell(line, 'F').to_i unless xlsx.cell(line, 'F').nil?
-              product.open_qty = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
-              product.selling_tax = Tax.find_by(name: xlsx.cell(line, 'R'))
-              product.purchase_tax = Tax.find_by(name: xlsx.cell(line, 'R'))
+              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'D').to_s.strip.capitalize) unless xlsx.cell(line, 'D').nil?
+              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'E').to_s.strip.capitalize) unless xlsx.cell(line, 'E').nil?
+              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'F').to_s.strip.capitalize) unless xlsx.cell(line, 'F').nil?
+              product.warehouse = Warehouse.find_or_create_by(name: xlsx.cell(line, 'P').to_s.strip.capitalize) unless xlsx.cell(line, 'P').nil?
+              product.reorder_qty = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
+              product.open_qty = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
+              product.selling_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
+              product.purchase_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
 
               purchase_value = 0
               sell_value = 0
-              unless xlsx.cell(line, 'H').nil?                
-                purchase_value = (xlsx.cell(line, 'H').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'H').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'H').to_f
+              unless xlsx.cell(line, 'I').nil?                
+                purchase_value = (xlsx.cell(line, 'I').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'I').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'I').to_f
                 product.purchase_price_ex = purchase_value
                 product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
               end
 
-              if xlsx.cell(line, 'I').nil? && !xlsx.cell(line, 'J').nil?
-                product.selling_price = product.purchase_price_ex * (100 + xlsx.cell(line, 'J').to_f) * 0.01
+              if xlsx.cell(line, 'J').nil? && !xlsx.cell(line, 'K').nil?
+                product.selling_price = product.purchase_price_ex * (100 + xlsx.cell(line, 'K').to_f) * 0.01
                 product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
-              elsif !xlsx.cell(line, 'I').nil?
-                sell_value = (xlsx.cell(line, 'I').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'I').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'I').to_f
+              elsif !xlsx.cell(line, 'J').nil?
+                sell_value = (xlsx.cell(line, 'J').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'J').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'J').to_f
                 product.selling_price = sell_value
                 product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
               end
               product.selling_price_type  = false
               product.purchase_price_type = true
-              product.quantity = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
+              product.quantity = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
               product.save
 
               price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
@@ -643,15 +644,15 @@ class ProductsController < ApplicationController
               end
               price.price_type = 0
 
-              if xlsx.cell(line, 'L').nil? && !xlsx.cell(line, 'M').nil?
-                price.value = product.purchase_price_ex * (100 + xlsx.cell(line, 'M').to_f) * 0.01
-              elsif !xlsx.cell(line, 'L').nil?
-                sell_value = (xlsx.cell(line, 'L').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'L').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'L').to_f
+              if xlsx.cell(line, 'M').nil? && !xlsx.cell(line, 'N').nil?
+                price.value = product.purchase_price_ex * (100 + xlsx.cell(line, 'N').to_f) * 0.01
+              elsif !xlsx.cell(line, 'M').nil?
+                sell_value = (xlsx.cell(line, 'M').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'M').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'M').to_f
                 price.value = sell_value
               end
               price.save
 
-              generate_product_sku product
+              generate_product_sku product if xlsx.cell(line, 'B').nil?
             end        
           end
         end
