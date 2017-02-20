@@ -10,22 +10,26 @@
             - @sales_order.errors.full_messages.each do |msg|
               %li= msg
   .row
-    .col-md-6.col-sm-6.col-xs-12
+    .col-md-6.col-sm-6.col-xs-10
       .form-group{style: 'margin-top: 10px;'}
         %label.col-md-4.col-sm-4.col-xs-12.control-label Customer Name*
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        .col-md-7.col-sm-7.col-xs-12.form-group
           = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+        .col-md-1.col-sm-1.col-xs-12.form-group.no-padding
+          %a.btn.btn-xs.add-customer{href: new_customer_path()}
+            %i.fa.fa-icon.fa-plus-circle
     .col-md-6.col-sm-6.col-xs-12.text-right
       %h3{style: 'padding-right: 15px;'}
         = @sales_order.token
       = f.hidden_field :token
+      = f.hidden_field :id
   .ln_solid_narrow
   .row
     .col-md-6.col-sm-6.col-xs-12
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Person*
         .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:selected => current_user.id}, {:class => 'form-control', :required => "true"}
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date*
         .col-md-8.col-sm-8.col-xs-12
@@ -52,7 +56,8 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Person
         .col-md-8.col-sm-8.col-xs-12
-          = f.select :contact_name, {}, {:include_blank => true}, {:class => 'form-control'}
+          = f.text_field :contact_name, {:class => 'form-control'}
+          #contact_container
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Phone
         .col-md-8.col-sm-8.col-xs-12
@@ -69,17 +74,100 @@
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
         .col-md-8.col-sm-8.col-xs-12
           = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number"
-      .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Description
-        .col-md-8.col-sm-8.col-xs-12
-          = f.text_area :notes, cols: 40, rows: 2, class: 'form-control'
       .row
-        .col-md-6.col-sm-6.col-xs-12
-          %label Billing Address
+        .col-md-6.col-sm-6.col-xs-12.text-center
+          %a.btn{href: '#', data: {toggle: 'modal', target: '.bs-billing-modal'}}
+            %label Billing Address
           %address#billing_info{:style => "padding-top: 8px; margin-bottom: 0;"}
-        .col-md-6.col-sm-6.col-xs-12
-          %label Shipping Address
+          = f.hidden_field :bill_street
+          = f.hidden_field :bill_suburb
+          = f.hidden_field :bill_city
+          = f.hidden_field :bill_state
+          = f.hidden_field :bill_postcode
+          = f.hidden_field :bill_country
+          .modal.fade.bs-billing-modal{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+            .modal-dialog.modal-md
+              .modal-content
+                .modal-header
+                  %button.close{"data-dismiss" => "modal", :type => "button"}
+                    %span{"aria-hidden" => "true"} ×
+                  %h4.modal-title Billing Address
+                .modal-body
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_street, '', class: 'form-control', :placeholder => "Street"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_city, '', class: 'form-control', :placeholder => "City"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_state, '', class: 'form-control', :placeholder => "State"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+                    .col-md-8.col-sm-8.col-xs-12
+                      = country_select :bill_country, '',  priority: %w(NZ), prompt: 'Select a Country', class: 'form-control'
+                .modal-footer
+                  %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+                  %button#btn_bill_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
+
+        .col-md-6.col-sm-6.col-xs-12.text-center
+          %a.btn{href: '#', data: {toggle: 'modal', target: '.bs-shipping-modal'}}
+            %label Shipping Address
           %address#shipping_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+          = f.hidden_field :ship_street
+          = f.hidden_field :ship_suburb
+          = f.hidden_field :ship_city
+          = f.hidden_field :ship_state
+          = f.hidden_field :ship_postcode
+          = f.hidden_field :ship_country
+          .modal.fade.bs-shipping-modal{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+            .modal-dialog.modal-md
+              .modal-content
+                .modal-header
+                  %button.close{"data-dismiss" => "modal", :type => "button"}
+                    %span{"aria-hidden" => "true"} ×
+                  %h4.modal-title Shipping Address
+                .modal-body
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_street, '', class: 'form-control', :placeholder => "Street"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_city, '', class: 'form-control', :placeholder => "City"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_state, '', class: 'form-control', :placeholder => "State"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+                    .col-md-8.col-sm-8.col-xs-12
+                      = country_select :ship_country, '', priority: %w(NZ), class: 'form-control', prompt: 'Select a Country'
+                .modal-footer
+                  %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+                  %button#btn_ship_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
+          .hide
+            = collection_select :tax_select, '', Tax.all, :rate, :name, {include_blank: false}, {:class => 'form-control'}
   .ln_solid_narrow
   .row
     .col-md-12
@@ -90,7 +178,7 @@
             %i.fa.fa-plus
             Add Product      
       / start project list
-      %table.table.table-hover.projects.margin-bottom-5
+      %table#product_list.table.table-hover.projects.margin-bottom-5
         %thead
           %tr
             %th
@@ -103,32 +191,55 @@
             %th Action
         %tbody
 
+  .row.form-group 
+    .col-md-6.text-center
+      %a.btn{href: '/products/new'}
+        %i.fa.fa-icon.fa-cube
+        + Add New Product
+    .col-md-6.text-center
+      %a.btn
+        + Add Customer Product
+
+  .ln_solid_narrow
+  .row
+    .col-md-6          
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Note
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_area :notes, cols: 40, rows: 5, class: 'form-control order-note'      
+    .col-md-6          
       %table.table.projects
         %tbody
           %tr
-            %td{:style => 'border:none; background: white; width:60%;'} 
-            %td{:style => 'border:none; background: white; width:10%;'} 
+            %td{:style => 'border:none; background: white; text-align: right;'} 
               %b SubTotal:
-            %td#sub_total_cell.money{:style => 'border:none; background: white; width:15%;'}
-            %td{:style => 'border:none; background: white; width:15%;'}
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:40%;'}
           %tr
-            %td{:style => 'border:none; background: white; width:60%;'} 
-            %td{:style => 'border:none; background: white; width:10%;'} 
-              %b Discount:
-            %td#discount_total_cell.money{:style => 'border:none; background: white; width:15%;'}
-            %td{:style => 'border:none; background: white; width:15%;'}
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:40%;'}
           %tr
-            %td{:style => 'border:none; background: white; width:60%;'} 
-            %td{:style => 'border:none; background: white; width:10%;'} 
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Shipping Cost:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
               %b Tax:
-            %td#tax_total_cell.money{:style => 'border:none; background: white; width:15%;'}
-            %td{:style => 'border:none; background: white; width:15%;'}
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:40%;'}
           %tr
-            %td{:style => 'border:none; background: white; width:60%;'} 
-            %td{:style => 'border:none; background: white; width:10%;'} 
+            %td{:style => 'border:none; background: white; text-align: right;'} 
               %b Total:
-            %td#total_cell.money{:style => 'border:none; background: white; width:15%;'}
-            %td{:style => 'border:none; background: white; width:15%;'}
+            %td#total_cell.money{:style => 'border:none; background: white; width:40%;'}
+
+  .ln_solid_narrow
+  .row
+    .col-md-6
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :contact_name, {}, {:include_blank => true}, {:class => 'form-control'}
+
+
 :javascript
   jQuery(document).ready(function() {
     SalesOrdersNew.initSalesOrderNewForm();
@@ -138,47 +249,35 @@
   var t = new Table({
       id: "product_list",
       fields: {
-          "SKU": {
-              "class": "edit",
-              "type": "string",
-              "css" : 'style = "width: 10%"'
-          }, 
           "Product Name": {
               "class": "edit",
               "type": "string",
-              "css" : 'style = "width: 20%"'
+              "css" : 'style = "width: 30%"'
           },
           "Quantity": {
               "class": "edit",
               "type": "int",
-              "css" : 'style = "width: 10%"',
+              "css" : 'style = "width: 15%"',
               "field_name" : 'quantity'
           },
           "Unit Price": {
               "class": "edit",
               "type": "money",
-              "css" : 'style = "width: 10%"',
+              "css" : 'style = "width: 15%"',
               "field_name" : 'unit_price'
           }, 
           "Discount(%)": {
               "class": "edit",
               "type": "float",
-              "css" : 'style = "width: 10%"',
+              "css" : 'style = "width: 15%"',
               "field_name" : 'discount_rate'
           },
           "Tax(%)": {
               "class": "edit",
               "type": "float",
               "css" : 'style = "width: 10%"',
+              "control" : "#tax_select_",
               "field_name" : 'tax_rate'
-          },
-          "Line Total": {
-              "class": "money",
-              "type": "calc",
-              "formula": [
-                  { "multiply": [{ "c": -3 }, { "c": -4 }] }
-              ],
-              "css" : 'style = "width: 15%"'
           },
           "Action": {
               "class": "",
@@ -197,32 +296,10 @@
       direction: "asc"
   });
 
-  function initCustomerAddress(){
-    if($('#sales_order_customer_id').val() > 0){
-      detail_url = "/customer/detail_info/" + $('#sales_order_customer_id').val();
-      $.ajax({
-        url: detail_url,
-        type: "post",
-        datatype: 'json',
-        success: function(data){
-          contact_info_html =  "Email : " + data.email + "<br/>";
-          contact_info_html += "Phone : " + data.phone + "<br/>";
-          contact_info_html += "Fax : " + data.fax + "<br/>";
-          $('#contact_info').html(contact_info_html);
-          $('#billing_info').html(data.billing);
-          $('#shipping_info').html(data.shipping);
-        },
-        error:function(){
-        }   
-      });                     
-    }
-  }
-
   $(document).ready(function() {
     var grid_data = [#{@item_data}];    
     t.setdata(grid_data);
     t.render();
-    initCustomerAddress();
 
     $("#add_product").on("click", function() {
         t.addRow();
@@ -232,68 +309,5 @@
       var row_id = $(this).attr('data-id');
       t.delRow(row_id);
     });    
-
-    $(".select2_customer").select2({
-      placeholder: "Select a Customer",
-      allowClear: true
-    });
-
-    $.listen('parsley:field:validate', function() {
-      validateFront();
-    });
-
-    var form_id = "#{(@sales_order.id.blank?) ? "#new_sales_order" : "#edit_sales_order_" + @sales_order.id.to_s }";
-    $( form_id + ' #btn_submit').on('click', function() {
-      var validate = $(form_id).parsley().validate();
-      validateFront();
-      if(validate === true){
-        var reqData = $(form_id).serializeArray();
-        reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text()});
-        tdata = t.serialize();
-        for(i = 0; i < tdata.length; i++){
-          for(key in tdata[i]){
-            item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
-            reqData.push({name: item_key, value: tdata[i][key]});
-          }
-        }
-        var reqUrl = "/sales_orders" + "#{(@sales_order.id.blank?) ? "" : "/" + @sales_order.id.to_s}";
-        $.ajax({
-          url: reqUrl,
-          type: "post",
-          datatype: 'json',
-          data: reqData,
-          success: function(data){
-            if(data.Result == "OK"){
-              window.location.href = "/sales_orders";
-            } else {
-              new PNotify({
-                title: 'Error!',
-                text: data.Message,
-                type: 'error'
-              });              
-            }
-          },
-          error:function(){
-            new PNotify({
-              title: 'Error!',
-              text: 'Order request is not processed.',
-              type: 'error'
-            });              
-          }   
-        });                         
-      } else {        
-      }
-      
-    });
-
-    var validateFront = function() {
-      if (true === $(form_id).parsley().isValid()) {
-        $('.bs-callout-info').removeClass('hidden');
-        $('.bs-callout-warning').addClass('hidden');
-      } else {
-        $('.bs-callout-info').addClass('hidden');
-        $('.bs-callout-warning').removeClass('hidden');
-      }
-    };
 
   });

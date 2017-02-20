@@ -49,6 +49,7 @@
 //= require js/editable-table/table
 //= require js/notify/pnotify.core
 //= require js/notify/pnotify.buttons
+//= require js/autocomplete/jquery.autocomplete.js
 
 //= require plugins/jquery-editable-select/jquery-editable-select
 //= require plugins/uniform/jquery.uniform.min

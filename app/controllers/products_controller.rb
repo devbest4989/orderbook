@@ -18,11 +18,11 @@ class ProductsController < ApplicationController
   # POST /products/list_by_sku
   def list_by_id
     if params[:id]
-      @product = Product.select('sku, id, name, selling_price').find(params[:id])
+      @product = Product.select('sku, id, name, selling_price, selling_tax_id').includes(:selling_tax).find(params[:id])
     end
 
     respond_to do |format|
-      format.json {render :json => @product}
+      format.json {render :json => {product: @product, tax: @product.selling_tax}}
     end
   end
 

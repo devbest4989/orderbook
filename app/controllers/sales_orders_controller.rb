@@ -114,9 +114,10 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1
   # GET /sales_orders/1.json
   def show
-    if @sales_order.draft?
-      redirect_to edit_sales_order_path(@sales_order)
-    end    
+#    if @sales_order.draft?
+#      redirect_to edit_sales_order_path(@sales_order)
+#    end    
+    @sales_orders = SalesOrder.all
   end
 
   def cancel
@@ -155,10 +156,24 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def list_by_type
+    case params[:type]
+    when 'all'
+      @sales_orders = SalesOrder.all
+                  .paginate(page: params[:page])
+    else
+      @sales_orders = SalesOrder.all
+    end
+
+    respond_to do |format|
+      format.html { render "list" }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sales_order
-      @sales_order = SalesOrder.find(params[:id])
+      @sales_order = nil #SalesOrder.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

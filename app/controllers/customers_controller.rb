@@ -10,7 +10,11 @@ class CustomersController < ApplicationController
   def detail_info
     @customer = Customer.find(params[:id])
     respond_to do |format|
-      result = {:result => "OK", :phone => @customer.phone, :fax => @customer.fax, :email => @customer.email, :billing => @customer.billing_address, :shipping =>@customer.shipping_address }
+      result = {:result => "OK", 
+                :info => @customer, 
+                :contacts => @customer.contacts,
+                :billing => @customer.billing_address, 
+                :shipping =>@customer.shipping_address }
       format.json {render :json => result}
     end
   end

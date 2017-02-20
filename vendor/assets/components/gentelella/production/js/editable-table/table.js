@@ -37,8 +37,8 @@ Table.prototype._calc_extra = function() {
 
     var sub_total = 0, discount_total = 0, tax_total = 0, total = 0;
     for(r = 0; r <= rows; r++){
-        var discount_id = table_id+"_"+r+"_4";
-        var tax_id = table_id+"_"+r+"_5";
+        var discount_id = table_id+"_"+r+"_3";
+        var tax_id = table_id+"_"+r+"_4";
         var line_total_id = table_id+"_"+r+"_6";
 
         var discount_rate = self._getcell(discount_id);
@@ -530,6 +530,22 @@ Table.prototype._getfieldname = function(id) {
     }
 }
 
+// Get the cell field name
+Table.prototype._getfielddata = function(id) {
+    if ( $("td#"+id) ) {
+
+        var pos = this._position(id);
+
+        var c = 0;
+        for (field in this.fields) {
+            if ( c == pos.col ) {
+                return this.fields[field] || "";
+            }
+            c++;
+        }
+    }
+}
+
 // Test if a specified table exists
 Table.prototype._isvalid = function() {
 
@@ -584,7 +600,63 @@ Table.prototype.editCell = function(id) {
     var cell = $("td#"+id);
     var pos = this._position(id);
 
-    if(pos.col > 1) {
+    switch(pos.col){
+    case '0':
+        if ( $(cell).find("span").length > 0 ) { 
+            return false;
+        }
+        // Retrieve the cell data
+        var text = $(cell).text() || "";
+        var val = $("td#"+self._getlastcolcell(id)).text() || "" ;
+        var cellclass = $("td#"+id).attr("class");
+        var cellAttr = {
+            "style": "width:100%"
+        };
+        
+        var select_html = (text == '') ? '<select></select>' : '<select><option value="'+val+'">'+text+'</option></select>';
+        var cellInput = $(select_html).attr(cellAttr);
+
+        $(cell).empty().append(cellInput);
+
+        $(cellInput).on("focus", function() {
+            $(this).removeClass("error");
+        });        
+
+        var req_url = '/products/list_by_name';
+        var $product_select = $(cellInput).select2({
+          ajax: {
+            url: req_url,
+            type: 'post',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+              return {
+                term: params.term
+              };
+            },
+            processResults: function (data, params) {
+                var results = (data.Records == null) ? [] : data.Records;
+                return{
+                    results: results
+                }                
+            }
+          },
+          placeholder: "Select a Product",
+          allowClear: true
+        });
+
+        $product_select.data('select2').$container.addClass("product-select");
+        $product_select.data('select2').$selection.focus().select();
+
+        $(cellInput).on('change', function(){            
+            self.fillCell(id, function(){
+                var nextcell = pos.table_id + "_" + pos.row + "_" + 1;
+                $('td#'+nextcell).click();
+                $('td#'+nextcell).children('input')[0].focus();                        
+            });
+        });
+        break;
+    default:
         if ( $(cell).find("input").length > 0 ) { 
             return false;
         }
@@ -612,60 +684,8 @@ Table.prototype.editCell = function(id) {
             $(this).removeClass("error");
         });
 
-        $(cellInput).focus().select();        
-    } else {
-        if ( $(cell).find("span").length > 0 ) { 
-            return false;
-        }
-        // Retrieve the cell data
-        var text = $(cell).text() || "";
-        var val = $("td#"+self._getlastcolcell(id)).text() || "" ;
-        var cellclass = $("td#"+id).attr("class");
-        var cellAttr = {
-            "style": "width:100%"
-        };
-        
-        var select_html = (text == '') ? '<select></select>' : '<select><option value="'+val+'">'+text+'</option></select>';
-        var cellInput = $(select_html).attr(cellAttr);
-
-        $(cell).empty().append(cellInput);
-
-        $(cellInput).on("focus", function() {
-            $(this).removeClass("error");
-        });        
-
-        var req_url = (pos.col == 0) ? '/products/list_by_sku' : '/products/list_by_name';
-        var $product_select = $(cellInput).select2({
-          ajax: {
-            url: req_url,
-            type: 'post',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-              return {
-                term: params.term
-              };
-            },
-            processResults: function (data, params) {
-                return{
-                    results: data.Records
-                }                
-            }
-          },
-          placeholder: "Select a Product",
-          allowClear: true
-        });
-
-        $product_select.data('select2').$container.addClass("product-select");
-        $product_select.data('select2').$selection.focus().select();
-
-        $(cellInput).on('change', function(){            
-            self.fillCell(id, function(){
-                var nextcell = pos.table_id + "_" + pos.row + "_" + 2;
-                $('td#'+nextcell).click();
-                $('td#'+nextcell).children('input')[0].focus();                        
-            });
-        });
+        $(cellInput).focus().select();      
+        break;
     }
 }
 
@@ -674,7 +694,7 @@ Table.prototype.formatCell = function(id) {
     var self = this;
     var cell = $("td#"+id);
     var pos = self._position(id);    
-    var val = (pos.col > 1) ? $(cell).children("input").val() : $(cell).children("select").text();
+    var val = (pos.col > 0) ? $(cell).children("input").val() : $(cell).children("select").text();
 
     var dtype = this._gettype(id);
     var dt = this._datatypes(dtype);
@@ -692,9 +712,9 @@ Table.prototype.fillCell = function(id, callback) {
     var pos = self._position(id);    
     var cols = self._count("cols", "table") - 1;
     var lastcellid = pos.table_id + "_" + pos.row + "_" + cols;    
-    var skucell = pos.table_id + "_" + pos.row + "_0";    
-    var namecell = pos.table_id + "_" + pos.row + "_1";
-    var pricecell = pos.table_id + "_" + pos.row + "_3";    
+    var namecell = pos.table_id + "_" + pos.row + "_0";
+    var pricecell = pos.table_id + "_" + pos.row + "_2";    
+    var taxcell = pos.table_id + "_" + pos.row + "_4";    
 
     var lastcell = $("td#"+lastcellid);
     var oldlast = $(lastcell).text();    
@@ -709,13 +729,12 @@ Table.prototype.fillCell = function(id, callback) {
                 id: $(cell).children("select").val()
               },
               success: function(data){
-                $('td#'+skucell).empty().text(data.sku);
-                $('td#'+namecell).empty().text(data.name);
-                $('td#'+pricecell).empty().text(data.selling_price);
+                $('td#'+namecell).empty().text(data.product.name);
+                $('td#'+pricecell).empty().text(data.product.selling_price);
+                $('td#'+taxcell).empty().text(data.tax.rate);
                 callback();
               },
               error:function(){
-                $('td#'+skucell).empty().text('');
                 $('td#'+namecell).empty().text('');
               }   
             });         
@@ -724,7 +743,6 @@ Table.prototype.fillCell = function(id, callback) {
         }
     } else {
         $(lastcell).empty().text('0');
-        $('td#'+skucell).empty().text('');
         $('td#'+namecell).empty().text('');
     }
 }
@@ -745,7 +763,7 @@ Table.prototype.saveCell = function(id) {
     else {
 
         var pos = self._position(id);    
-        if(pos.col <= 1){
+        if(pos.col <= 0){
             self.fillCell(id);
         } else {
             $(cell).empty().text(val);
@@ -895,7 +913,7 @@ Table.prototype.addRow = function(o) {
 
         var cell;
         if(dtype == 'html'){
-            var deleteHtml = '<a class="btn btn-danger btn-xs delete-row" data-id= "'+rid+'"><i class="fa fa-trash-o"></i> Delete</a>';
+            var deleteHtml = '<a class="btn btn-xs delete-row" data-id= "'+rid+'"><i class="fa fa-minus-circle"></i></a>';
             cell = $("<td />").attr(cellAttr).html(deleteHtml);            
         } else {
             cell = $("<td />").attr(cellAttr).text(val);            
@@ -923,6 +941,7 @@ Table.prototype.delRow = function (id) {
         for(j = 0; j < cols; j++){
             colid = rowid + '_' + j;
             newcolid = newrowid + '_' + j;
+            $("td#"+colid).find('a.delete-row').attr("data-id", newrowid);
             $("td#"+colid).attr("id", newcolid);
         }
     }

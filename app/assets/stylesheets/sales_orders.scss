@@ -156,6 +156,12 @@
         .btn{
           margin-bottom: 3px;
         }
+
+        .delete-row{
+          i{
+            font-size: 20px;
+          }
+        }
       }
       tr.status-inactive{
         color: #aaa;
@@ -166,6 +172,17 @@
           }
         }
       }
+    }
+
+    a.add-customer{
+      margin-top: 5px;
+      i{
+        font-size: 20px;
+      }
+    }
+
+    textarea.order-note{
+      resize: none;
     }
   }   
 }

@@ -1,0 +1,43 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+        %h2
+          =t("sales_order.container.list.header.#{params[:type]}")
+          %span.fa.fa-chevron-down.list-type-down
+      %ul.dropdown-menu
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'all') do
+            All Sales Orders            
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'quote'), class: "no-border" do
+            Quote
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'confirmed'), class: "no-border" do
+            Confirmed
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'shipped') do
+            Shipped
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'drop_shipped'), class: "no-border" do
+            Drop Shipped
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'invoice'), class: "no-border" do
+            Ready to Invoice
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.add-link{ :href => new_sales_order_path }
+            %i.fa.fa-cart-plus
+            %span New
+        %li
+          = select_tag :bulk_action, options_for_select([['Mark as Active', 1], ['Mark as Inactive', 2], ['Delete', 3]]), {:include_blank => 'Select Action', class: 'form-control'}
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+      .clearfix
+    .x_content
+      = render 'sales_order_list'
+:javascript
+  jQuery(document).ready(function() {
+    //SalesOrders.initProductListPage();
+  });      

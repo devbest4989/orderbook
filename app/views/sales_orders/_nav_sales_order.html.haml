@@ -1,0 +1,54 @@
+.x_panel
+  .x_title
+    %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+      %h2
+        = nav_name
+        %span.fa.fa-chevron-down.list-type-down
+    %ul.dropdown-menu
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'all') do
+          All Sales Orders            
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'quote'), class: "no-border" do
+          Quote
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'confirmed'), class: "no-border" do
+          Confirmed
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'shipped') do
+          Shipped
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'drop_shipped'), class: "no-border" do
+          Drop Shipped
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'invoice'), class: "no-border" do
+          Ready to Invoice
+    %ul.nav.navbar-right.panel_toolbox
+      %li
+        %a.add-link{ :href => add_url }
+          %i.fa.fa-cart-plus
+    .clearfix
+  #product_side_menu.x_content{:style => "max-height:800px;"}
+    .sub_menu_side
+      %ul.nav.side-menu
+        - sub_elems.each do |elem|
+          %li{ :class => "sub-nav-#{elem.id} element" }
+            - if type == 'show'
+              %a{:href => product_path(elem, type: product_type)}
+                %p.product-name= "#{elem.name}"
+                %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
+                %p.product-stock
+                  %span= "#{elem.stock}"
+                  available
+            - else
+              %a{:href => edit_product_path(elem)}
+                %p.product-name= "#{elem.name}"
+                %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
+                %p.product-stock
+                  %span= "#{elem.stock}"
+                  available
+      %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
+:javascript
+  jQuery(document).ready(function() {
+    //ProductDetail.initProductNavList();
+  });

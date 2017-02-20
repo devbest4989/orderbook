@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   get '/config_station' => 'plainpage#config_station'
   get '/config_email' => 'plainpage#config_email'
   get '/config_warehouse' => 'plainpage#config_warehouse'
+  get '/config_shipping_method' => 'plainpage#shipping_method'
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
 
@@ -74,9 +75,22 @@ Rails.application.routes.draw do
       post :return
       post :ship
     end
+
+    collection do
+      get  ':type/list_orders', to: 'sales_orders#list_by_type', as: 'list_by_type'
+    end
   end
 
   resources :taxes do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+    end
+  end
+
+  resources :shipping_methods do
     collection do
       post :list
       post :remove

@@ -31,3 +31,8 @@ en:
           removed: "Deleted Products"
           varient: "Varients Products"
           low-stock: "Low Stock Products"
+  sales_order:
+    container:
+      list:
+        header:
+          all: "All Sales Orders"

@@ -1,62 +1,54 @@
-.right_col{:role => "main"}
-  %div
-    .page-title
-      .title_left
-        %h3 Sales Order Details
-      .title_right
-        .col-md-5.col-sm-5.col-xs-12.form-group.pull-right.top_search
-          .input-group
-            %input.form-control{:placeholder => "Search for...", :type => "text"}/
-            %span.input-group-btn
-              %button.btn.btn-default{:type => "button"} Go!
-    .clearfix
-    .row
-      .col-md-12.col-sm-12.col-xs-12
-        .x_panel
-          .x_title
-            %h2 Sales Order
-            %ul.nav.navbar-right.panel_toolbox
-              %li
-                %a.collapse-link
-                  %i.fa.fa-chevron-up
-              %li
-                %a.close-link
-                  %i.fa.fa-close
-            .clearfix
-          .x_content
-            / Nav tabs
-            %ul.nav.nav-tabs.bar_tabs
-              %li.active
-                %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
-                  %i.fa.fa-folder-open-o
-                  Details                                    
-              %li
-                %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
-                  %i.fa.fa-file-text-o
-                  Invoices
-              %li
-                %a{"data-toggle" => "tab", :href => "#tab_shipment", "aria-expanded" => "false"} 
-                  %i.fa.fa-truck
-                  Shipments
-              %li
-                %a{"data-toggle" => "tab", :href => "#tab_return", "aria-expanded" => "false"} 
-                  %i.fa.fa-mail-reply
-                  Retun
-              %li
-                %a{"data-toggle" => "tab", :href => "#tab_cancel", "aria-expanded" => "false"} 
-                  %i.fa.fa-times
-                  Cancel
-            .tab-content
-              #tab_detail{:class => "tab-pane active"}
-                = render 'form_sales_order_detail'
-              #tab_invoice{:class => "tab-pane"}
-                = render 'form_sales_order_invoice'
-              #tab_shipment{:class => "tab-pane"}
-                = render 'form_sales_order_shipment'
-              #tab_return{:class => "tab-pane"}
-                = render 'form_sales_order_return'
-              #tab_cancel{:class => "tab-pane"}
-                = render 'form_sales_order_cancel'
+.right_col.sales-orders-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_sales_order', add_url: new_sales_order_path, active_elem: "sub-nav-#{}", nav_name: 'Sales Orders', sub_elems: @sales_orders, type: 'show', cat_name: 'Sales Order Detail', product_type: params[:type]
+  .right-content
+    .x_panel
+      .x_title
+        %h2 
+          Sales Order
+          /=@sales_order.token          
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li.active
+            %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
+              %i.fa.fa-folder-open-o
+              Order Details                                    
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
+              %i.fa.fa-file-text-o
+              Ordered Items
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_shipment", "aria-expanded" => "false"} 
+              %i.fa.fa-truck
+              Shippments
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
+              %i.fa.fa-mail-reply
+              Invoice
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_history", "aria-expanded" => "false"} 
+              %i.fa.fa-history
+              History
+        .tab-content
+          #tab_detail{:class => "tab-pane active"}
+            = render 'form_sales_order_detail'
+          #tab_item{:class => "tab-pane"}
+            = render 'form_sales_order_item'
+          /#tab_shipment{:class => "tab-pane"}
+          /  = render 'form_sales_order_shipment'
+          /#tab_invoice{:class => "tab-pane"}
+          /  = render 'form_sales_order_return'
+          /#tab_history{:class => "tab-pane"}
+          /  = render 'form_sales_order_cancel'
 :javascript
   jQuery(document).ready(function() {
   });
