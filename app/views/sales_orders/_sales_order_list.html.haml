@@ -9,7 +9,7 @@
     %table.table.table-hover.projects
       %thead
         %tr
-          %th
+          %th{width: '1%'}
             %input.group-checkable{type: 'checkbox'}
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'date', sort: 'asc'} do
@@ -17,22 +17,22 @@
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'order_no', sort: 'asc'} do
               Sales Order#
-          %th
+          %th{width: '20%'}
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'company', sort: 'asc'} do
               Company Name
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
-          %th
+          %th.text-center
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'packed', sort: 'asc'} do
               Packed
-          %th
+          %th.text-center
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'delivered', sort: 'asc'} do
               Delivered
-          %th
+          %th.text-center
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'invoiced', sort: 'asc'} do
               Invoiced
-          %th
+          %th{width: '20%'}
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
               Amount
       %tbody
@@ -40,18 +40,30 @@
         %tr{class: "status"}
           %td.bulk_action  
             %input{type: 'checkbox', value: "#{order.id}", name: "table_records"}
-          %td 
           %td
+            = order.order_date
           %td
+            %a{:href => sales_order_path(id: order.id, type:params[:type])}
+              = order.token
           %td
+            = order.customer_full_name
           %td
+            = order.status.capitalize
+          %td.text-center
+            %span{class: order.packed? ? "orange-status-active" : ""}
+              %i.fa.fa-icon.fa-circle
+          %td.text-center
+            %span{class: order.shipped? ? "blue-status-active" : ""}
+              %i.fa.fa-icon.fa-circle
+          %td.text-center
+            %span{class: order.fullfilled? ? "green-status-active" : ""}
+              %i.fa.fa-icon.fa-circle
           %td
-          %td 
-          %td 
+            = order.total_amount
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @sales_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
 :javascript
   jQuery(document).ready(function() {
-    Products.initProductList();
+    SalesOrderList.initSalesOrderList();
   });

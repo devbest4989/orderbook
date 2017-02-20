@@ -12,13 +12,13 @@
         = link_to list_by_type_sales_orders_path(:type => 'quote'), class: "no-border" do
           Quote
       %li
-        = link_to list_by_type_sales_orders_path(:type => 'confirmed'), class: "no-border" do
+        = link_to list_by_type_sales_orders_path(:type => 'confirmed') do
           Confirmed
       %li
-        = link_to list_by_type_sales_orders_path(:type => 'shipped') do
+        = link_to list_by_type_sales_orders_path(:type => 'shipped'), class: "no-border" do
           Shipped
       %li
-        = link_to list_by_type_sales_orders_path(:type => 'drop_shipped'), class: "no-border" do
+        = link_to list_by_type_sales_orders_path(:type => 'drop_shipped') do
           Drop Shipped
       %li
         = link_to list_by_type_sales_orders_path(:type => 'invoice'), class: "no-border" do
@@ -28,27 +28,29 @@
         %a.add-link{ :href => add_url }
           %i.fa.fa-cart-plus
     .clearfix
-  #product_side_menu.x_content{:style => "max-height:800px;"}
+  #order_side_menu.x_content{:style => "max-height:800px;"}
     .sub_menu_side
       %ul.nav.side-menu
         - sub_elems.each do |elem|
           %li{ :class => "sub-nav-#{elem.id} element" }
-            - if type == 'show'
-              %a{:href => product_path(elem, type: product_type)}
-                %p.product-name= "#{elem.name}"
-                %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
-                %p.product-stock
-                  %span= "#{elem.stock}"
-                  available
-            - else
-              %a{:href => edit_product_path(elem)}
-                %p.product-name= "#{elem.name}"
-                %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
-                %p.product-stock
-                  %span= "#{elem.stock}"
-                  available
+            %a{:href => (type == 'show') ? sales_order_path(elem, type: order_type) : edit_sales_order_path(elem) }
+              %table.sales-order-side-elem
+                %tr
+                  %td.customer-name
+                    = "#{elem.customer_full_name}"
+                  %td.text-right
+                    = "$ #{elem.total_amount}"
+                %tr
+                  %td.sales-order-property
+                    = "#{elem.token} | #{elem.order_date}"
+                    %br
+                    = "Ref: #{elem.ref_no}"
+                  %td.text-right
+                    %span.label{class: "#{elem.status_class}"}
+                      = elem.status.capitalize
       %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
 :javascript
   jQuery(document).ready(function() {
-    //ProductDetail.initProductNavList();
+    SalesOrdersCommon.initSiderMenuList();
+    SalesOrderDetail.initSalesOrderNavList();
   });

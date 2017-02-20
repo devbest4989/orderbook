@@ -41,14 +41,22 @@ class SalesOrdersController < ApplicationController
   def create
     SalesOrder.transaction do
       @sales_order = SalesOrder.new(safe_params)
-      @sales_order.status = 'draft'
+      if params[:save_action] == 'save'
+        @sales_order.status = 'quote'
+      else
+        @sales_order.status = 'confirm'
+      end
       @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
-      @sales_order.req_ship_date = Date.strptime(safe_params[:req_ship_date], "%Y-%m-%d")
       @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
 
       respond_to do |format|
         if @sales_order.save
-          @sales_order.draft!
+          if params[:save_action] == 'save'
+            @sales_order.quote!
+          else
+            @sales_order.confirm!
+          end
+          
           result = {:Result => "OK", :Record => @sales_order}
         else
           result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
@@ -64,19 +72,23 @@ class SalesOrdersController < ApplicationController
     @sales_order.sales_items.each do |item|
       @item_data += "['#{item.sold_item.sku}', '#{item.sold_item.name}', #{item.quantity}, #{item.unit_price}, #{item.discount_rate}, #{item.tax_rate}, '', '', #{item.sold_item_id}],"
     end
+    get_sub_sales_orders
   end
 
   # PATCH/PUT /sales_orders/1
   # PATCH/PUT /sales_orders/1.json
   def update
+    case params[:save_action]
+    when 
+      update_detail
+    end
     respond_to do |format|
       @sales_order.sales_items.delete_all
       @sales_order.attributes = safe_params
       @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
-      @sales_order.req_ship_date = Date.strptime(safe_params[:req_ship_date], "%Y-%m-%d")
       @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
       if @sales_order.update(sales_order_params)
-        @sales_order.draft!
+        @sales_order.quote!
         result = {:Result => "OK", :Record => @sales_order}
       else
         result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
@@ -88,7 +100,7 @@ class SalesOrdersController < ApplicationController
   # DELETE /customers/1
   # DELETE /customers/1.json
   def destroy
-    if @sales_order.draft?
+    if @sales_order.quote?
       @sales_order.sales_items.delete_all
       @sales_order.destroy
       respond_to do |format|
@@ -117,7 +129,7 @@ class SalesOrdersController < ApplicationController
 #    if @sales_order.draft?
 #      redirect_to edit_sales_order_path(@sales_order)
 #    end    
-    @sales_orders = SalesOrder.all
+    get_sub_sales_orders
   end
 
   def cancel
@@ -160,6 +172,7 @@ class SalesOrdersController < ApplicationController
     case params[:type]
     when 'all'
       @sales_orders = SalesOrder.all
+                  .includes(:customer)
                   .paginate(page: params[:page])
     else
       @sales_orders = SalesOrder.all
@@ -173,7 +186,26 @@ class SalesOrdersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sales_order
-      @sales_order = nil #SalesOrder.find(params[:id])
+      @sales_order = SalesOrder.find(params[:id])
+    end
+
+    def get_sub_sales_orders
+      case params[:type]
+      when 'all'
+        @sales_orders = SalesOrder.includes(:customer).all.ordered
+      when 'quote'
+        @sales_orders = SalesOrder.includes(:customer).quote.ordered
+      when 'confirmed'
+        @sales_orders = SalesOrder.includes(:customer).confirmed.ordered
+      when 'shipped'
+        @sales_orders = SalesOrder.includes(:customer).shipped.ordered
+      when 'drop_shipped'
+        @sales_orders = SalesOrder.includes(:customer).drop_shipped.ordered
+      when 'invoice'
+        @sales_orders = SalesOrder.includes(:customer).invoice.ordered
+      else
+        @sales_orders = SalesOrder.includes(:customer).all.ordered
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
@@ -184,10 +216,28 @@ class SalesOrdersController < ApplicationController
     def safe_params
       params[:sales_order].permit(
         :token,
+        :booked_by_id,
         :order_date,
-        :req_ship_date,
         :estimate_ship_date,
+        :shipping_method_id,
+        :price_name,
+        :contact_name,
+        :contact_phone,
+        :contact_email,        
         :payment_term,
+        :ref_no,
+        :bill_street,
+        :bill_suburb,
+        :bill_city,
+        :bill_state,
+        :bill_postcode,
+        :bill_country,
+        :ship_street,
+        :ship_suburb,
+        :ship_city,
+        :ship_state,
+        :ship_postcode,
+        :ship_country,        
         :total_amount,        
         :customer_id,
         :notes,        

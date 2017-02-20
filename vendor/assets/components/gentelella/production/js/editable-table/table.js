@@ -37,27 +37,28 @@ Table.prototype._calc_extra = function() {
 
     var sub_total = 0, discount_total = 0, tax_total = 0, total = 0;
     for(r = 0; r <= rows; r++){
+        var qty_id = table_id+"_"+r+"_1";
+        var price_id = table_id+"_"+r+"_2";
         var discount_id = table_id+"_"+r+"_3";
         var tax_id = table_id+"_"+r+"_4";
-        var line_total_id = table_id+"_"+r+"_6";
 
-        var discount_rate = self._getcell(discount_id);
-        var tax_rate = self._getcell(tax_id);
-        var line_total = self._getcell(line_total_id);
+        var discount_rate   = self._getcell(discount_id);
+        var tax_rate        = self._getcell(tax_id);
+        var qty             = self._getcell(qty_id);
+        var price           = self._getcell(price_id);
 
-        sub_total += isNaN(parseFloat(line_total)) ? 0 : parseFloat(line_total);
+        sub_total += isNaN(parseFloat(qty * price)) ? 0 : parseFloat(qty * price);
 
-        discount_total -= discount_rate * line_total * 0.01;
-        tax_total += tax_rate * line_total * 0.01;
+        discount_total += discount_rate * qty * price * 0.01;
+        tax_total += tax_rate * qty * price * 0.01;
     }
 
-    total += sub_total + discount_total + tax_total;
+    total += sub_total - discount_total;
 
-    $("td#sub_total_cell").text(sub_total);
-    $("td#discount_total_cell").text(discount_total);    
-    $("td#tax_total_cell").text(tax_total);
-    $("td#total_cell").text(total);
-    $('#sales_order_amount_paid').val(total);
+    $("td#sub_total_cell").text(sub_total.toLocaleString('en-US', {maximumFractionDigits: 2}));
+    $("td#discount_total_cell").text(discount_total.toLocaleString('en-US', {maximumFractionDigits: 2}));
+    $("td#tax_total_cell").text(tax_total.toLocaleString('en-US', {maximumFractionDigits: 2}));
+    $("td#total_cell").text(total.toLocaleString('en-US', {maximumFractionDigits: 2}));
 }
 
 Table.prototype._calc = function(id, o) {
@@ -726,11 +727,13 @@ Table.prototype.fillCell = function(id, callback) {
               type: "post",
               datatype: 'json',
               data: {
-                id: $(cell).children("select").val()
+                id: $(cell).children("select").val(),
+                price_name: $('#sales_order_price_name').val()
               },
               success: function(data){
+                var price_data = (data.price == 'nil') ? data.product.selling_price : data.price;
                 $('td#'+namecell).empty().text(data.product.name);
-                $('td#'+pricecell).empty().text(data.product.selling_price);
+                $('td#'+pricecell).empty().text(price_data);
                 $('td#'+taxcell).empty().text(data.tax.rate);
                 callback();
               },
@@ -788,9 +791,10 @@ Table.prototype.renderCalc = function() {
             var fml = self.fields[field].formula || [];
             var val = dt.formula(cid, fml);
             $(this).empty().text(val);
-            self._calc_extra();
         }
     });
+
+    self._calc_extra();
 }
 
 Table.prototype.renderHead = function(fields) {

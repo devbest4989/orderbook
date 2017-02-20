@@ -13,8 +13,8 @@
     .col-md-6.col-sm-6.col-xs-10
       .form-group{style: 'margin-top: 10px;'}
         %label.col-md-4.col-sm-4.col-xs-12.control-label Customer Name*
-        .col-md-7.col-sm-7.col-xs-12.form-group
-          = f.collection_select :customer_id, Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+        .col-md-7.col-sm-7.col-xs-12.form-group.customer-box
+          = collection_select :customer_id, '', Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
         .col-md-1.col-sm-1.col-xs-12.form-group.no-padding
           %a.btn.btn-xs.add-customer{href: new_customer_path()}
             %i.fa.fa-icon.fa-plus-circle
@@ -23,6 +23,7 @@
         = @sales_order.token
       = f.hidden_field :token
       = f.hidden_field :id
+      = hidden_field_tag :save_action
   .ln_solid_narrow
   .row
     .col-md-6.col-sm-6.col-xs-12
@@ -51,7 +52,7 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
         .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+          = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control'}
     .col-md-6.col-sm-6.col-xs-12
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Person
@@ -166,8 +167,6 @@
                 .modal-footer
                   %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
                   %button#btn_ship_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
-          .hide
-            = collection_select :tax_select, '', Tax.all, :rate, :name, {include_blank: false}, {:class => 'form-control'}
   .ln_solid_narrow
   .row
     .col-md-12
@@ -221,7 +220,7 @@
           %tr
             %td{:style => 'border:none; background: white; text-align: right;'} 
               %b Shipping Cost:
-            %td#tax_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+            %td#shipping_total_cell.money{:style => 'border:none; background: white; width:40%;'}
           %tr
             %td{:style => 'border:none; background: white; text-align: right;'} 
               %b Tax:
@@ -237,7 +236,7 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
         .col-md-8.col-sm-8.col-xs-12
-          = f.select :contact_name, {}, {:include_blank => true}, {:class => 'form-control'}
+          /= f.select :contact_name, {}, {:include_blank => true}, {:class => 'form-control'}
 
 
 :javascript

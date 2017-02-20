@@ -1,6 +1,6 @@
 class SalesOrder < ActiveRecord::Base
   # An array of all the available statuses for an order
-  STATUSES = %w(draft booked shipped part-shipped cancel delete).freeze
+  STATUSES = %w(quote confirmed packed shipped fullfilled ).freeze
 
   belongs_to :canceller, class_name: 'User', foreign_key: 'cancelled_by_id'
   belongs_to :booker, class_name: 'User', foreign_key: 'booked_by_id'
@@ -11,40 +11,45 @@ class SalesOrder < ActiveRecord::Base
   # Set the status to building if we don't have a status
   after_initialize { self.status = STATUSES.first if status.blank? }
 
-  scope :draft, -> { where(status: 'draft') }
+  scope :quote, -> { where(status: 'quote') }
+  scope :confirmed, -> { where(status: 'confirmed') }
+  scope :packed, -> { where(status: 'packed') }
+  scope :shipped, -> { where(status: 'shipped') }
+  scope :drop_shipped, -> { where(status: 'drop_shipped') }
+  scope :invoice, -> { where(status: 'fullfilled') }
 
-  scope :ordered, -> { order(id: :desc) }
-
-  def draft?
-    status == 'draft'
+  def quote?
+    status == 'quote'
   end
 
-  def booked?
-    status == 'booked'
+  def confirmed?
+    status == 'confirmed'
   end
 
-  def cancelled?
-    !!cancelled_at
+  def packed?
+    status == 'packed'
   end
 
   def shipped?
-    !!shipped_at
+    status == 'shipped'
+  end
+
+  def fullfilled?
+    status == 'fullfilled'
   end
 
   def status_class
     case status
-    when "draft"
+    when "quote"
+      "label-default"
+    when "confirmed"
+      "label-info"
+    when "packed"
       "label-warning"
-    when "booked"
-      "label-primary"
     when "shipped"
+      "label-primary"
+    when "fullfilled"
       "label-success"
-    when "part-shipped"
-      "label-success"
-    when "cancel"
-      "label-danger"
-    when "delete"
-      "label-danger"
     end
   end
 end

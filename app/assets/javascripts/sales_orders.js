@@ -9,15 +9,240 @@ var SalesOrdersCommon = function () {
   };
 }();  
 
+var SalesOrdersEdit = function(){
+  var initEditOrderDetailForm = function(){
+    //$('#customer_id_').editableSelect({ effects: 'slide' });
+
+    $('#order_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+    }, function(start, end, label) {
+    });
+
+    $('#estimate_ship_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+      }, function(start, end, label) {
+    });
+
+    $('#sales_order_ship_country').addClass('form-control');
+    $('#sales_order_bill_country').addClass('form-control');
+  }
+
+  var handleOrderDetail = function(){
+    $.listen('parsley:field:validate', function() {
+      validateFront('#edit_order_detail_form');
+    });
+
+    $('#sales_order_customer_id').on('change', function(e) {
+      detail_url = "/customer/detail_info/" + $(this).find('option:selected').val();
+      $.ajax({
+        url: detail_url,
+        type: "post",
+        datatype: 'json',
+        success: function(data){
+          // billing detail
+          $('#sales_order_bill_street').val(data.info.bill_street);
+          $('#sales_order_bill_suburb').val(data.info.bill_suburb);
+          $('#sales_order_bill_state').val(data.info.bill_state);
+          $('#sales_order_bill_postcode').val(data.info.bill_postcode);
+          $('#sales_order_bill_city').val(data.info.bill_city);
+          $('#sales_order_bill_country').val(data.info.bill_country);
+
+          // shipping detail
+          $('#sales_order_ship_street').val(data.info.ship_street);
+          $('#sales_order_ship_suburb').val(data.info.ship_suburb);
+          $('#sales_order_ship_state').val(data.info.ship_state);
+          $('#sales_order_ship_postcode').val(data.info.ship_postcode);
+          $('#sales_order_ship_city').val(data.info.ship_city);
+          $('#sales_order_ship_country').val(data.info.ship_country);
+
+          var contactArray = $.map(data.contacts, function(value, key) {
+            return {
+              value: value.first_name + " " + value.last_name,
+              data: value
+            };
+          });
+          // Initialize autocomplete with custom appendTo:
+          $('#sales_order_contact_name').autocomplete({
+            lookup: contactArray,
+            onSelect: function (suggestion) {
+              $('#sales_order_contact_phone').val(suggestion.data.mobile_number);
+              $('#sales_order_contact_email').val(suggestion.data.email);
+            }                
+          });
+        },
+        error:function(){
+        }   
+      });
+    });
+
+    $('.btn-order-detail').click(function() {      
+      if($(this).hasClass('btn-save')){
+        $('#save_action').val('save-detail');
+      } else if($(this).hasClass('btn-confirm')){
+        $('#save_action').val('confirm-detail');
+      }
+
+      var validate = $('#edit_order_detail_form').parsley().validate();
+      validateFront('#edit_order_detail_form');
+      if(validate === true){
+        var reqData = $('#edit_order_detail_form').serializeArray();
+        tdata = t.serialize();
+        for(i = 0; i < tdata.length; i++){
+          for(key in tdata[i]){
+            item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
+            reqData.push({name: item_key, value: tdata[i][key]});
+          }
+        }
+
+
+        var reqUrl = "/sales_orders/" + $('#sales_order_id').val();
+        $.ajax({
+          url: reqUrl,
+          type: "post",
+          datatype: 'json',
+          data: reqData,
+          success: function(data){
+            if(data.Result == "OK"){
+              new PNotify({
+                title: 'Success!',
+                text: data.Message,
+                type: 'success'
+              });              
+            } else {
+              new PNotify({
+                title: 'Error!',
+                text: data.Message,
+                type: 'error'
+              });              
+            }
+          },
+          error:function(){
+            new PNotify({
+              title: 'Error!',
+              text: 'Order request is not processed.',
+              type: 'error'
+            });              
+          }   
+        });                         
+      } else {        
+      }
+    });
+  }
+
+  var validateFront = function(form_id) {
+    if (true === $(form_id).parsley().isValid()) {
+      $('.bs-callout-info').removeClass('hidden');
+      $('.bs-callout-warning').addClass('hidden');
+    } else {
+      $('.bs-callout-info').addClass('hidden');
+      $('.bs-callout-warning').removeClass('hidden');
+    }
+  };    
+
+
+  return {
+    initEditDetailForm: function () {
+      initEditOrderDetailForm();
+      handleOrderDetail();
+    }
+  };  
+}();
+
+var SalesOrderDetail = function () {
+  var initialNavigatorList = function(){    
+    $('#order_side_menu').mCustomScrollbar({theme:"minimal-dark", scrollbarPosition: "outside"});    
+
+    var active_elem = 'li.' + $('#active_elem').data('elem') + ' a';
+    $(active_elem).addClass('nav-active');    
+    $('#order_side_menu').mCustomScrollbar("scrollTo", active_elem);
+  }
+
+  return {
+    //main function to initiate the module
+    initSalesOrderNavList: function () {
+      initialNavigatorList();
+    }
+  };
+}();  
+
+var SalesOrderList = function(){
+  var initialHeader = function (){
+    var order_key = $('#params').data('order');
+    var order_sort = $('#params').data('sort');
+    $('.link_order_by').each(function(){
+      if($(this).data('key') == order_key){
+        var html = '';
+        if(order_sort == "desc"){
+          $(this).data('sort', 'asc');
+          html = '<i class="fa fa-icon fa-angle-down"></i>';
+        } else {
+          $(this).data('sort', 'desc');
+          html = '<i class="fa fa-icon fa-angle-up"></i>';
+        }
+        $(this).append(html);
+      }
+    });
+  }
+
+  var handleOrderBy = function() {
+    $('.link_order_by').click(function(){
+      var searchKey = $('#params').data('key');
+      if(searchKey){
+        window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort') + '&key=' + searchKey;
+      } else {
+        window.location.href='?order='+$(this).data('key')+'&sort='+$(this).data('sort');
+      }      
+    });
+  }
+
+  var handleGroupSelect = function() {
+    $('.group-checkable').click(function(){
+      if($(this).is(':checked') == true){
+        $(".bulk_action input[name='table_records']").prop("checked",true);
+      } else {
+        $(".bulk_action input[name='table_records']").prop("checked",false);
+      }
+      $.uniform.update();
+      //updateSelectedRecordLabel();
+    });
+
+    $(".bulk_action input[name='table_records']").click(function(){
+      //updateSelectedRecordLabel();
+    });
+
+    $('#form_bulk_action').on('submit', function(){
+      var records = [];
+      $(".bulk_action input[name='table_records']:checked").each(function() {
+          records.push($(this).val());
+      });
+
+      if (records.length) {
+        $('#product_ids').val(records.join(","));
+      } else {
+        return false;
+      }
+
+    });
+  }
+
+  return {
+    initSalesOrderList: function () {
+      initialHeader();
+      handleOrderBy();
+      handleGroupSelect();
+    }
+  };
+}();
+
 var SalesOrdersNew = function () {
 
   var handleNewFormCommand = function(){
     $('.btn-cancel').click(function(){
       window.location.href= '/sales_orders';
-    });
-
-    $('.btn-save').click(function(){
-      $('#new_sales_order').submit();
     });
 
     $('#billing_address_link').click(function(){
@@ -30,7 +255,7 @@ var SalesOrdersNew = function () {
   }
 
   var initNewForm = function(){
-    $('#sales_order_customer_id').editableSelect({ effects: 'slide' });
+    $('#customer_id_').editableSelect({ effects: 'slide' });
 
     $('#order_date').daterangepicker({
       singleDatePicker: true,
@@ -48,12 +273,11 @@ var SalesOrdersNew = function () {
 
 
     $('#ship_country_').addClass('form-control');
-    $('#bill_country_').addClass('form-control');
-    
+    $('#bill_country_').addClass('form-control');    
   }
 
   var handleCustomer = function (){
-    $('#sales_order_customer_id').on('select.editable-select', function(e, li){
+    $('#customer_id_').on('select.editable-select', function(e, li){
       if(li){
         if(li.val() > 0){
           detail_url = "/customer/detail_info/" + li.val();
@@ -170,11 +394,18 @@ var SalesOrdersNew = function () {
 
     var form_id = ($('#sales_order_id').val() == '') ? '#new_sales_order' : '#edit_sales_order_' + $('#sales_order_id').val();
 
-    $( form_id + ' .btn-save').on('click', function() {
+    $('.btn-order').click(function() {      
+      if($(this).hasClass('btn-save')){
+        $('#save_action').val('save');
+      } else {
+        $('#save_action').val('confirm');
+      }
+
       var validate = $(form_id).parsley().validate();
       validateFront();
       if(validate === true){
         var reqData = $(form_id).serializeArray();
+        reqData.push({name: 'sales_order[customer_id]', value: $('.customer-box .es-list .es-visible').val()});
         reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text()});
         tdata = t.serialize();
         for(i = 0; i < tdata.length; i++){
@@ -183,7 +414,9 @@ var SalesOrdersNew = function () {
             reqData.push({name: item_key, value: tdata[i][key]});
           }
         }
-        var reqUrl = "/sales_orders" + ($('#sales_order_id').val() == '') ? '' : $('#sales_order_id').val();
+
+
+        var reqUrl = ($('#sales_order_id').val() == '') ? "/sales_orders" : "/sales_orders/" + $('#sales_order_id').val();
         $.ajax({
           url: reqUrl,
           type: "post",
@@ -191,7 +424,7 @@ var SalesOrdersNew = function () {
           data: reqData,
           success: function(data){
             if(data.Result == "OK"){
-              window.location.href = "/sales_orders";
+              window.location.href = "/sales_orders/all/list_orders";
             } else {
               new PNotify({
                 title: 'Error!',
@@ -208,14 +441,13 @@ var SalesOrdersNew = function () {
             });              
           }   
         });                         
-      } else {
-        
+      } else {        
       }
-      
     });
   }
 
   var validateFront = function() {
+    var form_id = ($('#sales_order_id').val() == '') ? '#new_sales_order' : '#edit_sales_order_' + $('#sales_order_id').val();
     if (true === $(form_id).parsley().isValid()) {
       $('.bs-callout-info').removeClass('hidden');
       $('.bs-callout-warning').addClass('hidden');
@@ -237,4 +469,4 @@ var SalesOrdersNew = function () {
       handleForm();
     }
   };
-}();  
+}();

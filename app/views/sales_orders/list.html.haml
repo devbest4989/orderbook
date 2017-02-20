@@ -28,9 +28,9 @@
         %li
           %a.add-link{ :href => new_sales_order_path }
             %i.fa.fa-cart-plus
-            %span New
+            %span New Order
         %li
-          = select_tag :bulk_action, options_for_select([['Mark as Active', 1], ['Mark as Inactive', 2], ['Delete', 3]]), {:include_blank => 'Select Action', class: 'form-control'}
+          = select_tag :bulk_action, options_for_select([['Create Pack-List Slip', 1], ['Create Delivery Slip', 2], ['Create Invoice', 3]]), {:include_blank => 'Select Creation', class: 'form-control'}
         %li
           %a.collapse-link
             %i.fa.fa-chevron-up
@@ -39,5 +39,5 @@
       = render 'sales_order_list'
 :javascript
   jQuery(document).ready(function() {
-    //SalesOrders.initProductListPage();
+    SalesOrdersCommon.initSiderMenuList();
   });      

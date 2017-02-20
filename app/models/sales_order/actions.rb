@@ -5,7 +5,7 @@ class SalesOrder < ActiveRecord::Base
   # parts of the order lifecycle.
   define_model_callbacks :confirmation, :cancellation, :shipping, :returning, :deleting
 
-  def draft!
+  def quote!
     sales_items.each(&:confirm!)
   end
   # This method should be executed by the application when the order should be completed
@@ -17,9 +17,8 @@ class SalesOrder < ActiveRecord::Base
     run_callbacks :confirmation do
       # If we have successfully charged the card (i.e. no exception) we can go ahead and mark this
       # order as 'booked' which means it can be accepted by staff.
-      self.status = 'booked'
+      self.status = 'confirmed'
       self.booked_at = Time.now
-      self.booker = user if user
       save!
 
       sales_items.each(&:confirm!)

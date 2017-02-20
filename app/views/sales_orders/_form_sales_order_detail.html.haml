@@ -3,87 +3,94 @@
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Company Name
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.token
+        = @sales_order.customer_name
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Person
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.order_date
+        = @sales_order.contact_name
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference #
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= number_to_currency(@sales_order.total_amount)
+        = @sales_order.ref_no
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms
-      .col-md-8.col-sm-8.col-xs-12.field-value          
-        %span{:class => "label label-md"}
-          /= @sales_order.status.capitalize
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = ApplicationHelper::PAYMENT_TERMS[@sales_order.payment_term]
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.req_ship_date
+        = @sales_order.price_name
   .col-md-6.col-sm-6.col-xs-12
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Person
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.booker.full_name
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Issued Date
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.order_date
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimate Shipment Date
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.estimate_ship_date
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.shipping_method.name
 .ln_solid
 .form-horizontal.form-label-left{:style => "overflow:auto;"}
-  .col-md-6.col-sm-6.col-xs-12
-    %h4 Shipping Address
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
   .col-md-6.col-sm-6.col-xs-12
     %h4 Billing Address
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.bill_street
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.bill_suburb
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 City
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.bill_city
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = @sales_order.bill_state
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.bill_postcode
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        /= @sales_order.customer.name
+        = Carmen::Country.all.select{|c| @sales_order.bill_country.include?(c.code)}[0].name
+  .col-md-6.col-sm-6.col-xs-12
+    %h4 Shipping Address
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.ship_street
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.ship_suburb
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.ship_city
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.ship_state
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.ship_postcode
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = Carmen::Country.all.select{|c| @sales_order.ship_country.include?(c.code)}[0].name
 :javascript
   $(document).ready(function() {
   });

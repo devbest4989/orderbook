@@ -65,7 +65,7 @@ class SalesOrder < ActiveRecord::Base
     def sub_total
         sub_total = 0
         sales_items.each do |item|
-            sub_total += item.real_quantity * item.unit_price
+            sub_total += item.quantity * item.unit_price
         end
         sub_total
     end
@@ -78,16 +78,15 @@ class SalesOrder < ActiveRecord::Base
         qty_to_ship
     end
 
-    def total_amount
-        sub_total - discount_amount + tax_amount
-    end
-
     def discount_amount
         sales_items.sum("discount_amount")
     end
 
     def tax_amount
         sales_items.sum("tax_amount")
+    end
+
+    def shipping_cost
     end
 
     def cancel_activities
