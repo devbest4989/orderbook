@@ -1,6 +1,8 @@
 class SalesItem < ActiveRecord::Base
+    before_save :update_product_qty
+    before_destroy :update_product_qty
 
-	belongs_to :sales_order, class_name: 'SalesOrder', touch: true, inverse_of: :sales_items
+    belongs_to :sales_order, class_name: 'SalesOrder', touch: true, inverse_of: :sales_items
     belongs_to :sold_item, class_name: 'Product'
 
     validates :quantity, numericality: true
@@ -109,50 +111,70 @@ class SalesItem < ActiveRecord::Base
 
     # Trigged when the associated order is cancelled..
     def cancel!(amount, description, user)
-	    if quantity_to_ship >= amount.to_i && amount.to_i > 0
-	    	self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'cancel', updated_by: user)
-	    	cache_pricing!
-	    end
+        if quantity_to_ship >= amount.to_i && amount.to_i > 0
+            self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'cancel', updated_by: user)
+            cache_pricing!
+        end
     end
 
     # Trigged when the associated order is returned..
     def return!(amount, description, user)
-	    if shipped_quantity >= amount.to_i && amount.to_i > 0
-	    	self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'return', updated_by: user)
-	    	save!
-	    end
+        if shipped_quantity >= amount.to_i && amount.to_i > 0
+            self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'return', updated_by: user)
+            save!
+        end
     end
 
     # Trigged when the associated order is shipped..
-    def ship!(amount, description, user)
-	    if quantity_to_ship >= amount.to_i && amount.to_i > 0
-	    	self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'ship', updated_by: user)
-	    	save!
-	    end
+    def ship!(amount, description, user, data)
+        if quantity_to_ship >= amount.to_i && amount.to_i > 0
+            self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'ship', updated_by: user, token: data)
+            save!
+        end
+    end
+
+    # Trigged when the associated order is shipped..
+    def pack!(amount, description, user, data)
+        if quantity_to_pack >= amount.to_i && amount.to_i > 0
+            self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'pack', updated_by: user, token: data)
+            save!
+        end
     end
 
     # Trigged when the associated order is deleted..
     def delete!
     end
 
+    def update_product_qty
+        self.sold_item.stock!
+    end
+
     def cancel_quantity
-    	sales_item_activities.where(activity: 'cancel').sum(:quantity)
+        sales_item_activities.where(activity: 'cancel').sum(:quantity)
     end
 
     def return_quantity
-    	sales_item_activities.where(activity: 'return').sum(:quantity)
+        sales_item_activities.where(activity: 'return').sum(:quantity)
     end
 
     def shipped_quantity
-    	sales_item_activities.where(activity: 'ship').sum(:quantity)
+        sales_item_activities.where(activity: 'ship').sum(:quantity)
+    end
+
+    def packed_quantity
+        sales_item_activities.where(activity: 'pack').sum(:quantity)
     end
 
     def real_quantity
-    	self.quantity - cancel_quantity
+        self.quantity
     end
 
     def quantity_to_ship
-    	self.quantity - cancel_quantity - shipped_quantity
+        packed_quantity - shipped_quantity
+    end
+
+    def quantity_to_pack
+        self.quantity - packed_quantity
     end
 
     # Do we have the stock needed to fulfil this order?

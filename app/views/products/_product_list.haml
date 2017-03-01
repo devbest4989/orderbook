@@ -32,8 +32,7 @@
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
-          %th
-            Action
+          %th            
       %tbody
       - @products.each do |product|
         %tr{class: "status-#{product.status_label.downcase}"}

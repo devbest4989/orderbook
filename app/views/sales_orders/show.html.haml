@@ -35,23 +35,27 @@
       .x_content
         / Nav tabs
         %ul.nav.nav-tabs.bar_tabs
-          %li.active
+          %li.tab-detail.active
             %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
               %i.fa.fa-folder-open-o
               Order Details                                    
-          %li
+          %li.tab-item
             %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
-              %i.fa.fa-file-text-o
+              %i.fa.fa-cubes
               Ordered Items
-          %li
+          %li.tab-pack
+            %a{"data-toggle" => "tab", :href => "#tab_pack", "aria-expanded" => "false"} 
+              %i.fa.fa-cube
+              Packaging
+          %li.tab-shipment
             %a{"data-toggle" => "tab", :href => "#tab_shipment", "aria-expanded" => "false"} 
               %i.fa.fa-truck
               Shippments
-          %li
+          %li.tab-invoice
             %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
-              %i.fa.fa-mail-reply
+              %i.fa.fa-file-text-o
               Invoice
-          %li
+          %li.tab-history
             %a{"data-toggle" => "tab", :href => "#tab_history", "aria-expanded" => "false"} 
               %i.fa.fa-history
               History
@@ -60,6 +64,8 @@
             = render 'form_sales_order_detail'
           #tab_item{:class => "tab-pane"}
             = render 'form_sales_order_item'
+          #tab_pack{:class => "tab-pane"}
+            = render 'form_sales_order_pack'
           #tab_shipment{:class => "tab-pane"}
             = render 'form_sales_order_shipment'
           /#tab_invoice{:class => "tab-pane"}

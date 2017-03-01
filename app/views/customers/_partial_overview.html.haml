@@ -110,6 +110,12 @@
                           .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
                             %input#contact_designation.form-control.has-feedback-left{:name => "designation", :placeholder => "Designation", :type => "text", :value => ""}
                             %span.fa.fa-info.form-control-feedback.left{"aria-hidden" => "true"}
+                        .row
+                          %label.col-md-4.col-sm-4.col-xs-12.control-label
+                          .col-md-8.col-sm-8.col-xs-12.form-group.has-feedback
+                            %label
+                              %input#contact_default.form-control{:name => "is_default", :placeholder => "Default", :type => "checkbox"}
+                              Default Contact
                 .modal-footer
                   %button.btn.btn-default{:id => "btn_close_contact", :type => "button", "data-dismiss" => "modal"} Close
                   %button.btn.btn-primary{:id => "btn_add_contact"} Add Contact
@@ -123,7 +129,8 @@
             %th{:style => "width: 15%"} Mobile
             %th{:style => "width: 15%"} Landline
             %th{:style => "width: 15%"} Designation
-            %th{:style => "min-width: 15%"} Action
+            %th{:style => "width: 15%"} Default
+            %th{:style => "min-width: 15%"}
         - @customer.contacts.each do |cont|
           %tr
             %td
@@ -136,6 +143,8 @@
               =cont.landline_number
             %td
               =cont.designation
+            %td
+              =(cont.is_default == 1) ? "Default" : ""
             %td
               %a.contact-delete.btn.btn-danger.btn-xs{:href => "#", "data-id" => cont.id}
                 %i.fa.fa-trash-o

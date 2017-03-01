@@ -56,6 +56,13 @@ $(document).ready ->
             itemHtml += data.Records.mobile_number + '</td><td>'
             itemHtml += data.Records.landline_number + '</td><td>'
             itemHtml += data.Records.designation + '</td><td>'
+            
+            if data.Records.is_default == 1
+              labelDefault = 'Default'
+            else
+              labelDefault = ''
+
+            itemHtml += labelDefault + '</td><td>'
             itemHtml += '<a class="contact-delete btn btn-danger btn-xs" data-id="' + data.Records.id + '" href="#"><i class="fa fa-trash-o"></i></a></td></tr>'
             $('#contact_table tr:last').after itemHtml
           else

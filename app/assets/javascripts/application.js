@@ -24,6 +24,7 @@
 //= require js/flot/jquery.flot.stack.js
 //= require js/flot/curvedLines.js
 //= require js/flot/jquery.flot.resize.js
+//= require js/jquery.cookie.js
 
 //= require js/progressbar/bootstrap-progressbar.min.js
 

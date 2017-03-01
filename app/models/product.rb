@@ -6,7 +6,7 @@ class Product < ActiveRecord::Base
   belongs_to :product_line
   belongs_to :warehouse
 
-  has_many :sales_items, dependent: :restrict_with_exception, as: :sold_item
+  has_many :sales_items, class_name: 'SalesItem', dependent: :restrict_with_exception, as: :sold_item
   has_many :sales_orders, through: :sales_items, class_name: 'SalesOrder'
 
   has_many :prices
@@ -51,8 +51,22 @@ class Product < ActiveRecord::Base
   end
 
   def stock
-    #stock_level_adjustments.sum(:adjustment)
     quantity
+    #open_qty - sales_qty + purchase_qty
+  end
+
+  def stock!
+    #stock_level_adjustments.sum(:adjustment)
+    self.quantity = open_qty - sales_qty + purchase_qty
+    self.save!
+  end
+
+  def sales_qty
+    SalesItem.includes(:sales_order).where(sold_item: self.id).where("sales_orders.status != 'quote'").sum(:quantity)
+  end
+
+  def purchase_qty
+    0
   end
 
   def status_label
@@ -76,6 +90,7 @@ class Product < ActiveRecord::Base
   end
 
   def update_stock_status
+
     if self.stock.to_i > self.reorder_qty.to_i
       self.stock_status = :instock
     else

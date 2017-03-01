@@ -120,6 +120,9 @@ class CustomersController < ApplicationController
   # PATCH/PUT /customers/1
   # PATCH/PUT /customers/1.json
   def update_contact
+    if params[:is_default] == 'on'
+      Contact.where(customer_id: @customer.id).update_all(is_default: 0)
+    end
     respond_to do |format|
       contact = Contact.new
 
@@ -129,6 +132,7 @@ class CustomersController < ApplicationController
       contact.landline_number = params[:landline_number]
       contact.email = params[:email]
       contact.designation = params[:designation]
+      contact.is_default = (params[:is_default] == 'on') ? 1 : 0;
       contact.customer = @customer
 
       if contact.save
@@ -167,6 +171,7 @@ class CustomersController < ApplicationController
             :bill_street, :bill_suburb, :bill_city, :bill_state, :bill_postcode, :bill_country, 
             :ship_street, :ship_suburb, :ship_city, :ship_state, :ship_postcode, :ship_country, 
             :payment_term,
+            :default_price,
             :documents,
             :contacts)
     end

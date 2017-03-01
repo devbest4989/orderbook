@@ -61,14 +61,14 @@
                   %p.product-name= "#{elem.name}"
                   %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
                   %p.product-stock
-                    %span= "#{elem.stock}"
+                    %span= "#{elem.quantity}"
                     available
               - else
                 %a{:href => edit_product_path(elem)}
                   %p.product-name= "#{elem.name}"
                   %p.product-info= "#{elem.category.name} / #{elem.brand.name} / #{elem.product_line.name}"
                   %p.product-stock
-                    %span= "#{elem.stock}"
+                    %span= "#{elem.quantity}"
                     available
       %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
 :javascript

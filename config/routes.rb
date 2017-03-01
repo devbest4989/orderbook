@@ -74,6 +74,8 @@ Rails.application.routes.draw do
       post :cancel
       post :return
       post :ship
+      post :pack
+      post :remove_activity
     end
 
     collection do

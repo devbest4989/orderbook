@@ -50,10 +50,12 @@ Table.prototype._calc_extra = function() {
         sub_total += isNaN(parseFloat(qty * price)) ? 0 : parseFloat(qty * price);
 
         discount_total += discount_rate * qty * price * 0.01;
+        sub_total -= discount_total;
+
         tax_total += tax_rate * qty * price * 0.01;
     }
 
-    total += sub_total - discount_total;
+    total += sub_total + tax_total;
 
     $("td#sub_total_cell").text(sub_total.toLocaleString('en-US', {maximumFractionDigits: 2}));
     $("td#discount_total_cell").text(discount_total.toLocaleString('en-US', {maximumFractionDigits: 2}));
@@ -102,6 +104,16 @@ Table.prototype._calc = function(id, o) {
                 var y = (c2 == pos.col && r2 == pos.row) ? val : self._getcell(id2);                
             }
 
+            if(param[2].d){
+                var z = param[2].d;
+            } else {
+                var c3 = (param[2].c) ? (Number(pos.col)+Number(param[2].c)) : Number(pos.col);
+                var r3 = (param[2].r) ? (Number(pos.row)+Number(param[2].r)) : Number(pos.row);
+                if ( self._inrange(c3, r3, cols, rows) === false ) { return ""; }
+                var id3 = pos.table_id+"_"+r3+"_"+c3;
+                var z = (c3 == pos.col && r3 == pos.row) ? val : self._getcell(id3);                
+            }
+
 
             switch(op) {
                 case "subtract":
@@ -114,6 +126,9 @@ Table.prototype._calc = function(id, o) {
                     break;
                 case "multiply":
                     val = (x * y);
+                    break;
+                case "line_total":
+                    val = (x * y) * (100 - z) / 100;
                     break;
                 case "datediff":
                     // IE doesn't accept dates as strings, resulting in NaN.
@@ -731,7 +746,7 @@ Table.prototype.fillCell = function(id, callback) {
                 price_name: $('#sales_order_price_name').val()
               },
               success: function(data){
-                var price_data = (data.price == 'nil') ? data.product.selling_price : data.price;
+                var price_data = (data.price == 'nil') ? data.product.selling_price_ex : data.price;
                 $('td#'+namecell).empty().text(data.product.name);
                 $('td#'+pricecell).empty().text(price_data);
                 $('td#'+taxcell).empty().text(data.tax.rate);

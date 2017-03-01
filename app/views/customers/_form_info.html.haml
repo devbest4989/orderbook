@@ -136,6 +136,10 @@
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Term
         .col-md-8.col-sm-8.col-xs-12
           = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :default_price, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control'}
   .ln_solid
   .form-group
     .col-md-12{:style => 'text-align: right;'}

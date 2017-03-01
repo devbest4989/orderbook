@@ -36,3 +36,8 @@ en:
       list:
         header:
           all: "All Sales Orders"
+          quote: "Quote Sales Orders"
+          confirmed: "Confirmed Sales Orders"
+          shipped: "Shipped Sales Orders"
+          drop_shipped: "Drop Shipped Sales Orders"
+          invoice: "Ready to Invoice Sales Orders"

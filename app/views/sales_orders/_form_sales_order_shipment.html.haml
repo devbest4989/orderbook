@@ -11,41 +11,59 @@
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
           = @sales_order.token
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Order Date
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
-          = @sales_order.order_date
+          = @sales_order.shipping_method.name
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimated Ship Date
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
           = @sales_order.estimate_ship_date
     .col-md-6.col-sm-6.col-xs-12.text-right
-      %a#btn_ship_submit.btn.btn-primary{:href => 'javascript:;'}
-        Save      
+      %input#ship_req_url{type: 'hidden', value: "#{ship_sales_order_path(@sales_order)}"}
+      %input#ship_remove_url{type: 'hidden', value: "#{remove_activity_sales_order_path(@sales_order)}"}
+      - if @sales_order.packed?
+        %a#btn_ship_submit.btn.btn-primary{:href => 'javascript:;'}
+          Save      
     .col-md-12{:style => "overflow:auto;"}
-      %h4 Product Information
+      %h4 Package Information
       / start project list
       %div
         %table#product_list.table.table-bordered.projects.margin-bottom-5
           %thead
             %tr
-              %th{:style => "width: 15%"} SKU
-              %th{:style => "width: 20%"} Product Name
-              %th{:style => "width: 15%"} Qty to Ship
-              %th{:style => "width: 15%"} Shipping
-              %th{:style => "width: 35%"} note
-          %tbody
-          - @sales_order.sales_items.each do |item|
-            %tr
-              %td 
-                =item.sold_item.sku    
-              %td 
-                =item.sold_item.name
-              %td 
-                =item.quantity_to_ship
-              %td.editable{"contentEditable" => "true"}
-              %td.editable{"contentEditable" => "true"} 
-              %td{:style => "display: none;"} 
-                =item.id
+              %th 
+                %input.group-checkable{type: 'checkbox'}
+              %th Tracking Number
+              %th SKU
+              %th Product Name
+              %th Packaging Date
+              %th Packaging Qty
+              %th Note
+              %th Updated By
+          - elem_num = @sales_order.pack_activities_elems
+          - pack_token = @sales_order.ship_activities_datas
+          - prev_data = ''
+          - @sales_order.pack_activities.each do |item| 
+            - unless pack_token.include? item.token
+              %tr
+                - if prev_data != item.token
+                  %td.bulk_action{rowspan: elem_num[item.token].to_i}
+                    %input{type: 'checkbox', value: "#{item.token}", name: "table_records"}
+                  %td{rowspan: elem_num[item.token].to_i}
+                    =item.token              
+                %td 
+                  =item.sales_item.sold_item.sku
+                %td 
+                  =item.sales_item.sold_item.name
+                %td 
+                  =item.created_at.to_date
+                %td 
+                  =item.quantity
+                %td 
+                  =item.note
+                %td 
+                  =item.updated_by.email      
+                - prev_data = item.token
   .ln_solid
   .row.no-margin
     .col-md-12{:style => "overflow:auto;"}
@@ -55,14 +73,21 @@
         %table#activity_list.table.table-bordered.projects.margin-bottom-5
           %thead
             %tr
+              %th Shipping Number
               %th SKU
               %th Product Name
               %th Shipped Date
               %th Shipped Qty
               %th Note
               %th Updated By
+              %th
+          - elem_num = @sales_order.ship_activities_elems
+          - prev_data = ''
           - @sales_order.ship_activities.each do |item|          
-            %tr
+            %tr            
+              - if prev_data != item.token
+                %td{rowspan: elem_num[item.token].to_i}
+                  =item.token              
               %td 
                 =item.sales_item.sold_item.sku
               %td 
@@ -75,59 +100,12 @@
                 =item.note
               %td 
                 =item.updated_by.email
+              - if prev_data != item.token
+                %td{rowspan: elem_num[item.token].to_i}
+                  %a.remove_track_link{href: 'javascript:;', "data-activity": item.token}
+                    %i.fa.fa-icon.fa-minus-circle
+              - prev_data = item.token
 :javascript
   $(document).ready(function() {
-    $("#tab_shipment #product_list td.editable").focus(function(){
-      $(this).addClass("edit-focus");
-    });
-
-    $("#tab_shipment #product_list td.editable").focusout(function(){
-      $("#product_list td.editable").removeClass("edit-focus");
-    });
-
-    $("#tab_shipment #product_list td.editable").keydown(function(event){
-      code = (event.keyCode ? event.keyCode : event.which);
-      switch(code) {
-      case 13:
-       event.preventDefault();
-        break;
-      }
-    });    
-
-    $("#tab_shipment #btn_ship_submit").click(function(){
-      var shipItemData = new Array();
-      $('#tab_shipment #product_list tbody tr').each(function(row, tr){
-        shipItemData.push({
-          "quantity" : $(tr).find('td:eq(3)').text().trim(),
-          "note" :$(tr).find('td:eq(4)').text().trim(),
-          "id" :$(tr).find('td:eq(5)').text().trim()
-        });    
-      }); 
-      console.log(shipItemData);
-      var reqUrl = "#{ship_sales_order_path(@sales_order)}";
-      $.ajax({
-        url: reqUrl,
-        type: "post",
-        datatype: 'json',
-        data: {ship_attributes: shipItemData},
-        success: function(data){
-          if(data.Result == "OK"){
-            window.location.reload();
-          } else {
-            new PNotify({
-              title: 'Error!',
-              text: data.Message,
-              type: 'error'
-            });              
-          }
-        },
-        error:function(){
-          new PNotify({
-            title: 'Error!',
-            text: 'Order request is not processed.',
-            type: 'error'
-          });              
-        }   
-      });                              
-    });
+    SalesOrderDetail.handleOrderShipTab();
   });

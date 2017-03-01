@@ -7,6 +7,7 @@
         %thead
           %tr
             %th{ width: '30%' } Product Name
+            %th Quantity
             %th Unit Price
             %th Discount (%)
             %th Tax (%)
@@ -17,13 +18,15 @@
             %td 
               =item.sold_item.name    
             %td 
+              =item.quantity
+            %td 
               ="$ #{item.unit_price}"
             %td 
               =item.discount_rate
             %td 
               =item.tax_rate
             %td 
-              =item.quantity
+              =item.quantity * item.unit_price - item.discount_amount
       %table.table.projects
         %tbody
           %tr

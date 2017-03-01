@@ -78,6 +78,14 @@ class SalesOrder < ActiveRecord::Base
         qty_to_ship
     end
 
+    def total_quantity_to_pack
+        qty_to_pack = 0
+        sales_items.each do |item|
+            qty_to_pack += item.quantity_to_pack
+        end
+        qty_to_pack
+    end
+
     def discount_amount
         sales_items.sum("discount_amount")
     end
@@ -90,15 +98,30 @@ class SalesOrder < ActiveRecord::Base
     end
 
     def cancel_activities
-        self.sales_item_activities.where(activity: 'cancel');
+        self.sales_item_activities.where(activity: 'cancel')
     end
 
     def return_activities
-        self.sales_item_activities.where(activity: 'return');
+        self.sales_item_activities.where(activity: 'return')
     end
 
     def ship_activities
-        self.sales_item_activities.where(activity: 'ship');
+        self.sales_item_activities.where(activity: 'ship').order(:token)
     end
 
+    def pack_activities
+        self.sales_item_activities.where(activity: 'pack').order(:token)
+    end
+
+    def pack_activities_elems
+        self.sales_item_activities.where(activity: 'pack').group(:token).count
+    end
+
+    def ship_activities_elems
+        self.sales_item_activities.where(activity: 'ship').group(:token).count
+    end
+
+    def ship_activities_datas
+        self.sales_item_activities.where(activity: 'ship').group(:activity_data).select(:activity_data).map{|elem| elem.activity_data}
+    end
 end

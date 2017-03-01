@@ -81,24 +81,15 @@ var SalesOrdersEdit = function(){
 
     $('.btn-order-detail').click(function() {      
       if($(this).hasClass('btn-save')){
-        $('#save_action').val('save-detail');
+        $('#save_action').val('quote');
       } else if($(this).hasClass('btn-confirm')){
-        $('#save_action').val('confirm-detail');
+        $('#save_action').val('confirm');
       }
 
       var validate = $('#edit_order_detail_form').parsley().validate();
       validateFront('#edit_order_detail_form');
       if(validate === true){
         var reqData = $('#edit_order_detail_form').serializeArray();
-        tdata = t.serialize();
-        for(i = 0; i < tdata.length; i++){
-          for(key in tdata[i]){
-            item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
-            reqData.push({name: item_key, value: tdata[i][key]});
-          }
-        }
-
-
         var reqUrl = "/sales_orders/" + $('#sales_order_id').val();
         $.ajax({
           url: reqUrl,
@@ -107,11 +98,7 @@ var SalesOrdersEdit = function(){
           data: reqData,
           success: function(data){
             if(data.Result == "OK"){
-              new PNotify({
-                title: 'Success!',
-                text: data.Message,
-                type: 'success'
-              });              
+              window.location.reload();
             } else {
               new PNotify({
                 title: 'Error!',
@@ -161,10 +148,164 @@ var SalesOrderDetail = function () {
     $('#order_side_menu').mCustomScrollbar("scrollTo", active_elem);
   }
 
+  var handlePackageTab = function() {
+    $("#tab_pack #product_list td.editable").focus(function(){
+      $(this).addClass("edit-focus");
+    });
+
+    $("#tab_pack #product_list td.editable").focusout(function(){
+      $("#tab_pack #product_list td.editable").removeClass("edit-focus");
+    });
+
+    $("#tab_pack #product_list td.editable").keydown(function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+       event.preventDefault();
+        break;
+      }
+    });    
+
+    // Generate Track
+    $("#tab_pack #btn_pack_submit").click(function(){
+      var packItemData = new Array();
+      $('#tab_pack #product_list tbody tr').each(function(row, tr){
+        packItemData.push({
+          "quantity" : $(tr).find('td:eq(3)').text().trim(),
+          "note" :$(tr).find('td:eq(4)').text().trim(),
+          "id" : $(tr).find('td:eq(5)').text().trim()
+        });    
+      }); 
+      var reqUrl = $('#pack_req_url').val();
+      var data = {pack_attributes: packItemData};
+      do_activity(reqUrl, data, 'pack');
+    });    
+
+    //Remove Track
+    $("#tab_pack a.remove_track_link").click(function(){
+      var reqUrl = $('#pack_remove_url').val();
+      var data = {activity: $(this).data('activity'), type: 'pack'};
+      do_activity(reqUrl, data, 'pack');
+    });    
+  }
+
+  var do_activity = function(reqUrl, data, page){
+    $.ajax({
+      url: reqUrl,
+      type: "post",
+      datatype: 'json',
+      data: data,
+      success: function(data){
+        if(data.Result == "OK"){
+          $.cookie("order_detail_last", page);
+          window.location.reload();
+        } else {
+          new PNotify({
+            title: 'Error!',
+            text: data.Message,
+            type: 'error'
+          });              
+        }
+      },
+      error:function(){
+        new PNotify({
+          title: 'Error!',
+          text: 'Order request is not processed.',
+          type: 'error'
+        });              
+      }   
+    });
+  }
+
+  var rollbackLastAction = function(){
+    if($.cookie("order_detail_last") == '')
+      return;
+
+    $('.tab-pane').removeClass('active');
+    $('ul.bar_tabs li').removeClass('active');
+
+    switch($.cookie("order_detail_last")){
+    case 'pack':
+      $('#tab_pack').addClass('active');
+      $('ul.bar_tabs li.tab-pack').addClass('active');      
+      break;
+    case 'ship':
+      $('#tab_shipment').addClass('active');
+      $('ul.bar_tabs li.tab-shipment').addClass('active');      
+      break;
+    }
+
+    $.cookie("order_detail_last", '');
+  }
+
+  var handleShipTab = function(){
+    $('.group-checkable').click(function(){
+      if($(this).is(':checked') == true){
+        $(".bulk_action input[name='table_records']").prop("checked",true);
+      } else {
+        $(".bulk_action input[name='table_records']").prop("checked",false);
+      }
+      $.uniform.update();
+    });    
+
+    $("#tab_shipment #product_list td.editable").focus(function(){
+      $(this).addClass("edit-focus");
+    });
+
+    $("#tab_shipment #product_list td.editable").focusout(function(){
+      $("#product_list td.editable").removeClass("edit-focus");
+    });
+
+    $("#tab_shipment #product_list td.editable").keydown(function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+       event.preventDefault();
+        break;
+      }
+    });    
+
+    $("#tab_shipment #btn_ship_submit").click(function(){
+      var records = [];
+      $("#tab_shipment .bulk_action input[name='table_records']:checked").each(function() {
+        records.push("'" + $(this).val() + "'");
+      });
+
+      var pack_tokens = '';
+
+      if (records.length) {
+        pack_tokens = records.join(",");
+      } else {
+        return;
+      }
+
+      var reqUrl = $('#ship_req_url').val();
+      var data = {pack_tokens: pack_tokens};
+      do_activity(reqUrl, data, 'ship');
+    });
+
+    //Remove Track
+    $("#tab_shipment a.remove_track_link").click(function(){
+      var reqUrl = $('#ship_remove_url').val();    
+      var data = {activity: $(this).data('activity'), type: 'ship'};
+      do_activity(reqUrl, data, 'ship');
+    });    
+
+  }
+
   return {
     //main function to initiate the module
     initSalesOrderNavList: function () {
       initialNavigatorList();
+      rollbackLastAction();
+    },
+
+    handleOrderPackageTab: function() {
+      handlePackageTab();
+    },
+
+    handleOrderShipTab: function() {
+      handleShipTab();
     }
   };
 }();  
@@ -321,12 +462,24 @@ var SalesOrdersNew = function () {
               $('#ship_city').val(data.info.ship_city);
               $('#ship_country_').val(data.info.ship_country);
 
+              data.contacts.forEach(function(elem){
+                if(elem.is_default == 1){
+                  $('#sales_order_contact_name').val(elem.first_name + " " + elem.last_name);
+                  $('#sales_order_contact_phone').val(elem.mobile_number);
+                  $('#sales_order_contact_email').val(elem.email);
+                }
+              });
+
+              $('#sales_order_payment_term').val(data.info.payment_term);
+              $('#sales_order_price_name').val(data.info.default_price);
+
               var contactArray = $.map(data.contacts, function(value, key) {
                 return {
                   value: value.first_name + " " + value.last_name,
                   data: value
                 };
               });
+
               // Initialize autocomplete with custom appendTo:
               $('#sales_order_contact_name').autocomplete({
                 lookup: contactArray,

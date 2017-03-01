@@ -187,7 +187,7 @@
             %th Discount(%)
             %th Tax(%)
             %th Amount
-            %th Action
+            %th
         %tbody
 
   .row.form-group 
@@ -262,13 +262,13 @@
           "Unit Price": {
               "class": "edit",
               "type": "money",
-              "css" : 'style = "width: 15%"',
+              "css" : 'style = "width: 10%"',
               "field_name" : 'unit_price'
           }, 
           "Discount(%)": {
               "class": "edit",
               "type": "float",
-              "css" : 'style = "width: 15%"',
+              "css" : 'style = "width: 10%"',
               "field_name" : 'discount_rate'
           },
           "Tax(%)": {
@@ -278,10 +278,18 @@
               "control" : "#tax_select_",
               "field_name" : 'tax_rate'
           },
-          "Action": {
+          "Amount": { 
+              "class": "money", 
+              "type": "calc", 
+              "formula": [ 
+                  { "line_total": [{ "c": -3 }, { "c": -4 }, {"c": -2}] } 
+              ], 
+              "css" : 'style = "width: 15%"' 
+          },           
+          " ": {
               "class": "",
               "type": "html",
-              "css" : 'style = "width: 15%"'
+              "css" : 'style = "width: 10%"'
           },          
           "ProductId": {
               "class": "",

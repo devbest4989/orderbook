@@ -50,10 +50,10 @@
           %td
             = order.status.capitalize
           %td.text-center
-            %span{class: order.packed? ? "orange-status-active" : ""}
+            %span{class: order.packed? || order.shipped? || order.fullfilled? ? "orange-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
-            %span{class: order.shipped? ? "blue-status-active" : ""}
+            %span{class: order.shipped? || order.fullfilled? ? "blue-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
             %span{class: order.fullfilled? ? "green-status-active" : ""}

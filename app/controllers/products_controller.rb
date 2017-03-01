@@ -18,12 +18,12 @@ class ProductsController < ApplicationController
   # POST /products/list_by_sku
   def list_by_id
     if params[:id]
-      @product = Product.select('sku, id, name, selling_price, selling_tax_id').includes(:selling_tax).includes(:prices).find(params[:id])
+      @product = Product.select('sku, id, name, selling_price_ex, selling_tax_id').includes(:selling_tax).includes(:prices).find(params[:id])
     end
 
     respond_to do |format|
       price = @product.prices.where("LOWER(name) = ?", params[:price_name].downcase).first
-      price_value = (price.nil?) ? 'nil' : price.value
+      price_value = (price.nil?) ? 'nil' : price.price_tax_exclude
       format.json {render :json => {product: @product, 
                                     tax: @product.selling_tax, 
                                     price: price_value}
@@ -34,7 +34,7 @@ class ProductsController < ApplicationController
   # POST /products/list_by_name
   def list_by_name
     if params[:term]
-      @products = Product.select('name as text, id').name_like(params[:term])
+      @products = Product.select('name as text, id').actived.name_like(params[:term])
     end
 
     respond_to do |format|
@@ -590,6 +590,8 @@ class ProductsController < ApplicationController
             sell_value = (row[12].strip.chars.first == '$') ? row[12].strip.slice!(1..-1).to_f : row[12].to_f
             price.value = sell_value
           end
+          price_tax = Tax.find_by(name: row[18])
+          price.tax_value = price_tax.rate unless price_tax.nil?
           price.save
 
           generate_product_sku product if row[1].blank?
@@ -655,6 +657,9 @@ class ProductsController < ApplicationController
                 sell_value = (xlsx.cell(line, 'M').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'M').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'M').to_f
                 price.value = sell_value
               end
+
+              price_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
+              price.tax_value = price_tax.rate unless price_tax.nil?
               price.save
 
               generate_product_sku product if xlsx.cell(line, 'B').nil?

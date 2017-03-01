@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170206181940) do
+ActiveRecord::Schema.define(version: 20170227101213) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(version: 20170206181940) do
     t.integer  "supplier_id"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
+    t.integer  "is_default"
   end
 
   add_index "contacts", ["customer_id"], name: "index_contacts_on_customer_id", using: :btree
@@ -73,6 +74,7 @@ ActiveRecord::Schema.define(version: 20170206181940) do
     t.integer  "payment_term"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
+    t.string   "default_price"
   end
 
   create_table "documents", force: :cascade do |t|
@@ -104,6 +106,7 @@ ActiveRecord::Schema.define(version: 20170206181940) do
     t.integer  "cond"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
+    t.decimal  "tax_value",  precision: 8, scale: 2
   end
 
   create_table "product_lines", force: :cascade do |t|
@@ -157,6 +160,8 @@ ActiveRecord::Schema.define(version: 20170206181940) do
     t.integer  "updated_by"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.string   "activity_data"
+    t.string   "token"
   end
 
   add_index "sales_item_activities", ["sales_item_id"], name: "index_sales_item_activities_on_sales_item_id", using: :btree

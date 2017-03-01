@@ -1,5 +1,5 @@
 class SalesOrdersController < ApplicationController  
-  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship]
+  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity]
 
   before_filter do
     locale = params[:locale]
@@ -78,17 +78,17 @@ class SalesOrdersController < ApplicationController
   # PATCH/PUT /sales_orders/1
   # PATCH/PUT /sales_orders/1.json
   def update
-    case params[:save_action]
-    when 
-      update_detail
-    end
     respond_to do |format|
-      @sales_order.sales_items.delete_all
       @sales_order.attributes = safe_params
       @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
       @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
-      if @sales_order.update(sales_order_params)
-        @sales_order.quote!
+      if @sales_order.update(safe_params)
+        if params[:save_action] == 'quote'
+          @sales_order.quote!
+        else
+          @sales_order.confirm!
+        end
+
         result = {:Result => "OK", :Record => @sales_order}
       else
         result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
@@ -126,9 +126,6 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1
   # GET /sales_orders/1.json
   def show
-#    if @sales_order.draft?
-#      redirect_to edit_sales_order_path(@sales_order)
-#    end    
     get_sub_sales_orders
   end
 
@@ -157,9 +154,18 @@ class SalesOrdersController < ApplicationController
   end
 
   def ship
-    params[:ship_attributes].each do |elem|
-      sales_item = SalesItem.find(elem[1][:id].to_i);
-      sales_item.ship!(elem[1][:quantity], elem[1][:note], current_user)
+    sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:pack_tokens]})")
+    shipping_number = GlobalMap.shipping_number
+    sales_item_activities.each do |elem|      
+      ship_activity = SalesItemActivity.new
+      ship_activity.quantity = elem.quantity.to_i
+      ship_activity.activity = 'ship'
+      ship_activity.sales_item_id = elem.sales_item_id.to_i
+      ship_activity.updated_by = current_user
+      ship_activity.token = shipping_number
+      ship_activity.activity_data = elem.token
+      ship_activity.note = ''
+      ship_activity.save
     end
     @sales_order.ship!(current_user)
     respond_to do |format|
@@ -168,11 +174,51 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def pack
+    track_number = GlobalMap.track_number
+    params[:pack_attributes].each do |elem|
+      sales_item = SalesItem.find(elem[1][:id].to_i);
+      sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, track_number)
+    end
+    @sales_order.pack!(current_user)
+    respond_to do |format|
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    end
+  end
+
+  def remove_activity
+    SalesItemActivity.where(token: params[:activity]).destroy_all
+    case params[:type]
+    when 'pack'
+      @sales_order.pack!(current_user)
+    when 'ship'
+      @sales_order.ship!(current_user)
+    end
+
+    respond_to do |format|
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    end
+  end
+
   def list_by_type
+    order_key = get_order_key
     case params[:type]
     when 'all'
       @sales_orders = SalesOrder.all
                   .includes(:customer)
+                  .order(order_key)
+                  .paginate(page: params[:page])
+    when 'quote'
+      @sales_orders = SalesOrder.where(status: 'quote')
+                  .includes(:customer)
+                  .order(order_key)
+                  .paginate(page: params[:page])
+    when 'confirmed'
+      @sales_orders = SalesOrder.where(status: 'confirmed')
+                  .includes(:customer)
+                  .order(order_key)
                   .paginate(page: params[:page])
     else
       @sales_orders = SalesOrder.all
@@ -244,4 +290,21 @@ class SalesOrdersController < ApplicationController
         sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate]
       )
     end
+
+    def get_order_key
+      case params[:order]
+      when 'date'
+        "sales_orders.order_date #{params[:sort]}"
+      when 'order_no'
+        "sales_orders.token #{params[:sort]}"
+      when 'company'
+        "customers.company_name #{params[:sort]}, customers.first_name #{params[:sort]}"
+      when 'amount'
+        "sales_orders.total_amount #{params[:sort]}"
+      when 'status'
+        "sales_orders.status #{params[:sort]}"
+      else
+        "sales_orders.created_at #{params[:sort]}"
+      end      
+    end    
 end
