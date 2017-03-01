@@ -220,8 +220,16 @@ class SalesOrdersController < ApplicationController
                   .includes(:customer)
                   .order(order_key)
                   .paginate(page: params[:page])
+    when 'shipped'
+      @sales_orders = SalesOrder.where(status: 'shipped')
+                  .includes(:customer)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     else
-      @sales_orders = SalesOrder.all
+      @sales_orders = SalesOrder.all.includes(:customer)
+                  .order(order_key)
+                  .paginate(page: params[:page])
+
     end
 
     respond_to do |format|
