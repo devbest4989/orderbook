@@ -544,13 +544,18 @@ var SalesOrdersNew = function () {
               $('#ship_city').val(data.info.ship_city);
               $('#ship_country_').val(data.info.ship_country);
 
-              data.contacts.forEach(function(elem){
-                if(elem.is_default == 1){
-                  $('#sales_order_contact_name').val(elem.first_name + " " + elem.last_name);
-                  $('#sales_order_contact_phone').val(elem.mobile_number);
-                  $('#sales_order_contact_email').val(elem.email);
-                }
-              });
+
+              $('#sales_order_contact_name').val(data.info.first_name + " " + data.info.last_name);
+              $('#sales_order_contact_phone').val(data.info.phone);
+              $('#sales_order_contact_email').val(data.info.email);
+
+              // data.contacts.forEach(function(elem){
+              //   if(elem.is_default == 1){
+              //     $('#sales_order_contact_name').val(elem.first_name + " " + elem.last_name);
+              //     $('#sales_order_contact_phone').val(elem.mobile_number);
+              //     $('#sales_order_contact_email').val(elem.email);
+              //   }
+              // });
 
               $('#sales_order_payment_term').val(data.info.payment_term);
               $('#sales_order_price_name').val(data.info.default_price);
