@@ -1,5 +1,5 @@
 class SalesOrdersController < ApplicationController  
-  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity]
+  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice]
 
   before_filter do
     locale = params[:locale]
@@ -44,7 +44,7 @@ class SalesOrdersController < ApplicationController
       if params[:save_action] == 'save'
         @sales_order.status = 'quote'
       else
-        @sales_order.status = 'confirm'
+        @sales_order.status = 'confirmed'
       end
       @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
       @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
@@ -53,8 +53,10 @@ class SalesOrdersController < ApplicationController
         if @sales_order.save
           if params[:save_action] == 'save'
             @sales_order.quote!
+            add_action_history('quote', 'create', @sales_order.token)
           else
             @sales_order.confirm!
+            add_action_history('confirm', 'create', @sales_order.token)
           end
           
           result = {:Result => "OK", :Record => @sales_order}
@@ -73,6 +75,15 @@ class SalesOrdersController < ApplicationController
       @item_data += "['#{item.sold_item.sku}', '#{item.sold_item.name}', #{item.quantity}, #{item.unit_price}, #{item.discount_rate}, #{item.tax_rate}, '', '', #{item.sold_item_id}],"
     end
     get_sub_sales_orders
+    
+    get_first_invoice
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end        
   end
 
   # PATCH/PUT /sales_orders/1
@@ -85,10 +96,11 @@ class SalesOrdersController < ApplicationController
       if @sales_order.update(safe_params)
         if params[:save_action] == 'quote'
           @sales_order.quote!
+          add_action_history('quote', 'update', @sales_order.token)
         else
           @sales_order.confirm!
-        end
-
+          add_action_history('confirm', 'update', @sales_order.token)
+        end        
         result = {:Result => "OK", :Record => @sales_order}
       else
         result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
@@ -117,6 +129,7 @@ class SalesOrdersController < ApplicationController
 
   def book
     @sales_order.confirm!(current_user)
+    add_action_history('confirm', 'update', @sales_order.token)
     respond_to do |format|
       format.html { redirect_to sales_orders_url, notice: 'Sales Order was booked successfully.' }
       format.json { head :no_content }
@@ -127,6 +140,14 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1.json
   def show
     get_sub_sales_orders
+    get_first_invoice
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
   end
 
   def cancel
@@ -153,6 +174,59 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def get_invoice
+    invoice_activity = SalesItemActivity.where(token: params[:activity]).first;
+    ship_activities = SalesItemActivity.where(token: invoice_activity.activity_data);
+
+    respond_to do |format|
+      invoice_activity.created_at = invoice_activity.created_at.to_date
+      sale_items = []
+
+      ship_activities.each do |elem|
+        sale_items << { 
+                        name: elem.sales_item.sold_item.name, 
+                        quantity: elem.quantity, 
+                        price: "$ #{elem.sales_item.unit_price}", 
+                        discount: elem.sales_item.discount_rate,
+                        tax: elem.sales_item.tax_rate,
+                        sub_total: elem.sub_total
+                      }
+      end      
+
+      result = {:Result => "OK", :invoice => invoice_activity, items: sale_items }
+      format.json {render :json => result}
+    end    
+  end
+
+  def invoice
+    invoice_number = GlobalMap.invoice_number
+    activity_totals = SalesItemActivity.select("SUM(sub_total) AS sum_sub, SUM(tax) AS sum_tax, SUM(discount) AS sum_discount").where(token: params[:ship_token])
+
+    invoice_activity = SalesItemActivity.new
+    invoice_activity.quantity = 0
+    invoice_activity.activity = 'invoice'
+    invoice_activity.sales_item_id = nil
+    invoice_activity.updated_by = current_user
+    invoice_activity.token = invoice_number
+    invoice_activity.activity_data = params[:ship_token]
+    invoice_activity.note = ''
+    invoice_activity.sub_total  = activity_totals[0]['sum_sub'].to_f
+    invoice_activity.discount   = activity_totals[0]['sum_discount'].to_f
+    invoice_activity.tax        = activity_totals[0]['sum_tax'].to_f
+    invoice_activity.total      = activity_totals[0]['sum_sub'].to_f + activity_totals[0]['sum_tax'].to_f
+    invoice_activity.sales_order_id = params[:id]
+    invoice_activity.save
+
+    @sales_order.invoice!(current_user)
+
+    add_action_history('invoice', 'create', invoice_number)
+
+    respond_to do |format|
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    end
+  end
+
   def ship
     sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:pack_tokens]})")
     shipping_number = GlobalMap.shipping_number
@@ -165,8 +239,16 @@ class SalesOrdersController < ApplicationController
       ship_activity.token = shipping_number
       ship_activity.activity_data = elem.token
       ship_activity.note = ''
+      ship_activity.sub_total = elem.sub_total_amount
+      ship_activity.discount = elem.discount_amount
+      ship_activity.tax = elem.tax_amount
+      ship_activity.sales_order_id = params[:id]
+
       ship_activity.save
     end
+
+    add_action_history('shippment', 'create', shipping_number)
+
     @sales_order.ship!(current_user)
     respond_to do |format|
       result = {:Result => "OK" }
@@ -180,6 +262,9 @@ class SalesOrdersController < ApplicationController
       sales_item = SalesItem.find(elem[1][:id].to_i);
       sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, track_number)
     end
+
+    add_action_history('packaging', 'create', track_number)
+
     @sales_order.pack!(current_user)
     respond_to do |format|
       result = {:Result => "OK" }
@@ -191,9 +276,14 @@ class SalesOrdersController < ApplicationController
     SalesItemActivity.where(token: params[:activity]).destroy_all
     case params[:type]
     when 'pack'
+      add_action_history('packaging', 'delete', params[:activity])
       @sales_order.pack!(current_user)
     when 'ship'
+      add_action_history('shippment', 'delete', params[:activity])
       @sales_order.ship!(current_user)
+    when 'invoice'
+      add_action_history('invoice', 'delete', params[:activity])
+      @sales_order.invoice!(current_user)
     end
 
     respond_to do |format|
@@ -239,8 +329,19 @@ class SalesOrdersController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    def add_action_history(action_name, action_type, action_number)
+      @sales_order.action_histories.create!(action_name: action_name, 
+                                            action_type: action_type, 
+                                            action_number: action_number, 
+                                            user: current_user)
+    end
+
     def set_sales_order
       @sales_order = SalesOrder.find(params[:id])
+    end
+
+    def get_first_invoice
+      @sales_order_invoice = @sales_order.sales_item_activities.where(activity: 'invoice').first
     end
 
     def get_sub_sales_orders

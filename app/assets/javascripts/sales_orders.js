@@ -171,13 +171,13 @@ var SalesOrderDetail = function () {
       var packItemData = new Array();
       $('#tab_pack #product_list tbody tr').each(function(row, tr){
         packItemData.push({
-          "quantity" : $(tr).find('td:eq(3)').text().trim(),
-          "note" :$(tr).find('td:eq(4)').text().trim(),
-          "id" : $(tr).find('td:eq(5)').text().trim()
+          "quantity" : $(tr).find('td:eq(6)').text().trim(),
+          "note" :$(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim()
         });    
       }); 
       var reqUrl = $('#pack_req_url').val();
-      var data = {pack_attributes: packItemData};
+      var data = {pack_attributes: packItemData, id: $('#ship_order_id').val()};
       do_activity(reqUrl, data, 'pack');
     });    
 
@@ -187,6 +187,12 @@ var SalesOrderDetail = function () {
       var data = {activity: $(this).data('activity'), type: 'pack'};
       do_activity(reqUrl, data, 'pack');
     });    
+
+    $("#pack_activity_list tr.even").hide();    
+    $("#pack_activity_list tr.odd").click(function(){
+        $(this).next("tr").toggle();
+    });
+
   }
 
   var do_activity = function(reqUrl, data, page){
@@ -232,6 +238,10 @@ var SalesOrderDetail = function () {
     case 'ship':
       $('#tab_shipment').addClass('active');
       $('ul.bar_tabs li.tab-shipment').addClass('active');      
+      break;
+    case 'invoice':
+      $('#tab_invoice').addClass('active');
+      $('ul.bar_tabs li.tab-invoice').addClass('active');      
       break;
     }
 
@@ -280,7 +290,7 @@ var SalesOrderDetail = function () {
       }
 
       var reqUrl = $('#ship_req_url').val();
-      var data = {pack_tokens: pack_tokens};
+      var data = {pack_tokens: pack_tokens, id: $('#ship_order_id').val()};
       do_activity(reqUrl, data, 'ship');
     });
 
@@ -291,6 +301,74 @@ var SalesOrderDetail = function () {
       do_activity(reqUrl, data, 'ship');
     });    
 
+    $("#tab_shipment a.confirm_ship_link").click(function(){
+      var reqUrl = $('#ship_invoice_url').val();    
+      var data = {ship_token: $(this).data('activity'), type: 'invoice', id: $('#ship_order_id').val()};
+      do_activity(reqUrl, data, 'invoice');
+    });    
+
+    $("#ship_activity_list tr.even").hide();
+    $("#ship_activity_list tr.odd").click(function(){
+        $(this).next("tr").toggle();
+    });
+  }
+
+  var handleInvoiceTab = function(){
+    //Remove Track
+    $("#tab_invoice a.remove_track_link").click(function(){
+      var reqUrl = $('#invoice_remove_url').val();    
+      var data = {activity: $(this).data('activity'), type: 'invoice'};
+      do_activity(reqUrl, data, 'invoice');
+    });    
+
+    $("#tab_invoice a.invoice_link").click(function(){
+      var reqUrl = $('#invoice_get_url').val();    
+      var token = $(this).data('token');
+      $.ajax({
+        url: reqUrl,
+        type: "post",
+        datatype: 'json',
+        data: {activity: token},
+        success: function(data){
+          if(data.Result == "OK"){
+            $('.invoice_number').text(data.invoice.token);
+            $('.invoice_date').text(data.invoice.created_at);
+
+            $('#tab_invoice #sub_total_cell').html(data.invoice.sub_total);
+            $('#tab_invoice #discount_total_cell').html(data.invoice.discount);
+            $('#tab_invoice #tax_total_cell').html(data.invoice.tax);
+            $('#tab_invoice #total_cell').html(data.invoice.total);
+
+            var template ='<thead><tr><th width="30%">Product Name</th><th>Quantity</th><th>Unit Price</th><th>Discount(%)</th><th>Tax(%)</th><th width="20%">Amount</th></tr></thead>';
+            for(var i = 0; i < data.items.length; i++){
+              template += '<tr><td>' + data.items[i].name + '</td>';
+              template += '<td>' + data.items[i].quantity + '</td>';
+              template += '<td>' + data.items[i].price + '</td>';
+              template += '<td>' + data.items[i].discount + '</td>';
+              template += '<td>' + data.items[i].tax + '</td>';
+              template += '<td>' + data.items[i].sub_total + '</td></tr>';
+            }
+
+            $('#tab_invoice #product_list').html(template);
+
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Order request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });
+
+    });    
   }
 
   return {
@@ -306,6 +384,10 @@ var SalesOrderDetail = function () {
 
     handleOrderShipTab: function() {
       handleShipTab();
+    },
+
+    handleOrderInvoiceTab: function(){
+      handleInvoiceTab();
     }
   };
 }();  

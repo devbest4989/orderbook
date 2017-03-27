@@ -7,7 +7,7 @@
         %h2           
           ="Sales Order #{@sales_order.token}" 
         %span.label{class: @sales_order.status_class}
-          = "#{@sales_order.status.capitalize}"
+          = "#{@sales_order.status_text.capitalize}"
         %ul.nav.navbar-right.panel_toolbox
           %li
             =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
@@ -68,10 +68,10 @@
             = render 'form_sales_order_pack'
           #tab_shipment{:class => "tab-pane"}
             = render 'form_sales_order_shipment'
-          /#tab_invoice{:class => "tab-pane"}
-          /  = render 'form_sales_order_return'
-          /#tab_history{:class => "tab-pane"}
-          /  = render 'form_sales_order_cancel'
+          #tab_invoice{:class => "tab-pane"}
+            = render 'form_sales_order_invoice'
+          #tab_history{:class => "tab-pane"}
+            = render 'form_sales_order_history'
 :javascript
   jQuery(document).ready(function() {
   });

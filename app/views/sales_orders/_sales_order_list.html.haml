@@ -19,7 +19,7 @@
               Sales Order#
           %th{width: '20%'}
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'company', sort: 'asc'} do
-              Company Name
+              Customer Name
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
@@ -46,7 +46,8 @@
             %a{:href => sales_order_path(id: order.id, type:params[:type])}
               = order.token
           %td
-            = order.customer_full_name
+            %a{:href => customer_path(id: order.customer.id)}
+              = order.customer_full_name
           %td
             = order.status.capitalize
           %td.text-center

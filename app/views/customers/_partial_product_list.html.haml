@@ -11,7 +11,7 @@
         %th{:style => "width: 15%"} Balance Due
         %th{:style => "width: 10%"} Status
     %tbody
-    - @sales_orders.each do |order|
+    - @sales_orders.sales_items.each do |item|
       %tr
         %td 
           =link_to order.token, sales_order_path(order)

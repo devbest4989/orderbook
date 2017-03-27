@@ -10,7 +10,8 @@ class SalesOrder < ActiveRecord::Base
 
     # All products which are part of this order (accessed through the items)
     has_many :products, through: :sales_items, class_name: 'Product', source: :sold_item
-    has_many :sales_item_activities, through: :sales_items, class_name: 'SalesItemActivity', source: :sales_item_activities
+    has_many :sales_item_activities, class_name: 'SalesItemActivity'
+    has_many :action_histories, -> { where(item_type: 'SalesOrder') }, class_name: 'ActionHistory', foreign_key: 'item_id', dependent: :destroy
 
     # The order can belong to a customer
     belongs_to :customer
@@ -24,7 +25,10 @@ class SalesOrder < ActiveRecord::Base
     scope :total_amount_between, ->(from, to) { where("(total_amount >= ? OR ? = 0) AND (total_amount <= ? OR ? = 0)", from.to_f, from.to_f, to.to_f, to.to_f) }
     scope :by_status, ->(search) { where("status = ? OR '' = ?", "#{search}", "#{search}") }
     scope :by_customer_name, ->(search) { joins(:customer).where("LOWER(customers.first_name) LIKE ? OR LOWER(customers.last_name) LIKE ? OR LOWER(customers.company_name) LIKE ?", "%#{search.downcase}%", "%#{search.downcase}%", "%#{search.downcase}%") }
-    scope :ordered, -> { order(token: :desc) }
+    scope :ordered, -> { order({order_date: :desc, token: :desc}) }
+    scope :paid_amount, -> { joins("LEFT JOIN sales_items ON sales_orders.id = sales_items.sales_order_id")
+                             .joins("LEFT JOIN sales_items ON sales_orders.id = sales_items.sales_order_id")
+                            }
 
     def customer_name
       customer.name
@@ -65,7 +69,7 @@ class SalesOrder < ActiveRecord::Base
     def sub_total
         sub_total = 0
         sales_items.each do |item|
-            sub_total += item.quantity * item.unit_price
+            sub_total += item.sub_total - item.discount_amount
         end
         sub_total
     end
@@ -76,6 +80,14 @@ class SalesOrder < ActiveRecord::Base
             qty_to_ship += item.quantity_to_ship
         end
         qty_to_ship
+    end
+
+    def total_shipped_quantity
+        shipped_qty = 0
+        sales_items.each do |item|
+            shipped_qty += item.shipped_quantity
+        end
+        shipped_qty
     end
 
     def total_quantity_to_pack
@@ -92,6 +104,10 @@ class SalesOrder < ActiveRecord::Base
 
     def tax_amount
         sales_items.sum("tax_amount")
+    end
+
+    def total_paid_amount
+        self.sales_item_activities.where(activity: 'invoice').sum(:total)
     end
 
     def shipping_cost
@@ -113,6 +129,10 @@ class SalesOrder < ActiveRecord::Base
         self.sales_item_activities.where(activity: 'pack').order(:token)
     end
 
+    def invoice_activities
+        self.sales_item_activities.where(activity: 'invoice').order(:token)
+    end
+
     def pack_activities_elems
         self.sales_item_activities.where(activity: 'pack').group(:token).count
     end
@@ -123,5 +143,13 @@ class SalesOrder < ActiveRecord::Base
 
     def ship_activities_datas
         self.sales_item_activities.where(activity: 'ship').group(:activity_data).select(:activity_data).map{|elem| elem.activity_data}
+    end
+
+    def invoice_activities_elems
+        self.sales_item_activities.where(activity: 'invoice').group(:token).count
+    end
+
+    def invoice_activities_datas
+        self.sales_item_activities.where(activity: 'invoice').group(:activity_data).select(:activity_data).map{|elem| elem.activity_data}
     end
 end

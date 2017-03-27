@@ -75,6 +75,8 @@ Rails.application.routes.draw do
       post :return
       post :ship
       post :pack
+      post :invoice
+      post :get_invoice
       post :remove_activity
     end
 

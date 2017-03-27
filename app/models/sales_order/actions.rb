@@ -3,7 +3,7 @@ class SalesOrder < ActiveRecord::Base
 
   # These additional callbacks allow for applications to hook into other
   # parts of the order lifecycle.
-  define_model_callbacks :confirmation, :cancellation, :shipping, :returning, :deleting, :packaging
+  define_model_callbacks :confirmation, :cancellation, :shipping, :returning, :deleting, :packaging, :invoicing
 
   def quote!
     sales_items.each(&:confirm!)
@@ -66,8 +66,31 @@ class SalesOrder < ActiveRecord::Base
     true
   end
 
+  def invoice!(user = nil)
+    run_callbacks :invoicing do
+      self.status = invoice_status
+      save!
+    end
+    true    
+  end
+
+  def invoice_status
+    result = self.status
+
+    ship_count = self.ship_activities_datas.length
+    invoice_count = self.invoice_activities_elems.length
+
+    if (ship_count == invoice_count) && (self.total_quantity_to_pack == 0)
+      result = 'fullfilled'
+    else
+      result = self.status
+    end
+
+    return result
+  end
+
   def ship_status
-    (total_quantity_to_ship == 0) ? 'shipped' : 'packed'
+    (total_quantity_to_ship == 0) ? 'shipped' : ((total_shipped_quantity > 0) ? 'partial_shipped' : 'packed')
   end
 
   def pack_status

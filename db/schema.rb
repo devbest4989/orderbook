@@ -11,10 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170227101213) do
+ActiveRecord::Schema.define(version: 20170327133908) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "action_histories", force: :cascade do |t|
+    t.string   "item_type"
+    t.integer  "item_id"
+    t.string   "action_name"
+    t.string   "action_type"
+    t.string   "action_number"
+    t.integer  "user_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
 
   create_table "brands", force: :cascade do |t|
     t.string   "name"
@@ -158,10 +169,15 @@ ActiveRecord::Schema.define(version: 20170227101213) do
     t.text     "note"
     t.integer  "sales_item_id"
     t.integer  "updated_by"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
     t.string   "activity_data"
     t.string   "token"
+    t.integer  "sales_order_id"
+    t.decimal  "sub_total",      precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",       precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",            precision: 8, scale: 2, default: 0.0
   end
 
   add_index "sales_item_activities", ["sales_item_id"], name: "index_sales_item_activities_on_sales_item_id", using: :btree

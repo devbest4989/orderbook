@@ -21,7 +21,8 @@
     .col-md-6.col-sm-6.col-xs-12.text-right
       %input#ship_req_url{type: 'hidden', value: "#{ship_sales_order_path(@sales_order)}"}
       %input#ship_remove_url{type: 'hidden', value: "#{remove_activity_sales_order_path(@sales_order)}"}
-      - if @sales_order.packed?
+      %input#ship_invoice_url{type: 'hidden', value: "#{invoice_sales_order_path(@sales_order)}"}
+      - if @sales_order.packed? || @sales_order.partial_shipped?
         %a#btn_ship_submit.btn.btn-primary{:href => 'javascript:;'}
           Save      
     .col-md-12{:style => "overflow:auto;"}
@@ -68,43 +69,42 @@
   .row.no-margin
     .col-md-12{:style => "overflow:auto;"}
       %h4 Past Shipping Activities
+      %input{type: 'hidden', id: 'ship_order_id', value: @sales_order.id}
       / start project list
       %div
-        %table#activity_list.table.table-bordered.projects.margin-bottom-5
+        %table#ship_activity_list.activity_list.table.table-bordered.projects.margin-bottom-5
           %thead
             %tr
               %th Shipping Number
-              %th SKU
-              %th Product Name
               %th Shipped Date
-              %th Shipped Qty
-              %th Note
               %th Updated By
               %th
+              %th
+          - ship_token = @sales_order.invoice_activities_datas          
           - elem_num = @sales_order.ship_activities_elems
           - prev_data = ''
+          - index = 0
           - @sales_order.ship_activities.each do |item|          
-            %tr            
-              - if prev_data != item.token
-                %td{rowspan: elem_num[item.token].to_i}
-                  =item.token              
+            - index = index + 1
+            - if prev_data != item.token
+              -if prev_data != ''
+                ="</table></td></tr>".html_safe
+              ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.updated_by.email}</td><td>#{(ship_token.include? item.token) ? '' : '<a class="confirm_ship_link" href="javascript:;" data-activity="'+item.token+'"><i class="fa fa-icon fa-check-square"></i></a>'}</td><td>#{(ship_token.include? item.token) ? '' : '<a class="remove_track_link" href="javascript:;" data-activity="'+item.token+'"><i class="fa fa-icon fa-minus-circle"></i></a>'}</td></tr>".html_safe
+              = "<tr class='even'><td colspan='5'><table class='table projects margin-bottom-5'><thead><tr><th>Tracking Number</th><th>SKU</th><th>Product Name</th><th>Shipped Qty</th><th>Note</th></tr></thead>".html_safe          
+            %tr
+              %td
+                =item.activity_data              
               %td 
                 =item.sales_item.sold_item.sku
               %td 
                 =item.sales_item.sold_item.name
               %td 
-                =item.created_at.to_date
-              %td 
                 =item.quantity
               %td 
                 =item.note
-              %td 
-                =item.updated_by.email
-              - if prev_data != item.token
-                %td{rowspan: elem_num[item.token].to_i}
-                  %a.remove_track_link{href: 'javascript:;', "data-activity": item.token}
-                    %i.fa.fa-icon.fa-minus-circle
-              - prev_data = item.token
+            - if index == @sales_order.ship_activities.length
+              ="</table></td></tr>".html_safe
+            - prev_data = item.token          
 :javascript
   $(document).ready(function() {
     SalesOrderDetail.handleOrderShipTab();

@@ -84,7 +84,14 @@ class Customer < ActiveRecord::Base
   end
 
   def receivable
-    0
+    total_amount = sales_orders.sum(:total_amount)
+
+    total_paid_amount = 0
+    sales_orders.each do |elem|
+      total_paid_amount += elem.total_paid_amount
+    end    
+
+    total_amount - total_paid_amount
   end
 
   def payment_term_label

@@ -171,11 +171,6 @@
   .row
     .col-md-12
       %h4 Product Information
-      .row
-        .col-md-12{:style => "text-align: right"}
-          %button#add_product.btn.btn-success.btn-xs{:type => "button"}
-            %i.fa.fa-plus
-            Add Product      
       / start project list
       %table#product_list.table.table-hover.projects.margin-bottom-5
         %thead
@@ -192,7 +187,7 @@
 
   .row.form-group 
     .col-md-6.text-center
-      %a.btn{href: '/products/new'}
+      %a#add_product.btn{href: 'javascript:;'}
         %i.fa.fa-icon.fa-cube
         + Add New Product
     .col-md-6.text-center

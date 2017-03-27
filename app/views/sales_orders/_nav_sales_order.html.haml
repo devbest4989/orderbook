@@ -47,7 +47,7 @@
                     = "Ref: #{elem.ref_no}"
                   %td.text-right
                     %span.label{class: "#{elem.status_class}"}
-                      = elem.status.capitalize
+                      = elem.status_text.capitalize
       %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
 :javascript
   jQuery(document).ready(function() {
