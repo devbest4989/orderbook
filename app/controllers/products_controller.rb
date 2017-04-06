@@ -33,6 +33,24 @@ class ProductsController < ApplicationController
 
   # POST /products/list_by_name
   def list_by_name
+
+    # if params[:key]
+    #   @products = Product.actived.name_code_like(params[:key])
+    #               .joins(:brand)
+    #               .ordered
+    #               .select('products.name as name, 
+    #                        products.id as id, 
+    #                        products.sku as sku, 
+    #                        products.quantity as quantity, 
+    #                        products.barcode as barcode, 
+    #                        brands.name as brand_name')
+    # end
+
+    # respond_to do |format|
+    #   result = {:Result => "OK", :data => {product: @products} }
+    #   format.json {render :json => result}
+    # end
+
     if params[:term]
       @products = Product.select('name as text, id').actived.name_like(params[:term])
     end

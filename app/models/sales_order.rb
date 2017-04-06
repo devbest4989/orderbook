@@ -110,6 +110,10 @@ class SalesOrder < ActiveRecord::Base
         self.sales_item_activities.where(activity: 'invoice').sum(:total)
     end
 
+    def total_ship_amount
+        self.sales_item_activities.where(activity: 'ship').sum(:total)
+    end
+
     def shipping_cost
     end
 

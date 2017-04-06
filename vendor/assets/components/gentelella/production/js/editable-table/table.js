@@ -621,7 +621,77 @@ Table.prototype.editCell = function(id) {
         if ( $(cell).find("span").length > 0 ) { 
             return false;
         }
+    
         // Retrieve the cell data
+        
+        // var val = $(cell).text() || "";
+        // var cellclass = $("td#"+id).attr("class");
+        
+        // var dtype = this._gettype(id);
+        // var dt = this._datatypes(dtype);
+
+        // var cellAttr = {
+        //     "type": "text",
+        //     "class": "editcell",
+        //     "placeholder": dt.placeholder,
+        //     "value": val,
+        //     "id": "autocomplete"
+        // };
+
+        // var cellInput = $('<select />').attr(cellAttr);
+
+        // $(cell).empty().append(cellInput);
+
+        // $(cellInput).on("focus", function() {
+        //     $(this).removeClass("error");
+        // });
+
+        // $(cellInput).focus();      
+
+        // $("td#"+id+' '+ 'select').selectize({
+        //     valueField: 'url',
+        //     labelField: 'name',
+        //     searchField: 'name',
+        //     create: false,
+        //     render: {
+        //         option: function(item, escape) {
+        //             return '<div>' +
+        //                 '<span class="title">' +
+        //                     '<span class="name"><i class="icon ' + (item.fork ? 'fork' : 'source') + '"></i>' + escape(item.name) + '</span>' +
+        //                     '<span class="by">' + escape(item.username) + '</span>' +
+        //                 '</span>' +
+        //                 '<span class="description">' + escape(item.description) + '</span>' +
+        //                 '<ul class="meta">' +
+        //                     (item.language ? '<li class="language">' + escape(item.language) + '</li>' : '') +
+        //                     '<li class="watchers"><span>' + escape(item.watchers) + '</span> watchers</li>' +
+        //                     '<li class="forks"><span>' + escape(item.forks) + '</span> forks</li>' +
+        //                 '</ul>' +
+        //             '</div>';
+        //         }
+        //     },
+        //     score: function(search) {
+        //         var score = this.getScoreFunction(search);
+        //         return function(item) {
+        //             return score(item) * (1 + Math.min(item.watchers / 100, 1));
+        //         };
+        //     },
+        //     load: function(query, callback) {
+        //         if (!query.length) return callback();
+        //         $.ajax({
+        //             url: 'https://api.github.com/legacy/repos/search/' + encodeURIComponent(query),
+        //             type: 'GET',
+        //             error: function() {
+        //                 callback();
+        //             },
+        //             success: function(res) {
+        //                 callback(res.repositories.slice(0, 10));
+        //             }
+        //         });
+        //     }
+        // });        
+
+        // Retrieve the cell data
+
         var text = $(cell).text() || "";
         var val = $("td#"+self._getlastcolcell(id)).text() || "" ;
         var cellclass = $("td#"+id).attr("class");
@@ -943,7 +1013,8 @@ Table.prototype.addRow = function(o) {
         c++;
     }
 
-    $('td#'+rid+'_'+0).click();
+    // $('td#'+rid+'_'+0).click();
+    self.editCell(rid+'_'+0);
 }
 
 Table.prototype.delRow = function (id) {

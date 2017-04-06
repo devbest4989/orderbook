@@ -76,14 +76,10 @@ class SalesOrder < ActiveRecord::Base
 
   def invoice_status
     result = self.status
-
-    ship_count = self.ship_activities_datas.length
-    invoice_count = self.invoice_activities_elems.length
-
-    if (ship_count == invoice_count) && (self.total_quantity_to_pack == 0)
+    if (total_ship_amount == total_paid_amount)
       result = 'fullfilled'
     else
-      result = self.status
+      result = self.ship_status
     end
 
     return result

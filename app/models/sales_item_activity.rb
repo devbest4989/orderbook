@@ -16,4 +16,7 @@ class SalesItemActivity < ActiveRecord::Base
       (quantity * sales_item.unit_price / BigDecimal(100)) * sales_item.tax_rate
     end
 
+    def total_amount
+      sub_total_amount + tax_amount
+    end
 end

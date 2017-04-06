@@ -26,6 +26,7 @@ class Product < ActiveRecord::Base
 
   scope :main_like, ->(search) { where("(LOWER(products.name) LIKE :search) or (LOWER(products.sku) LIKE :search)", :search => "%#{search.downcase}%") }
   scope :name_like, ->(search) { where("LOWER(name) LIKE :search", :search => "%#{search.downcase}%") }
+  scope :name_code_like, ->(search) { where("(LOWER(products.name) LIKE :search) or (LOWER(products.barcode) LIKE :search)", :search => "%#{search.downcase}%") }
   scope :sku_like, ->(search) { where("LOWER(sku) LIKE :search", :search => "%#{search.downcase}%") }
   scope :by_category, ->(search) { where("(category_id = :search) OR (:search = 0)", :search => "#{search}") }
   scope :by_brands, ->(search) { where("(brand_id = :search) OR (:search = 0)", :search => "#{search}") }

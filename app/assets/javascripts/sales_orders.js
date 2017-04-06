@@ -290,7 +290,7 @@ var SalesOrderDetail = function () {
       }
 
       var reqUrl = $('#ship_req_url').val();
-      var data = {pack_tokens: pack_tokens, id: $('#ship_order_id').val()};
+      var data = {pack_tokens: pack_tokens, id: $('#ship_order_id').val(), track_number: $('#tracking_number').val()};
       do_activity(reqUrl, data, 'ship');
     });
 
@@ -707,6 +707,32 @@ var SalesOrdersNew = function () {
       handleCustomer();
       handleProductTable();
       handleForm();
+    }
+  };
+}();
+
+var SalesOrderToolBar = function(){
+  var createPackageList = function(){
+    $('.create-package-link').click(function(){
+      $('#package_modal').modal();
+    });    
+  }
+
+  var createShippment = function(){
+    $('.create-shippment-link').click(function(){
+    });    
+  }
+
+  var createInvoice = function(){
+    $('.create-invoice-link').click(function(){
+    });    
+  }
+
+  return {
+    handleSalesOrderToolbar: function () {
+      createPackageList();
+      createShippment();
+      createInvoice();
     }
   };
 }();

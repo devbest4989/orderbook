@@ -242,7 +242,9 @@ class SalesOrdersController < ApplicationController
       ship_activity.sub_total = elem.sub_total_amount
       ship_activity.discount = elem.discount_amount
       ship_activity.tax = elem.tax_amount
+      ship_activity.total = elem.total_amount
       ship_activity.sales_order_id = params[:id]
+      ship_activity.track_number = params[:track_number]
 
       ship_activity.save
     end
@@ -257,13 +259,13 @@ class SalesOrdersController < ApplicationController
   end
 
   def pack
-    track_number = GlobalMap.track_number
+    package_number = GlobalMap.package_number
     params[:pack_attributes].each do |elem|
       sales_item = SalesItem.find(elem[1][:id].to_i);
-      sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, track_number)
+      sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, package_number)
     end
 
-    add_action_history('packaging', 'create', track_number)
+    add_action_history('packaging', 'create', package_number)
 
     @sales_order.pack!(current_user)
     respond_to do |format|

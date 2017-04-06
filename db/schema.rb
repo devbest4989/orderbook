@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170327133908) do
+ActiveRecord::Schema.define(version: 20170330160313) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -178,6 +178,7 @@ ActiveRecord::Schema.define(version: 20170327133908) do
     t.decimal  "total",          precision: 8, scale: 2, default: 0.0
     t.decimal  "discount",       precision: 8, scale: 2, default: 0.0
     t.decimal  "tax",            precision: 8, scale: 2, default: 0.0
+    t.string   "track_number"
   end
 
   add_index "sales_item_activities", ["sales_item_id"], name: "index_sales_item_activities_on_sales_item_id", using: :btree

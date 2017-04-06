@@ -1,7 +1,7 @@
 class GlobalMap < ActiveRecord::Base
   validates :key, presence: true, uniqueness: true
 
-  KEYS = %w(sales_no purchase_no track_no shipping_no invoice_no)
+  KEYS = %w(sales_no purchase_no package_no shipping_no invoice_no)
 
   def self.sale_number
     order_number = GlobalMap.value_by('sales_no').to_i + 1
@@ -15,10 +15,10 @@ class GlobalMap < ActiveRecord::Base
     return "PO#" + order_number.to_s.rjust(6, '0')
   end
 
-  def self.track_number
-    track_number = GlobalMap.value_by('track_no').to_i + 1
-    GlobalMap.set_object('track_no', track_number)
-    return "GST#" + track_number.to_s.rjust(8, '0')
+  def self.package_number
+    package_number = GlobalMap.value_by('package_no').to_i + 1
+    GlobalMap.set_object('package_no', package_number)
+    return "PKG#" + package_number.to_s.rjust(8, '0')
   end
 
   def self.shipping_number
