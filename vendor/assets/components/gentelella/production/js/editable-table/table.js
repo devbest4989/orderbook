@@ -46,11 +46,14 @@ Table.prototype._calc_extra = function() {
         var tax_rate        = self._getcell(tax_id);
         var qty             = self._getcell(qty_id);
         var price           = self._getcell(price_id);
+        var discount_value  = 0.0;
 
         sub_total += isNaN(parseFloat(qty * price)) ? 0 : parseFloat(qty * price);
 
-        discount_total += discount_rate * qty * price * 0.01;
-        sub_total -= discount_total;
+        discount_value = discount_rate * qty * price * 0.01;
+
+        discount_total += isNaN(discount_value) ? 0 : discount_value;
+        sub_total -= discount_value;
 
         tax_total += tax_rate * qty * price * 0.01;
     }
