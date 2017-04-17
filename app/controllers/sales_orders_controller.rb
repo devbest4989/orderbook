@@ -174,6 +174,24 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def print
+    set_sales_order
+    get_first_invoice
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
+
+    respond_to do |format|
+      format.pdf do
+        render pdf: "invoice", layout: '/layouts/sales_order.pdf.haml'
+      end
+    end    
+  end
+
   def get_invoice
     invoice_activity = SalesItemActivity.where(token: params[:activity]).first;
     ship_activities = SalesItemActivity.where(token: invoice_activity.activity_data);

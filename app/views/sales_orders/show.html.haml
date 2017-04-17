@@ -26,6 +26,15 @@
                 =link_to '#', class: 'order-header-link create-invoice-link' do
                   Create Invoice
           %li
+            =link_to print_sales_order_path(@sales_order), class: 'order-header-link', :method=> :post, target: '_blank' do
+              %i.fa.fa-file-pdf-o
+          %li
+            =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
+              %i.fa.fa-print
+          %li
+            =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
+              %i.fa.fa-envelope-o
+          %li
             %a.collapse-link
               %i.fa.fa-chevron-up
           %li

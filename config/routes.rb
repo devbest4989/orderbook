@@ -78,6 +78,7 @@ Rails.application.routes.draw do
       post :invoice
       post :get_invoice
       post :remove_activity
+      post :print, :defaults => { :format => 'pdf' }
     end
 
     collection do

@@ -1,0 +1,165 @@
+
+.sales-order-box{
+	width: 100%;
+	border-spacing: 2px;
+	border-collapse: collapse;
+	font-size: 12px;
+	tr{
+		padding: 10px;
+		td{
+			padding: 10px;
+			p{
+				padding: 1px 0;
+				margin: 0;
+			}
+		}
+	}
+	.main-info-box{
+		border: 1px solid #333;
+	}
+
+	.address-box{
+		td{
+			border: 1px solid #333;
+			font-weight: 600;
+		}
+	}
+
+	.details-box{
+		border: 1px solid #333;
+		td{
+			padding: 0;
+			vertical-align: top;
+		}
+	}
+
+	.signature-box{
+		border: 1px solid #333;
+		tr{
+			td{
+				&.terms-info{
+					font-size: 6px;
+				}
+			}
+		}
+	}
+
+	.balance-box{
+		td{
+			border: 1px solid #333;
+		}
+
+		table{
+			&.total-info{
+				height: 100%;
+				tr td{
+					padding: 10px 5px;
+				}
+			}
+			width: 100%;
+			border-spacing: 2px;
+			border-collapse: collapse;
+			tr{
+				&.product-header{
+					background: #eee;
+					border-bottom: 1px solid #333;
+				}
+
+				td{
+					border: none;
+					padding: 0 5px;
+				}				
+			}
+		}
+	}
+
+	.footer-box{
+		border: 1px solid #333;
+	}
+
+	table.order-main-info{
+		width: 100%;
+		border-spacing: 2px;
+		border-collapse: collapse;
+	}
+
+	table.order-product-info{
+		width: 100%;
+		border-spacing: 2px;
+		border-collapse: collapse;
+		tr{
+			&.product-header{
+				background: #eee;
+				border-bottom: 1px solid #333;
+			}
+
+			td{
+				padding: 5px 10px;
+			}
+		}		
+	}
+
+	table.order-sign-info{
+		width: 100%;
+		border-spacing: 2px;
+		border-collapse: collapse;		
+		tr{
+			padding: 0;
+			td{
+				padding: 0;
+				
+				&.terms-info{
+					font-size: 8px;
+					width: 60%;
+				}
+				&.signature-info{
+					padding: 0px 10px;
+					p{
+						padding: 10px 0;
+						span{
+							text-decoration: underline;
+						}
+					}
+
+					table{
+						width: 100%;
+						border-spacing: 2px;
+						border-collapse: collapse;
+						tr{
+							td{
+								padding: 10px 0;
+								&.td-underline{
+									div{
+										height: 15px;
+										width: 100%;
+										border-bottom: 1px solid #333;
+									}									
+								}
+							}
+						}
+					}
+				}
+			}
+		}				
+	}
+}
+
+div.alwaysbreak { page-break-before: always; }
+div.nobreak:before { clear:both; }
+div.nobreak { page-break-inside: avoid; }
+
+.text-right{
+	text-align: right;
+}
+
+.text-left{
+	text-align: left;
+}
+
+.text-center{
+	text-align: center;
+}
+
+.no-padding{
+	padding: 0 !important;
+}
