@@ -193,6 +193,39 @@ var SalesOrderDetail = function () {
         $(this).next("tr").toggle();
     });
 
+
+    // Generate Track From Popup
+    $("#package_modal #btn_create_package").click(function(){
+      var packItemData = new Array();
+      $('#package_modal #product_list tbody tr').each(function(row, tr){
+        packItemData.push({
+          "quantity" : $(tr).find('td:eq(6)').text().trim(),
+          "note" :$(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim()
+        });    
+      }); 
+      var reqUrl = $('#pack_req_url').val();
+      var data = {pack_attributes: packItemData, id: $('#ship_order_id').val()};
+      do_activity(reqUrl, data, 'pack');
+    });    
+
+    $("#package_modal #product_list td.editable").focus(function(){
+      $(this).addClass("edit-focus");
+    });
+
+    $("#package_modal #product_list td.editable").focusout(function(){
+      $("#package_modal #product_list td.editable").removeClass("edit-focus");
+    });
+
+    $("#package_modal #product_list td.editable").keydown(function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+       event.preventDefault();
+        break;
+      }
+    });    
+
   }
 
   var do_activity = function(reqUrl, data, page){
@@ -311,6 +344,45 @@ var SalesOrderDetail = function () {
     $("#ship_activity_list tr.odd").click(function(){
         $(this).next("tr").toggle();
     });
+
+    // Handling Shipment Popup
+
+    $("#shipment_modal #product_list td.editable").focus(function(){
+      $(this).addClass("edit-focus");
+    });
+
+    $("#shipment_modal #product_list td.editable").focusout(function(){
+      $("#product_list td.editable").removeClass("edit-focus");
+    });
+
+    $("#shipment_modal #product_list td.editable").keydown(function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+       event.preventDefault();
+        break;
+      }
+    });    
+
+    $("#shipment_modal #btn_create_shipment").click(function(){
+      var records = [];
+      $("#shipment_modal .bulk_action input[name='table_records']:checked").each(function() {
+        records.push("'" + $(this).val() + "'");
+      });
+
+      var pack_tokens = '';
+
+      if (records.length) {
+        pack_tokens = records.join(",");
+      } else {
+        return;
+      }
+
+      var reqUrl = $('#ship_req_url').val();
+      var data = {pack_tokens: pack_tokens, id: $('#ship_order_id').val(), track_number: $('#modal_tracking_number').val()};
+      do_activity(reqUrl, data, 'ship');
+    });
+
   }
 
   var handleInvoiceTab = function(){
@@ -367,8 +439,32 @@ var SalesOrderDetail = function () {
           });              
         }   
       });
-
     });    
+
+    $("#tab_invoice #btn_invoice_submit").click(function(){
+      var records = [];
+      $("#tab_invoice .bulk_action input[name='table_records']:checked").each(function() {
+        records.push("'" + $(this).val() + "'");
+      });
+
+      var ship_tokens = '';
+
+      if (records.length) {
+        ship_tokens = records.join(",");
+      } else {
+        return;
+      }
+
+      var reqUrl = $('#ship_invoice_url').val();
+      var data = {ship_tokens: ship_tokens, type: 'invoice', id: $('#ship_order_id').val()};
+      do_activity(reqUrl, data, 'invoice');
+    });
+
+    $("#invoice_activity_list tr.even").hide();
+    $("#invoice_activity_list tr.odd").click(function(){
+        $(this).next("tr").toggle();
+    });
+
   }
 
   return {

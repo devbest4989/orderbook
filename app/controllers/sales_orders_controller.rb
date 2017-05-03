@@ -217,27 +217,32 @@ class SalesOrdersController < ApplicationController
   end
 
   def invoice
+    # activity_totals = SalesItemActivity.select("SUM(sub_total) AS sum_sub, SUM(tax) AS sum_tax, SUM(discount) AS sum_discount")
+    #                                    .where("sales_item_activities.token IN (#{params[:ship_tokens]})")
+
+    sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:ship_tokens]})")
     invoice_number = GlobalMap.invoice_number
-    activity_totals = SalesItemActivity.select("SUM(sub_total) AS sum_sub, SUM(tax) AS sum_tax, SUM(discount) AS sum_discount").where(token: params[:ship_token])
+    sales_item_activities.each do |elem|      
+      invoice_activity = SalesItemActivity.new
+      invoice_activity.quantity = elem.quantity.to_i
+      invoice_activity.activity = 'invoice'
+      invoice_activity.sales_item_id = elem.sales_item_id.to_i
+      invoice_activity.updated_by = current_user
+      invoice_activity.token = invoice_number
+      invoice_activity.activity_data = elem.token
+      invoice_activity.note = ''
+      invoice_activity.sub_total = elem.sub_total_amount
+      invoice_activity.discount = elem.discount_amount
+      invoice_activity.tax = elem.tax_amount
+      invoice_activity.total = elem.total_amount
+      invoice_activity.sales_order_id = params[:id]
+      invoice_activity.track_number = ''
 
-    invoice_activity = SalesItemActivity.new
-    invoice_activity.quantity = 0
-    invoice_activity.activity = 'invoice'
-    invoice_activity.sales_item_id = nil
-    invoice_activity.updated_by = current_user
-    invoice_activity.token = invoice_number
-    invoice_activity.activity_data = params[:ship_token]
-    invoice_activity.note = ''
-    invoice_activity.sub_total  = activity_totals[0]['sum_sub'].to_f
-    invoice_activity.discount   = activity_totals[0]['sum_discount'].to_f
-    invoice_activity.tax        = activity_totals[0]['sum_tax'].to_f
-    invoice_activity.total      = activity_totals[0]['sum_sub'].to_f + activity_totals[0]['sum_tax'].to_f
-    invoice_activity.sales_order_id = params[:id]
-    invoice_activity.save
-
-    @sales_order.invoice!(current_user)
+      invoice_activity.save
+    end
 
     add_action_history('invoice', 'create', invoice_number)
+    @sales_order.invoice!(current_user)
 
     respond_to do |format|
       result = {:Result => "OK" }
@@ -362,6 +367,9 @@ class SalesOrdersController < ApplicationController
 
     def get_first_invoice
       @sales_order_invoice = @sales_order.sales_item_activities.where(activity: 'invoice').first
+
+      # query = "SELECT FROM "
+      # @invoice_details = ActiveRecord::Base.connection.execute(query)
     end
 
     def get_sub_sales_orders
