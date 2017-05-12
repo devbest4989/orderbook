@@ -12,6 +12,7 @@ class SalesOrder < ActiveRecord::Base
     has_many :products, through: :sales_items, class_name: 'Product', source: :sold_item
     has_many :sales_item_activities, class_name: 'SalesItemActivity'
     has_many :action_histories, -> { where(item_type: 'SalesOrder') }, class_name: 'ActionHistory', foreign_key: 'item_id', dependent: :destroy
+    has_many :invoices, class_name: 'Invoice'
 
     # The order can belong to a customer
     belongs_to :customer
@@ -98,6 +99,14 @@ class SalesOrder < ActiveRecord::Base
         qty_to_pack
     end
 
+    def total_packed_quantity
+        packed_qty = 0
+        sales_items.each do |item|
+            packed_qty += item.packed_quantity
+        end
+        packed_qty
+    end
+
     def discount_amount
         sales_items.sum("discount_amount")
     end
@@ -106,8 +115,12 @@ class SalesOrder < ActiveRecord::Base
         sales_items.sum("tax_amount")
     end
 
+    def invoice_total
+        invoices.sum("total")
+    end
+
     def total_paid_amount
-        self.sales_item_activities.where(activity: 'invoice').sum(:total)
+        invoices.sum("paid")
     end
 
     def total_ship_amount

@@ -70,6 +70,7 @@ Rails.application.routes.draw do
 
   resources :sales_orders do
     member do
+      post :update_status
       post :book
       post :cancel
       post :return
@@ -160,6 +161,14 @@ Rails.application.routes.draw do
     end
     member do
       get  :action
+    end
+  end
+
+  resources :invoices do
+    member do
+      post :generate_pdf, :defaults => { :format => 'pdf' }
+      post :print
+      post :mail
     end
   end
 

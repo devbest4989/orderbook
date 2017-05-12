@@ -19,8 +19,17 @@
                 =item.created_at.to_date
               %td 
                 =item.action_name.capitalize
-              %td 
-                =item.action_type.capitalize
+              %td
+                - case item.action_type
+                - when 'create'
+                  %span.label.label-primary
+                    =item.action_type.capitalize
+                - when 'update'
+                  %span.label.label-success
+                    =item.action_type.capitalize
+                - when 'delete'                
+                  %span.label.label-danger
+                    =item.action_type.capitalize
               %td 
                 =item.action_number
               %td 

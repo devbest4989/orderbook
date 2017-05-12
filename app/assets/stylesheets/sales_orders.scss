@@ -7,9 +7,15 @@
       height: 45px;
       .label{
         color: #fff;
-        margin: 0 10px;
+        margin: 5px 10px;
         font-size: 90%;
         vertical-align: bottom;
+        float: left;
+      }
+
+      .btn-confirm{
+        float: left;
+        margin: 2px 0;
       }      
 
       .order-name{
@@ -191,6 +197,10 @@
 
     span.green-status-active{
       color: #1ABB9C;
+    }
+
+    span.white-blue-status-active{
+      color: #5bc0de;
     }
 
     span.blue-status-active{

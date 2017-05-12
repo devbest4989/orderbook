@@ -74,14 +74,35 @@ class SalesOrder < ActiveRecord::Base
     true    
   end
 
+  def confirm_status!(user = nil)
+    run_callbacks :invoicing do
+      self.status = confirm_status
+      save!
+    end
+    true    
+  end
+
   def invoice_status
     result = self.status
-    if (total_ship_amount == total_paid_amount)
+    if (total_paid_amount >= total_amount && self.shipped?)
       result = 'fullfilled'
-    else
-      result = self.ship_status
+    end
+    return result
+  end
+
+  def confirm_status
+    result = 'confirmed'
+    if (total_shipped_quantity > 0 && total_quantity_to_ship == 0)
+      result = 'shipped'
+    elsif (total_shipped_quantity > 0 && total_quantity_to_ship > 0)
+      result = 'partial_shipped'
+    elsif (total_packed_quantity > 0 && total_quantity_to_pack == 0)
+      result = 'packed'
     end
 
+    if (total_paid_amount >= total_amount && self.shipped?)
+      result = 'fullfilled'
+    end
     return result
   end
 

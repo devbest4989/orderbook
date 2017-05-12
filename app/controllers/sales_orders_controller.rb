@@ -1,5 +1,5 @@
 class SalesOrdersController < ApplicationController  
-  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice]
+  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status]
 
   before_filter do
     locale = params[:locale]
@@ -76,8 +76,6 @@ class SalesOrdersController < ApplicationController
     end
     get_sub_sales_orders
     
-    get_first_invoice
-
     # Self Company Profile
     profile_info = Setting.company_profile
     @company_profiles = {}
@@ -101,7 +99,8 @@ class SalesOrdersController < ApplicationController
           @sales_order.confirm!
           add_action_history('confirm', 'update', @sales_order.token)
         end        
-        result = {:Result => "OK", :Record => @sales_order}
+        redirect_to sales_order_url(@sales_order)
+        # result = {:Result => "OK", :Record => @sales_order}        
       else
         result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
       end
@@ -127,6 +126,17 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def update_status
+    if params[:save_action] == 'quote'
+      @sales_order.quote!
+      add_action_history('quote', 'update', @sales_order.token)
+    else
+      @sales_order.confirm!
+      add_action_history('confirm', 'update', @sales_order.token)
+    end
+    redirect_to sales_order_url(@sales_order)
+  end
+
   def book
     @sales_order.confirm!(current_user)
     add_action_history('confirm', 'update', @sales_order.token)
@@ -140,7 +150,6 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1.json
   def show
     get_sub_sales_orders
-    get_first_invoice
 
     # Self Company Profile
     profile_info = Setting.company_profile
@@ -217,28 +226,29 @@ class SalesOrdersController < ApplicationController
   end
 
   def invoice
-    # activity_totals = SalesItemActivity.select("SUM(sub_total) AS sum_sub, SUM(tax) AS sum_tax, SUM(discount) AS sum_discount")
-    #                                    .where("sales_item_activities.token IN (#{params[:ship_tokens]})")
-
-    sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:ship_tokens]})")
     invoice_number = GlobalMap.invoice_number
-    sales_item_activities.each do |elem|      
-      invoice_activity = SalesItemActivity.new
-      invoice_activity.quantity = elem.quantity.to_i
-      invoice_activity.activity = 'invoice'
-      invoice_activity.sales_item_id = elem.sales_item_id.to_i
-      invoice_activity.updated_by = current_user
-      invoice_activity.token = invoice_number
-      invoice_activity.activity_data = elem.token
-      invoice_activity.note = ''
-      invoice_activity.sub_total = elem.sub_total_amount
-      invoice_activity.discount = elem.discount_amount
-      invoice_activity.tax = elem.tax_amount
-      invoice_activity.total = elem.total_amount
-      invoice_activity.sales_order_id = params[:id]
-      invoice_activity.track_number = ''
 
-      invoice_activity.save
+    invoice = Invoice.new
+    invoice.token = invoice_number
+    invoice.sales_order_id = params[:id]
+    invoice.sub_total = params[:sub_total]
+    invoice.discount = params[:discount_total]
+    invoice.tax = params[:tax_total]
+    invoice.shipping = params[:shipping_total]
+    invoice.total = params[:total]
+    invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
+    invoice.status = (invoice.paid == 0) ? 0 : 1
+    invoice.save
+
+    params[:invoice_attributes].each do |elem|
+      invoice_item = InvoiceItem.new
+      invoice_item.invoice_id = invoice.id
+      invoice_item.sales_item_id = elem[1][:id].to_i
+      invoice_item.quantity   = elem[1][:quantity].to_i
+      invoice_item.discount   = elem[1][:discount]
+      invoice_item.tax        = elem[1][:tax]
+      invoice_item.sub_total  = elem[1][:sub_total]
+      invoice_item.save
     end
 
     add_action_history('invoice', 'create', invoice_number)
@@ -274,7 +284,7 @@ class SalesOrdersController < ApplicationController
 
     add_action_history('shippment', 'create', shipping_number)
 
-    @sales_order.ship!(current_user)
+    @sales_order.confirm_status!(current_user)
     respond_to do |format|
       result = {:Result => "OK" }
       format.json {render :json => result}
@@ -290,7 +300,7 @@ class SalesOrdersController < ApplicationController
 
     add_action_history('packaging', 'create', package_number)
 
-    @sales_order.pack!(current_user)
+    @sales_order.confirm_status!(current_user)
     respond_to do |format|
       result = {:Result => "OK" }
       format.json {render :json => result}

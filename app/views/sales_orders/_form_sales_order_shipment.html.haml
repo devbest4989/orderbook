@@ -93,7 +93,7 @@
             - if prev_data != item.token
               -if prev_data != ''
                 ="</table></td></tr>".html_safe
-              ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.track_number}</td><td>#{item.updated_by.email}</td><td>#{(ship_token.include? item.token) ? '' : '<a class="remove_track_link" href="javascript:;" data-activity="'+item.token+'"><i class="fa fa-icon fa-minus-circle"></i></a>'}</td></tr>".html_safe
+              ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.track_number}</td><td>#{item.updated_by.email}</td><td><a class='remove_track_link' href='javascript:;'' data-activity='#{item.token}'><i class='fa fa-icon fa-minus-circle'></i></a></td></tr>".html_safe
               = "<tr class='even'><td colspan='6'><table class='table projects margin-bottom-5'><thead><tr><th>Packaging Number</th><th>SKU</th><th>Product Name</th><th>Shipped Qty</th><th>Note</th></tr></thead>".html_safe          
             %tr
               %td

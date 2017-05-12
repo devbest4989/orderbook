@@ -4,24 +4,25 @@
   .right-content
     .x_panel
       .x_title
-        %h2
-          ="Sales Order #{@sales_order.token}" 
+        = link_to sales_order_path(@sales_order) do
+          %h2
+            ="Sales Order #{@sales_order.token}" 
         %span.label{class: @sales_order.status_class}
           = "#{@sales_order.status_text.capitalize}"
         %ul.nav.navbar-right.panel_toolbox
-          %li
-            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
-              %i.fa.fa-plus
-            %ul.dropdown-menu.more-action{:role => "menu"}
-              %li
-                =link_to 'javascript:;', class: 'order-header-link' do
-                  Create Pick List
-              %li
-                =link_to 'javascript:;', class: 'order-header-link' do
-                  Create Shippment
-              %li
-                =link_to 'javascript:;', class: 'order-header-link' do
-                  Create Invoice
+          / %li
+          /   %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+          /     %i.fa.fa-plus
+          /   %ul.dropdown-menu.more-action{:role => "menu"}
+          /     %li
+          /       =link_to 'javascript:;', class: 'order-header-link' do
+          /         Create Pick List
+          /     %li
+          /       =link_to 'javascript:;', class: 'order-header-link' do
+          /         Create Shippment
+          /     %li
+          /       =link_to 'javascript:;', class: 'order-header-link' do
+          /         Create Invoice
           %li
             %a.collapse-link
               %i.fa.fa-chevron-up
@@ -40,35 +41,35 @@
             %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
               %i.fa.fa-cubes
               Ordered Items
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_pack", "aria-expanded" => "false"} 
-              %i.fa.fa-cube
-              Packaging
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_shipment", "aria-expanded" => "false"} 
-              %i.fa.fa-truck
-              Shippments
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
-              %i.fa.fa-file-text-o
-              Invoice
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_history", "aria-expanded" => "false"} 
-              %i.fa.fa-history
-              History
+          / %li
+          /   %a{"data-toggle" => "tab", :href => "#tab_pack", "aria-expanded" => "false"} 
+          /     %i.fa.fa-cube
+          /     Packaging
+          / %li
+          /   %a{"data-toggle" => "tab", :href => "#tab_shipment", "aria-expanded" => "false"} 
+          /     %i.fa.fa-truck
+          /     Shippments
+          / %li
+          /   %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
+          /     %i.fa.fa-file-text-o
+          /     Invoice
+          / %li
+          /   %a{"data-toggle" => "tab", :href => "#tab_history", "aria-expanded" => "false"} 
+          /     %i.fa.fa-history
+          /     History
         .tab-content
           #tab_detail{:class => "tab-pane active"}
             = render 'edit_sales_order_detail'
           #tab_item{:class => "tab-pane"}
             = render 'form_sales_order_item'
-          #tab_pack{:class => "tab-pane"}
-            = render 'form_sales_order_pack'
-          #tab_shipment{:class => "tab-pane"}
-            = render 'form_sales_order_shipment'
-          #tab_invoice{:class => "tab-pane"}
-            = render 'form_sales_order_invoice'
-          #tab_history{:class => "tab-pane"}
-            = render 'form_sales_order_history'
+          / #tab_pack{:class => "tab-pane"}
+          /   = render 'form_sales_order_pack'
+          / #tab_shipment{:class => "tab-pane"}
+          /   = render 'form_sales_order_shipment'
+          / #tab_invoice{:class => "tab-pane"}
+          /   = render 'form_sales_order_invoice'
+          / #tab_history{:class => "tab-pane"}
+          /   = render 'form_sales_order_history'
 :javascript
   jQuery(document).ready(function() {    
     
