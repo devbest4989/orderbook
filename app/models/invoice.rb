@@ -4,4 +4,8 @@ class Invoice < ActiveRecord::Base
 	belongs_to :sales_order, class_name: 'SalesOrder'
 	
 	enum status: [:draft, :paid]
+
+	def file_name_path
+		'/invoices/' + file_name
+	end
 end

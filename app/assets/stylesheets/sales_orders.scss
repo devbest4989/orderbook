@@ -15,8 +15,12 @@
 
       .btn-confirm{
         float: left;
-        margin: 2px 0;
       }      
+
+      .btn-confirm-sm{
+        float: left;
+        margin: 2px 0;        
+      }
 
       .order-name{
         .label{
@@ -89,6 +93,7 @@
           color: #5A738E;
           font-size: 20px;
           padding: 0 5px;
+          border: none;
         }
 
         a{

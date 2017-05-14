@@ -1,0 +1,25 @@
+=content_for :title, "Shipment - #{sales_item_activities.first.token}"
+%table.sales-order-box
+    %tr
+        %td{colspan: 2}
+            %table.order-main-info
+                %tr
+                    %td.order-info.text-right
+                        %p="#{@company_profiles['company.name']}"
+                        %p="#{@company_profiles['company.address']}"                        
+                    %td.company-title
+                        %h2 SHIPMENT ORDER
+                        %p="Shipment Order# #{sales_item_activities.first.token}"
+                %tr
+                    %td
+                        %h4 Ship To
+                        %p="#{@invoice.sales_order.ship_street} #{@invoice.sales_order.ship_suburb}"
+                        %p="#{@invoice.sales_order.ship_city} #{@invoice.sales_order.ship_postcode}"
+                        %p="#{@invoice.sales_order.ship_state} #{Country.coded(@invoice.sales_order.ship_country).name}"                        
+                    %td.text-right
+                        %p="Order Date: #{@invoice.sales_order.booker.full_name}"
+                        %p="Sales Order: #{@invoice.sales_order.token}"
+    %tr.address-box
+        %td{width: "50%"}
+            %p="#{@company_profiles['company.name']}"
+            %p="#{@company_profiles['company.address']}"

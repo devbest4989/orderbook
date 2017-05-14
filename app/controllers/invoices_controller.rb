@@ -35,6 +35,7 @@ class InvoicesController < ApplicationController
     invoice.total = params[:total]
     invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
     invoice.status = (invoice.paid.to_f == 0) ? 0 : 1
+    invoice.file_name = ''
     invoice.save
 
     invoice.invoice_items.delete_all
@@ -81,11 +82,32 @@ class InvoicesController < ApplicationController
       @company_profiles[info.key] = info.value
     end
 
-    respond_to do |format|
-      format.pdf do
-        render pdf: "invoice", layout: '/layouts/sales_order.pdf.haml'
+    if @invoice.file_name.blank?    
+      begin
+        filename = SecureRandom.hex(10) + '.pdf'
+      end while Invoice.exists?(:file_name => filename)      
+
+      save_path = Rails.root.join('public/invoices', filename)
+      File.open(save_path, 'wb') do |file|
+        file << render_to_string(
+           :pdf => "invoice",         
+           :template => 'invoices/generate_pdf.pdf.haml',
+           :layout => '/layouts/sales_order.pdf.haml',
+           :locals => { 'invoice' => @invoice }
+         )
       end
-    end    
+      @invoice.file_name = filename
+      @invoice.save
+    end
+
+    redirect_path = '/invoices/' + @invoice.file_name
+    redirect_to redirect_path
+
+    # respond_to do |format|
+    #   format.pdf do
+    #     render pdf: "invoice", layout: '/layouts/sales_order.pdf.haml'
+    #   end
+    # end    
   end
 
   def print

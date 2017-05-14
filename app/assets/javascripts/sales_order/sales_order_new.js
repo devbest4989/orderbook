@@ -181,6 +181,13 @@ var SalesOrdersNew = function () {
       var validate = $(form_id).parsley().validate();
       validateFront();
       if(validate === true){
+        var ret = confirm("Do you want to send confirmation email to customer?");
+        if(ret){
+          $('#email_action').val('1');
+        } else {
+          $('#email_action').val('0');
+        }
+
         var reqData = $(form_id).serializeArray();
         reqData.push({name: 'sales_order[customer_id]', value: $('.customer-box .es-list .es-visible').val()});
         reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text()});

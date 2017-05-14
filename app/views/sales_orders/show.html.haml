@@ -9,7 +9,7 @@
         %span.label{class: @sales_order.status_class}
           = "#{@sales_order.status_text.capitalize}"
         - if @sales_order.quote?
-          = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "btn-confirm btn btn-default btn-xs" do
+          = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "btn-confirm-sm btn btn-default btn-xs" do
             Confirm
         %ul.nav.navbar-right.panel_toolbox
           %li
@@ -28,15 +28,46 @@
           %li
             =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
               %i.fa.fa-edit
-          %li
-            =link_to '', class: 'order-header-link' do
-              %i.fa.fa-file-pdf-o
-          %li
-            =link_to '', class: 'order-header-link' do
-              %i.fa.fa-print
-          %li
-            =link_to '', class: 'order-header-link' do
-              %i.fa.fa-envelope-o
+          - unless @sales_order.quote?
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-file-pdf-o
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#package_pdf_modal'} do
+                    Pick List
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#shipment_pdf_modal'} do
+                    Shippment
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_pdf_modal'} do
+                    Invoice
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-print
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#package_pdf_modal'} do
+                    Print Pick List
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#shipment_pdf_modal'} do
+                    Print Shippment
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_pdf_modal'} do
+                    Print Invoice
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-envelope-o
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                    Mail Pick List
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                    Mail Shippment
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                    Mail Invoice
           %li
             %a.collapse-link
               %i.fa.fa-chevron-up
@@ -140,6 +171,33 @@
         - if @sales_order.confirmed?        
           %button#btn_create_package.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
 
+#package_pdf_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Package
+      .modal-body
+        %div
+          %table.activity_list.table.table-bordered.projects.margin-bottom-5
+            %thead
+              %tr
+                %th Packaging Number
+                %th Packaging Date
+                %th Updated By
+                %th 
+            - prev_data = ''
+            - index = 0
+            - @sales_order.pack_activities.each do |item| 
+              - index = index + 1
+              - if prev_data != item.token
+                ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.updated_by.email}</td><td></td></tr>".html_safe
+              - prev_data = item.token          
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+
 #shipment_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
   .modal-dialog.modal-lg
     .modal-content
@@ -217,6 +275,34 @@
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         - if @sales_order.packed? || @sales_order.partial_shipped?
           %button#btn_create_shipment.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#shipment_pdf_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Shipment
+      .modal-body
+        %div
+          %table.activity_list.table.table-bordered.projects.margin-bottom-5
+            %thead
+              %tr
+                %th Shipping Number
+                %th Shipped Date
+                %th Tracking Number
+                %th Updated By
+                %th
+            - prev_data = ''
+            - index = 0
+            - @sales_order.ship_activities.each do |item|          
+              - index = index + 1
+              - if prev_data != item.token
+                ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.track_number}</td><td>#{item.updated_by.email}</td><td></td></tr>".html_safe
+              - prev_data = item.token          
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
 
 #invoice_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
   .modal-dialog.modal-lg
@@ -331,6 +417,55 @@
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         - unless @sales_order.quote?
           %button#btn_create_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#invoice_pdf_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Invoice List
+      .modal-body
+        .row.no-margin
+          .col-md-12{:style => "overflow:auto;"}
+            %div
+              %table#invoice_activity_list.activity_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th Invoice Number
+                    %th Invoice Date
+                    %th Total ($)
+                    %th Paid ($)
+                    %th Status
+                    %th 
+
+                %tbody
+                  - @sales_order.invoices.each do |item| 
+                    %tr
+                      %td
+                        = item.token
+                      %td
+                        = item.created_at.to_date
+                      %td
+                        = item.total
+                      %td
+                        = item.paid
+                      %td
+                        - if item.status == 'draft'
+                          %span.label.label-danger{style: 'font-size: 100%;'} Draft
+                        - else
+                          %span.label.label-success{style: 'font-size: 100%;'} Paid                                    
+                      %td
+                        - if item.file_name.blank?
+                          =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                            %i.fa.fa-file-pdf-o                  
+                        - else
+                          =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                            %i.fa.fa-file-pdf-o                  
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+
 :javascript
   jQuery(document).ready(function() {
     

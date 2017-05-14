@@ -79,6 +79,14 @@ var SalesOrdersEdit = function(){
       var validate = $('#edit_order_detail_form').parsley().validate();
       validateFront('#edit_order_detail_form');
       if(validate === true){
+
+        var ret = confirm("Do you want to send confirmation email to customer?");
+        if(ret){
+          $('#email_action').val('1');
+        } else {
+          $('#email_action').val('0');
+        }
+
         var reqData = $('#edit_order_detail_form').serializeArray();
         var reqUrl = "/sales_orders/" + $('#sales_order_id').val();
         $.ajax({

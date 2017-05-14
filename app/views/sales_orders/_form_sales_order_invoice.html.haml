@@ -58,8 +58,13 @@
                   - else
                     %span.label.label-success{style: 'font-size: 100%;'} Paid                                    
                 %td
-                  =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
-                    %i.fa.fa-file-pdf-o                  
+                  - if item.file_name.blank?
+                    =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                      %i.fa.fa-file-pdf-o                  
+                  - else
+                    =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                      %i.fa.fa-file-pdf-o                  
+
                   =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
                     %i.fa.fa-print
                   =link_to mail_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;' do

@@ -84,8 +84,6 @@
               %th Tracking Number
               %th Updated By
               %th
-          - ship_token = @sales_order.invoice_activities_datas          
-          - elem_num = @sales_order.ship_activities_elems
           - prev_data = ''
           - index = 0
           - @sales_order.ship_activities.each do |item|          

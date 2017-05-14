@@ -58,6 +58,8 @@ class SalesOrdersController < ApplicationController
             @sales_order.confirm!
             add_action_history('confirm', 'create', @sales_order.token)
           end
+
+          make_order_invoice
           
           result = {:Result => "OK", :Record => @sales_order}
         else
@@ -291,6 +293,33 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def ship_pdf
+    sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:tokens]})")
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end
+
+    begin
+      filename = SecureRandom.hex(10) + '.pdf'
+    end while Invoice.exists?(:file_name => filename)      
+
+    save_path = Rails.root.join('public/shipments', filename)
+    File.open(save_path, 'wb') do |file|
+      file << render_to_string(
+         :pdf => "shipment",         
+         :template => 'sales_orders/shipment_pdf.pdf.haml',
+         :layout => '/layouts/sales_order.pdf.haml',
+         :locals => { 'sales_item_activities' => sales_item_activities }
+       )
+    end
+
+    redirect_path = '/shipments/' + filename
+    redirect_to redirect_path    
+  end
+
   def pack
     package_number = GlobalMap.package_number
     params[:pack_attributes].each do |elem|
@@ -453,5 +482,34 @@ class SalesOrdersController < ApplicationController
       else
         "sales_orders.created_at #{params[:sort]}"
       end      
-    end    
+    end 
+
+    def make_order_invoice
+      invoice_number = GlobalMap.invoice_number
+
+      invoice                 = Invoice.new
+      invoice.token           = invoice_number
+      invoice.sales_order_id  = @sales_order.id
+      invoice.sub_total       = @sales_order.sub_total
+      invoice.discount        = @sales_order.discount_amount 
+      invoice.tax             = @sales_order.tax_amount
+      invoice.shipping        = @sales_order.shipping_cost
+      invoice.total           = @sales_order.total_amount
+      invoice.paid            = 0
+      invoice.status          = 0
+      invoice.save
+
+      @sales_order.sales_items.each do |elem|
+        invoice_item                = InvoiceItem.new
+        invoice_item.invoice_id     = invoice.id
+        invoice_item.sales_item_id  = elem.id
+        invoice_item.quantity       = elem.quantity
+        invoice_item.discount       = elem.discount_rate
+        invoice_item.tax            = elem.tax_rate
+        invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        invoice_item.save
+      end
+
+      add_action_history('invoice', 'create', invoice_number)      
+    end
 end
