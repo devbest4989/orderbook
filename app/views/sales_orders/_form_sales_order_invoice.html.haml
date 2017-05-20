@@ -62,7 +62,7 @@
                     =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
                       %i.fa.fa-file-pdf-o                  
                   - else
-                    =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                    =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', target: '_blank' do
                       %i.fa.fa-file-pdf-o                  
 
                   =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
