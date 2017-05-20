@@ -84,7 +84,7 @@ class Customer < ActiveRecord::Base
   end
 
   def receivable
-    total_amount = sales_orders.sum(:total_amount)
+    total_amount = sales_orders.where.not(status: 'quote').sum(:total_amount)
 
     total_paid_amount = 0
     sales_orders.each do |elem|
