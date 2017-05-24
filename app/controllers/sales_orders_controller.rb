@@ -57,9 +57,8 @@ class SalesOrdersController < ApplicationController
           else
             @sales_order.confirm!
             add_action_history('confirm', 'create', @sales_order.token)
-          end
-
-          make_order_invoice
+            make_order_invoice
+          end          
           
           result = {:Result => "OK", :Record => @sales_order}
         else
@@ -100,9 +99,10 @@ class SalesOrdersController < ApplicationController
         else
           @sales_order.confirm!
           add_action_history('confirm', 'update', @sales_order.token)
+          make_order_invoice
         end        
-        redirect_to sales_order_url(@sales_order)
-        # result = {:Result => "OK", :Record => @sales_order}        
+        # redirect_to sales_order_url(@sales_order)
+        result = {:Result => "OK", :Record => @sales_order, :url => sales_order_url(@sales_order, {type: 'all'})}
       else
         result = {:Result => "ERROR", :Message =>@sales_order.errors.full_messages}
       end
@@ -334,6 +334,40 @@ class SalesOrdersController < ApplicationController
       result = {:Result => "OK" }
       format.json {render :json => result}
     end
+  end
+
+  def pack_pdf
+    set_sales_order    
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
+
+    respond_to do |format|
+      format.pdf do
+        render pdf: "package", layout: '/layouts/sales_order.pdf.haml'
+      end
+    end    
+  end
+
+  def ship_pdf
+    set_sales_order    
+    
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
+
+    respond_to do |format|
+      format.pdf do
+        render pdf: "shipment", layout: '/layouts/sales_order.pdf.haml'
+      end
+    end    
   end
 
   def remove_activity

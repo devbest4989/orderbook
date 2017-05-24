@@ -1,0 +1,32 @@
+=content_for :title, "Shipment - #{params[:ship_id]}"
+%table.pack-order-box
+    %tr.main-info-box
+        %td{colspan: 2}
+            %table.order-main-info
+                %tr
+                    %td.company-title
+                        %h4= @sales_order.customer.company_title
+                        %p{style: 'color: #555;'}= @sales_order.customer.billing_address
+                    %td.order-info.text-right
+                        %h2 SHIPMENT ORDER
+                        %p{style: 'color: #555;'}="Shipment Order: #{params[:ship_id]}"
+    %tr
+        %td{width: "50%"}
+            %p Ship To:
+            %p="#{@sales_order.customer.company_title}"
+            %p="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
+            %p="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
+            %p="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+        %td.text-right{width: "50%"}
+            %p="Order Date: #{@sales_order.created_at.to_date}"
+            %p="Sales Order#: #{@sales_order.token}"
+    %tr.details-box
+        %td{height: 400, colspan: 2}
+            %table.order-product-info
+                %tr.product-header
+                    %td{style: 'width: 80%;'} ITEM & DESCRIPTION
+                    %td QTY
+                - @sales_order.ship_activities.where(token: params[:ship_id]).each do |item|
+                    %tr
+                        %td=item.sales_item.sold_item.name    
+                        %td=item.quantity

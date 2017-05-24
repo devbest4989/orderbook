@@ -79,8 +79,8 @@ var SalesOrdersEdit = function(){
       var validate = $('#edit_order_detail_form').parsley().validate();
       validateFront('#edit_order_detail_form');
       if(validate === true){
-
-        var ret = confirm("Do you want to send confirmation email to customer?");
+        var message = ($('#save_action').val() == 'quote') ? "Do you want to send quote email to customer?"  : "Do you want to send confirmation email to customer?";
+        var ret = confirm(message);
         if(ret){
           $('#email_action').val('1');
         } else {
@@ -96,7 +96,7 @@ var SalesOrdersEdit = function(){
           data: reqData,
           success: function(data){
             if(data.Result == "OK"){
-              window.location.reload();
+              window.location.href = data.url;
             } else {
               new PNotify({
                 title: 'Error!',

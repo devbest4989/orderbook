@@ -33,8 +33,8 @@ class InvoicesController < ApplicationController
     invoice.tax = params[:tax_total]
     invoice.shipping = params[:shipping_total]
     invoice.total = params[:total]
-    invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
-    invoice.status = (invoice.paid.to_f == 0) ? 0 : 1
+    invoice.paid = params[:action_name] == 'update' ? 0 : params[:total] #params[:paid].to_f == 0 ? 0 : params[:paid]
+    invoice.status = params[:action_name] == 'update' ? 0 : 1
     invoice.file_name = ''
     invoice.save
 
@@ -82,9 +82,9 @@ class InvoicesController < ApplicationController
       @company_profiles[info.key] = info.value
     end
 
-    if @invoice.file_name.blank?    
+    if @invoice.file_name.blank? || @invoice.is_updated_pdf
       begin
-        filename = SecureRandom.hex(10) + '.pdf'
+        filename = SecureRandom.hex(10) + '_' + @invoice.updated_at.to_i.to_s + '.pdf'
       end while Invoice.exists?(:file_name => filename)      
 
       save_path = Rails.root.join('public/invoices', filename)

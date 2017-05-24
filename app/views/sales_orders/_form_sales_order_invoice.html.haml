@@ -56,9 +56,9 @@
                   - if item.status == 'draft'
                     %span.label.label-danger{style: 'font-size: 100%;'} Draft
                   - else
-                    %span.label.label-success{style: 'font-size: 100%;'} Paid                                    
+                    %span.label.label-success{style: 'font-size: 100%;'} Confirmed                                    
                 %td
-                  - if item.file_name.blank?
+                  - if item.file_name.blank? || item.is_updated_pdf
                     =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
                       %i.fa.fa-file-pdf-o                  
                   - else
@@ -173,20 +173,22 @@
                         %b Total:
                       %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
                         =item.total
-                    %tr
-                      %td{:style => 'border:none; background: white; text-align: right;'} 
-                        %b Paid:
-                      %td.money{:style => 'border:none; background: white; width:12%;'}
-                        %input#paid_amount{type:'text', style: 'width: 80%;', value: "#{item.paid}"}
-                    %tr
-                      %td{:style => 'border:none; background: white; text-align: right;'} 
-                        %b Change:
-                      %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
-                        ="#{item.paid - item.total}"
+                    / %tr
+                    /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                    /     %b Paid:
+                    /   %td.money{:style => 'border:none; background: white; width:12%;'}
+                    /     %input#paid_amount{type:'text', style: 'width: 80%;', value: "#{item.paid}"}
+                    / %tr
+                    /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                    /     %b Change:
+                    /   %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
+                    /     ="#{item.paid - item.total}"
 
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
-          %button#btn_update_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal", "data-itemid" => "#{item.id}", "data-url" => invoice_path(item)} Save
+          - unless item.status == 'confirmed'
+            %button#btn_update_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal", "data-itemid" => "#{item.id}", "data-url" => invoice_path(item)} Save
+            %button#btn_update_invoice.btn.btn-info{:type => "button", "data-dismiss" => "modal", "data-itemid" => "#{item.id}", "data-url" => invoice_path(item)} Confirm
 
 :javascript
   $(document).ready(function() {

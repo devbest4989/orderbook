@@ -1,0 +1,45 @@
+=content_for :title, "Pakcage - #{params[:pack_id]}"
+%table.pack-order-box
+    %tr.main-info-box
+        %td{colspan: 2}
+            %table.order-main-info
+                %tr
+                    %td.company-title
+                        %h4= @sales_order.customer.company_title
+                        %p{style: 'color: #555;'}= @sales_order.customer.billing_address
+                    %td.order-info.text-right
+                        %h2 PACKAGE
+                        %p{style: 'color: #555;'}="Package: #{params[:pack_id]}"
+    %tr.details-box
+        %td{colspan: 2}
+            %table.order-product-info
+                %tr.product-header
+                    %td Package#
+                    %td Order Date
+                    %td Sales Order#
+                    %td TOTAL QTY
+                %tr
+                    %td=params[:pack_id]
+                    %td=@sales_order.pack_activities.where(token: params[:pack_id]).first.created_at.to_date
+                    %td=@sales_order.token
+                    %td=@sales_order.pack_activities.where(token: params[:pack_id]).sum(:quantity)
+    %tr
+        %td{width: "50%"}
+            %p="#{@company_profiles['company.name']}"
+            %p="#{@company_profiles['company.address']}"
+        %td{width: "50%"}
+            %p Deliver To:
+            %p="#{@sales_order.customer.company_title}"
+            %p="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
+            %p="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
+            %p="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+    %tr.details-box
+        %td{height: 400, colspan: 2}
+            %table.order-product-info
+                %tr.product-header
+                    %td{style: 'width: 80%;'} ITEM & DESCRIPTION
+                    %td QTY
+                - @sales_order.pack_activities.where(token: params[:pack_id]).each do |item|
+                    %tr
+                        %td=item.sales_item.sold_item.name    
+                        %td=item.quantity

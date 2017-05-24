@@ -280,7 +280,7 @@ var SalesOrderDetail = function () {
       var reqUrl = $('#invoice_req_url').val();
       var data = {
           invoice_attributes: invoiceItemData, 
-          paid: $('#invoice_modal #paid_amount').val(),
+          // paid: $('#invoice_modal #paid_amount').val(),
           sub_total: $('#invoice_modal #sub_total_cell').text(),
           discount_total: $('#invoice_modal #discount_total_cell').text(),
           tax_total: $('#invoice_modal #tax_total_cell').text(),
@@ -340,7 +340,7 @@ var SalesOrderDetail = function () {
         total += row_amount + quantity * price * tax * 0.01;
       });
 
-      var paid = $( modalId + ' #paid_amount').val();
+      var paid = 0;//$( modalId + ' #paid_amount').val();
       change = paid - total;
       $( modalId + ' #sub_total_cell').text(subTotal.toFixed(2));
       $( modalId + ' #discount_total_cell').text(discountTotal.toFixed(2));
@@ -352,6 +352,7 @@ var SalesOrderDetail = function () {
     $(".invoice_detail_modal #btn_update_invoice").click(function(){
       var invoiceItemData = new Array();
       var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+      var action_name = ($(this).hasClass('btn-primary')) ? 'update' : 'confirm';
 
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
@@ -364,8 +365,9 @@ var SalesOrderDetail = function () {
       }); 
       var reqUrl = $(this).data('url');
       var data = {
-          invoice_attributes: invoiceItemData, 
-          paid: $( modalId + ' #paid_amount').val(),
+          invoice_attributes: invoiceItemData,
+          action_name: action_name, 
+          // paid: $( modalId + ' #paid_amount').val(),
           sub_total: $( modalId + ' #sub_total_cell').text(),
           discount_total: $( modalId + ' #discount_total_cell').text(),
           tax_total: $( modalId + ' #tax_total_cell').text(),

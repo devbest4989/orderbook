@@ -192,7 +192,16 @@
             - @sales_order.pack_activities.each do |item| 
               - index = index + 1
               - if prev_data != item.token
-                ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.updated_by.email}</td><td></td></tr>".html_safe
+                %tr
+                  %td
+                    = item.token
+                  %td
+                    = item.created_at.to_date
+                  %td
+                    = item.updated_by.email
+                  %td
+                    =link_to pack_pdf_sales_order_path(@sales_order, {pack_id: item.token}), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                      %i.fa.fa-file-pdf-o                  
               - prev_data = item.token          
 
       .modal-footer
@@ -298,7 +307,18 @@
             - @sales_order.ship_activities.each do |item|          
               - index = index + 1
               - if prev_data != item.token
-                ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.track_number}</td><td>#{item.updated_by.email}</td><td></td></tr>".html_safe
+                %tr
+                  %td
+                    = item.token
+                  %td
+                    = item.created_at.to_date
+                  %td
+                    = item.track_number
+                  %td
+                    = item.updated_by.email
+                  %td
+                    =link_to ship_pdf_sales_order_path(@sales_order, {ship_id: item.token}), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                      %i.fa.fa-file-pdf-o
               - prev_data = item.token          
 
       .modal-footer
@@ -403,15 +423,15 @@
                       %b Total:
                     %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
                       =@sales_order.total_amount
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Paid:
-                    %td.money{:style => 'border:none; background: white; width:12%;'}
-                      %input#paid_amount{type:'text', style: 'width: 80%;', value: 0}
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Change:
-                    %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  / %tr
+                  /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                  /     %b Paid:
+                  /   %td.money{:style => 'border:none; background: white; width:12%;'}
+                  /     %input#paid_amount{type:'text', style: 'width: 80%;', value: 0}
+                  / %tr
+                  /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                  /     %b Change:
+                  /   %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
 
       .modal-footer
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
@@ -456,7 +476,7 @@
                         - else
                           %span.label.label-success{style: 'font-size: 100%;'} Paid                                    
                       %td
-                        - if item.file_name.blank?
+                        - if item.file_name.blank? || item.is_updated_pdf
                           =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
                             %i.fa.fa-file-pdf-o                  
                         - else

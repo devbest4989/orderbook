@@ -80,6 +80,8 @@ Rails.application.routes.draw do
       post :get_invoice
       post :remove_activity
       post :print, :defaults => { :format => 'pdf' }
+      post :pack_pdf, :defaults => { :format => 'pdf' }
+      post :ship_pdf, :defaults => { :format => 'pdf' }
     end
 
     collection do
