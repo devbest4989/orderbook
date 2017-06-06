@@ -1,0 +1,28 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+        %h2
+          =t("invoice.container.list.header.#{params[:type]}")
+          %span.fa.fa-chevron-down.list-type-down
+      %ul.dropdown-menu
+        %li
+          = link_to list_by_type_invoices_path(:type => 'all') do
+            All Invoices
+        %li
+          = link_to list_by_type_invoices_path(:type => 'draft'), class: "no-border" do
+            Draft
+        %li
+          = link_to list_by_type_invoices_path(:type => 'confirmed'), class: "no-border" do
+            Confirmed
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+      .clearfix
+    .x_content
+      = render 'invoice_list'
+:javascript
+  jQuery(document).ready(function() {
+    InvoicesCommon.initSiderMenuList();
+  });

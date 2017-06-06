@@ -24,6 +24,25 @@ class InvoicesController < ApplicationController
   def create
   end
 
+  def list_by_type
+    order_key = get_order_key
+    case params[:type]
+    when 'all'
+      @invoices = Invoice.all
+                  .paginate(page: params[:page])
+    when 'draft'
+      @invoices = Invoice.where(status: 0)
+                  .paginate(page: params[:page])
+    when 'confirmed'
+      @invoices = Invoice.where(status: 1)
+                  .paginate(page: params[:page])
+    end
+
+    respond_to do |format|
+      format.html { render "list" }
+    end
+  end
+
   # PATCH/PUT /invoices/1
   # PATCH/PUT /invoices/1.json
   def update
@@ -127,5 +146,22 @@ class InvoicesController < ApplicationController
                                             action_number: action_number, 
                                             user: current_user)
     end
+
+    def get_order_key
+      case params[:order]
+      when 'date'
+        "invoices.order_date #{params[:sort]}"
+      when 'order_no'
+        "invoices.token #{params[:sort]}"
+      when 'company'
+        "customers.company_name #{params[:sort]}, customers.first_name #{params[:sort]}"
+      when 'amount'
+        "invoices.total_amount #{params[:sort]}"
+      when 'status'
+        "invoices.status #{params[:sort]}"
+      else
+        "invoices.created_at #{params[:sort]}"
+      end      
+    end 
 
 end

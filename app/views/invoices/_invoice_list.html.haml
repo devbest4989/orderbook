@@ -1,0 +1,66 @@
+.row
+  .col-md-12.col-sm-12.col-xs-12
+    .title_right
+      .col-md-8.col-sm-8.col-xs-12
+        - if !params[:key].blank?
+          %h4
+            Search by "#{params[:key]}"
+  .col-md-12
+    %table.table.table-hover.projects
+      %thead
+        %tr
+          %th{width: '1%'}
+            %input.group-checkable{type: 'checkbox'}
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'date', sort: 'asc'} do
+              Date
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'invoice_no', sort: 'asc'} do
+              Invoice#
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'order_no', sort: 'asc'} do
+              Sales Order#
+          %th{width: '20%'}
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'company', sort: 'asc'} do
+              Customer Name
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
+              Amount
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
+              Status
+      %tbody
+      - @invoices.each do |invoice|
+        %tr{class: "status"}
+          %td.bulk_action  
+            %input{type: 'checkbox', value: "#{invoice.id}", name: "table_records"}
+          %td
+            = invoice.created_at.to_date
+          %td
+            - if invoice.file_name.blank? || invoice.is_updated_pdf
+              =link_to generate_pdf_invoice_path(invoice), :method=> :post, target: '_blank' do
+                = invoice.token
+            - else
+              =link_to invoice.file_name_path, target: '_blank' do
+                = invoice.token
+          %td
+            %a{:href => sales_order_path(id: invoice.sales_order.id, type: 'all')}
+              = invoice.sales_order.token
+          %td
+            %a{:href => customer_path(id: invoice.sales_order.customer.id)}
+              = invoice.sales_order.customer_full_name
+          %td
+            = invoice.total
+          %td
+            - if invoice.status == 'draft'
+              %span.label.label-danger{style: 'font-size: 100%;'} Draft
+            - else
+              %span.label.label-success{style: 'font-size: 100%;'} Confirmed                                    
+
+  .col-md-12{:style => "text-align: center;"}  
+    = will_paginate @invoices, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
+    %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+:javascript
+  jQuery(document).ready(function() {
+    InvoiceList.initInvoiceList();
+  });

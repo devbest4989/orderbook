@@ -172,6 +172,10 @@ Rails.application.routes.draw do
       post :print
       post :mail
     end
+
+    collection do
+      get  ':type/list_invoices', to: 'invoices#list_by_type', as: 'list_by_type'
+    end
   end
 
 

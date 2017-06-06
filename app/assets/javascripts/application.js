@@ -61,3 +61,4 @@
 //= require global.js
 //= require products.js
 //= require sales_orders.js
+//= require invoices.js

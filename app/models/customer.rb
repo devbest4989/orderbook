@@ -87,7 +87,7 @@ class Customer < ActiveRecord::Base
     total_amount = sales_orders.where.not(status: 'quote').sum(:total_amount)
 
     total_paid_amount = 0
-    sales_orders.each do |elem|
+    sales_orders.where.not(status: 'quote').each do |elem|
       total_paid_amount += elem.total_paid_amount
     end    
 

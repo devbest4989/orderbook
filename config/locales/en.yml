@@ -41,3 +41,11 @@ en:
           shipped: "Shipped Sales Orders"
           drop_shipped: "Drop Shipped Sales Orders"
           invoice: "Ready to Invoice Sales Orders"
+
+  invoice:
+    container:
+      list:
+        header:
+          all: "All Invoices"
+          draft: "Draft Invoices"
+          confirmed: "Confirmed Invoices"

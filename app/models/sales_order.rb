@@ -120,7 +120,7 @@ class SalesOrder < ActiveRecord::Base
     end
 
     def total_paid_amount
-        invoices.sum("paid")
+        invoices.where(status: 1).sum("total")
     end
 
     def total_ship_amount
