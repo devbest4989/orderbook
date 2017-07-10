@@ -57,7 +57,7 @@
           %td
             = invoice.total
           %td
-            = invoice.total
+            = invoice.total - invoice.total_paid
           %td
             %span.label{style: 'font-size: 100%;', class: invoice.status_class}=invoice.status.capitalize
 
