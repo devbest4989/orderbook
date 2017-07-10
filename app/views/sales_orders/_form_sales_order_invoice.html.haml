@@ -51,12 +51,9 @@
                 %td
                   = item.total
                 %td
-                  = item.paid
+                  = item.total_paid
                 %td
-                  - if item.status == 'draft'
-                    %span.label.label-danger{style: 'font-size: 100%;'} Draft
-                  - else
-                    %span.label.label-success{style: 'font-size: 100%;'} Confirmed                                    
+                  %span.label{style: 'font-size: 100%;', class: item.status_class}=item.status.capitalize
                 %td
                   - if item.file_name.blank? || item.is_updated_pdf
                     =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do

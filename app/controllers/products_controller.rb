@@ -209,7 +209,7 @@ class ProductsController < ApplicationController
 
   # GET /products/1
   # GET /products/1.json
-  def show    
+  def show
     set_categories
     set_product_lines
     set_brands

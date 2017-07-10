@@ -9,6 +9,14 @@ class InvoicesController < ApplicationController
   # GET /invoices/1
   # GET /invoices/1.json
   def show
+    get_sub_invoices
+    set_sales_order
+
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
   end
 
   # GET /invoices/new
@@ -82,11 +90,13 @@ class InvoicesController < ApplicationController
   # DELETE /invoices/1.json
   def destroy
     @invoice.invoice_items.delete_all
+    @invoice.payments.delete_all
     @invoice.destroy
     add_action_history('invoice', 'delete', @invoice.token)
     @invoice.sales_order.confirm_status!
 
     respond_to do |format|
+      format.html { redirect_to list_by_type_invoices_path(type: 'all')}
       result = {:Result => "OK" }
       format.json {render :json => result}
     end
@@ -135,6 +145,34 @@ class InvoicesController < ApplicationController
   def mail
   end
 
+  def add_payment
+    set_invoice
+    payment = Payment.new
+    payment.invoice_id = @invoice.id
+    payment.payment_date = Date.strptime(params[:payment_date],  "%Y-%m-%d")
+    payment.amount = params[:payment_amount]
+
+    respond_to do |format|
+      result = {}
+      if payment.save
+        @invoice.add_payment!
+        result = {:Result => "OK" }
+      else
+        result = {:Result => "Failed" }
+      end
+      format.json {render :json => result}
+    end
+  end
+
+  def approve
+    set_invoice
+    if @invoice.draft?
+      @invoice.status = 'confirmed'
+      @invoice.save
+    end
+    redirect_to invoice_path(@invoice, type: params[:type])
+  end
+
   private
     def set_invoice
       @invoice = Invoice.find(params[:id])
@@ -164,4 +202,26 @@ class InvoicesController < ApplicationController
       end      
     end 
 
+    def get_sub_invoices
+      case params[:type]
+      when 'all'
+        @invoices = Invoice.all.ordered
+      when 'draft'
+        @invoices = Invoice.draft.ordered
+      when 'confirmed'
+        @invoices = Invoice.confirmed.ordered
+      when 'sent'
+        @invoices = Invoice.sent.ordered
+      when 'partial'
+        @invoices = Invoice.partial.ordered
+      when 'paid'
+        @invoices = Invoice.paid.ordered
+      else
+        @invoices = Invoice.all.ordered
+      end      
+    end
+
+    def set_sales_order
+      @sales_order = SalesOrder.find(@invoice.sales_order_id)
+    end
 end

@@ -77,3 +77,101 @@ var InvoiceList = function(){
     }
   };
 }();
+
+
+var InvoiceDetail = function () {
+  var initialNavigatorList = function(){
+    $('#sidebar-menu li').removeClass('current-page');
+    $('#sidebar-menu li').removeClass('active');
+    $('#sidebar-menu li.nav-invoices').addClass('active');
+    $('#sidebar-menu li.nav-invoices ul.child_menu li').removeClass('current-page');
+    $('#sidebar-menu li.nav-invoices ul.child_menu li:nth-child(1)').addClass('current-page');
+    $('#sidebar-menu li.nav-invoices ul.child_menu').show();
+
+    $('#invoice_side_menu').mCustomScrollbar({theme:"minimal-dark", scrollbarPosition: "outside"});    
+
+    var active_elem = 'li.' + $('#active_elem').data('elem') + ' a';
+    $(active_elem).addClass('nav-active');    
+    $('#invoice_side_menu').mCustomScrollbar("scrollTo", active_elem);
+  }
+
+  var calculateOverviewPercents = function(){
+    var purchase_price = $('.info-list .purchase_value').val();
+    $('.sell-price-row').each(function(){
+      if(purchase_price == '' || ($(this).find('.sell-price').val() == '' && $(this).find('.mp-percent').val() == '')){
+        return;
+      }
+
+      var selling_price = parseFloat($(this).find('.sell-price').val());
+      var mp_percent = (selling_price - purchase_price) * 100 / purchase_price;
+      var gp_percent = (selling_price - purchase_price) * 100 / selling_price;
+
+      $(this).find('.mp-percent').html(mp_percent.toFixed(2) + " %");
+      $(this).find('.gp-percent').html(gp_percent.toFixed(2) + " %");              
+    });    
+  }
+
+  var actionHandler = function(){
+    $('#payment_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'YYYY-MM-DD'
+      }, function(start, end, label) {
+    });
+
+    $('#button_record_payment').click(function(){
+      var reqUrl = '/invoices/' + $('#invoice_id').val() + '/add_payment'
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          payment_date: $('#payment_date').val(),
+          payment_amount: $('#payment_amount').val()
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            window.location.reload();
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });
+
+      $('#payment_date').val('');
+      $('#payment_amount').val('');
+    });
+
+    $('#cancel_record_payment').click(function(){
+      $('#payment_date').val('');
+      $('#payment_amount').val('');
+    });
+    
+  }
+
+  return {
+    //main function to initiate the module
+    initInvoiceNavList: function () {
+      initialNavigatorList();
+    },
+
+    initInvoiceOverview: function(){
+      calculateOverviewPercents();
+    },
+
+    initActionHandler: function(){
+      actionHandler();
+    }
+  };
+}();  

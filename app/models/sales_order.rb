@@ -120,7 +120,11 @@ class SalesOrder < ActiveRecord::Base
     end
 
     def total_paid_amount
-        invoices.where(status: 1).sum("total")
+        total_paid = 0
+        invoices.each do |item|
+            total_paid += item.total_paid
+        end
+        total_paid
     end
 
     def total_ship_amount

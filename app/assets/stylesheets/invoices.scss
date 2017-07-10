@@ -1,0 +1,172 @@
+.invoices-wrapper{
+  .x_panel{
+    .x_title{
+      height: 45px;
+      .label{
+        color: #fff;
+        margin: 0 10px;
+        font-size: 90%;
+        vertical-align: bottom;
+      }      
+
+      .invoice-name{
+        .label{
+          float: left;
+          margin: 5px 0px 0 10px;
+        }
+        .invoice-status-link{
+          color: #5A738E;
+          font-size: 20px;
+          padding: 0 5px;
+          float: left;
+          cursor: pointer;
+        }
+        h2{
+          float: left;
+        }
+      }
+
+      h2{
+        span.list-type-down{
+          padding: 0 5px;
+          font-size: 16px;
+          color: inherit;
+        }        
+      }
+
+      .dropdown-menu{
+        top: 40px;
+        left: 17px;
+        width: 200px;
+        li{
+          a{
+            border-bottom: 1px dotted #aaa;                        
+            padding: 10px 15px 5px 10px;
+            font-size: 16px;
+            margin: 5px 10px;
+          }
+        }
+        &.more-action{
+          top: auto;
+          left: auto;
+          width: auto;        
+          li{
+            a{
+              border-bottom: none;
+              padding: 3px 20px;
+              font-size: 14px;
+              margin: 2px 0px;
+            }
+          }
+        }
+      }
+
+      .btn-more{
+        padding: 3px 7px;
+        border-color: #5A738E;
+        background-color: #5A738E;
+        color: #fff;
+        span{
+          color: #fff;
+        }        
+      }
+
+      .panel_toolbox{
+        .invoice-header-link{
+          color: #5A738E;
+          font-size: 20px;
+          padding: 0 5px;
+        }
+
+        a{
+          &.add-link{
+            span{
+              font-size: 14px;
+              color: #5A738E;
+            }
+          }
+        }      
+      }      
+    }
+
+    .overview{
+      font-size: 14px;
+      h4{
+        font-size: 18px;
+        font-weight: 400;
+        margin: 15px 0;
+      }
+    }
+
+    table.info-list{
+      margin-left: 10px;
+      tr{
+        td{
+          padding: 5px;
+          
+          a.add-sell-price,
+          a.remove-sell-price{
+            padding: 0;
+            i{
+              font-size: 20px;
+            }
+          }
+
+          &.invoice-image{
+            width: 200px;
+            height: 200px;
+            text-align: center;
+            border: 1px solid;
+            vertical-align: middle;
+          }
+          img{
+            padding: 5px;
+          }
+        }
+      }
+    }    
+
+    .action-box{
+      float: left;
+      margin-left: 15px;
+      display: none;
+      select{
+        width: 150px;
+        display: inline-block;
+        box-shadow: none;
+      }
+
+      span{
+        display: inline-block; 
+        padding-right: 10px;
+        font-size: 14px;    
+        vertical-align: bottom;      
+      }
+
+      button{
+        vertical-align: top;  
+      }
+    }
+
+    table.projects{
+      tr{
+        .btn{
+          margin-bottom: 3px;
+        }
+      }
+      tr.status-inactive{
+        color: #aaa;
+        a{
+          color: #aaa;
+          &.btn{
+            color: #fff;
+          }
+        }
+      }
+    }
+  }   
+}
+
+.daterangepicker{
+  z-index: 10000;
+}

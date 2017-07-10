@@ -171,10 +171,12 @@ Rails.application.routes.draw do
       post :generate_pdf, :defaults => { :format => 'pdf' }
       post :print
       post :mail
+      post :add_payment, :defaults => { :format => 'json' }
+      post :approve
     end
 
     collection do
-      get  ':type/list_invoices', to: 'invoices#list_by_type', as: 'list_by_type'
+      get  ':type/list_invoices', to: 'invoices#list_by_type', as: 'list_by_type'      
     end
   end
 
