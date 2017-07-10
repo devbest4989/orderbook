@@ -441,7 +441,7 @@ class ProductsController < ApplicationController
     def product_params
       params.require(:product).permit(:barcode, :name, :description, :selling_price, :purchase_price, :image,
                                       :selling_price_ex, :purchase_price_ex, :selling_tax_id, :purchase_tax_id, :selling_price_type, :purchase_price_type,
-                                      :reorder_qty, :quantity)
+                                      :reorder_qty, :quantity, :open_qty)
     end
 
     def set_categories
