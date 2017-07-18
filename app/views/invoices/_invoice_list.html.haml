@@ -24,14 +24,17 @@
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'company', sort: 'asc'} do
               Customer Name
           %th
-            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'total', sort: 'asc'} do
-              Total
-          %th
-            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
-              Amount Due
-          %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'payment', sort: 'asc'} do
+              Payment Due
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'total', sort: 'asc'} do
+              Amount
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
+              Balance
       %tbody
       - @invoices.each do |invoice|
         %tr{class: "status"}
@@ -55,11 +58,13 @@
             %a{:href => customer_path(id: invoice.sales_order.customer.id)}
               = invoice.sales_order.customer_full_name
           %td
+            %span.label{class: invoice.status_class}=invoice.status_text.upcase
+          %td
+            = invoice.payment_date
+          %td
             = invoice.total
           %td
             = invoice.total - invoice.total_paid
-          %td
-            %span.label{style: 'font-size: 100%;', class: invoice.status_class}=invoice.status.capitalize
 
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @invoices, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'

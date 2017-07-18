@@ -5,6 +5,8 @@ class Customer < ActiveRecord::Base
   has_many :contacts, :dependent => :destroy
   has_many :sales_orders, :dependent => :restrict_with_exception
 
+  belongs_to :payment_term
+
   self.per_page = 25
 
   scope :main_like, ->(search) { where("(LOWER(first_name) LIKE :search) or (LOWER(last_name) LIKE :search) or (LOWER(company_name) LIKE :search)", :search => "%#{search.downcase}%") }
@@ -92,10 +94,6 @@ class Customer < ActiveRecord::Base
     end    
 
     total_amount - total_paid_amount
-  end
-
-  def payment_term_label
-    ApplicationHelper::PAYMENT_TERMS[self.payment_term - 1]
   end
 
   def billing_street_short

@@ -1,0 +1,111 @@
+=content_for :title, "Invoice - #{@invoice.token}"
+%table.sales-order-box
+    %tr.main-info-box
+        %td{colspan: 2}
+            %table.order-main-info
+                %tr
+                    %td.company-title
+                        %h2= @invoice.sales_order.customer.company_title
+                        %p= @invoice.sales_order.customer.billing_address
+                    %td.order-info.text-right
+                        %p=@invoice.token
+                        %p GST Number: 
+                        %p 
+                            Date:
+                            =@invoice.created_at.to_date
+                        %p Page
+                %tr
+                    %td
+                        %p="Phone: #{@invoice.sales_order.customer.phone}"
+                        %p="Fax: #{@invoice.sales_order.customer.fax}"
+                        %h3
+                            Tax Invoice
+                            =@invoice.token
+                    %td.text-right
+                        %p="Sales Order: #{@invoice.sales_order.token}"
+                        %p="Processed By: #{@invoice.sales_order.booker.full_name}"
+    %tr.address-box
+        %td{width: "50%"}
+            %p="#{@company_profiles['company.name']}"
+            %p="#{@company_profiles['company.address']}"
+        %td{width: "50%"}
+            %p Deliver To:
+            %p="#{@invoice.sales_order.customer.company_title}"
+            %p="#{@invoice.sales_order.ship_street} #{@invoice.sales_order.ship_suburb}"
+            %p="#{@invoice.sales_order.ship_city} #{@invoice.sales_order.ship_postcode}"
+            %p="#{@invoice.sales_order.ship_state} #{Country.coded(@invoice.sales_order.ship_country).name}"
+    %tr.details-box
+        %td{height: 400, colspan: 2}
+            %table.order-product-info
+                %tr.product-header
+                    %td Product Name                        
+                    %td Quantity
+                    %td Unit Price
+                    %td Discount(%)
+                    %td Tax(%)
+                    %td Amount
+                - @invoice.invoice_items.each do |elem|
+                    %tr
+                        %td=elem.sales_item.sold_item.name
+                        %td=elem.quantity
+                        %td=elem.sales_item.unit_price
+                        %td=elem.sales_item.discount_rate
+                        %td=elem.sales_item.tax_rate
+                        %td=elem.sub_total
+    %tr.signature-box
+        %td{colspan: 2}
+            %table.order-sign-info
+                %tr
+                    %td.terms-info
+                        Unless otherwise specifed computer system comes with 1 year return to base warranty Multimedia & peripheral components come with manufacturer's warranty Goods Remain the properties of PB Technologies (Penrose) Ltd until payment in full. PB Technologies reserve the right to collect unpaid goods by peaceful means Removal of any labels, tampering or similar unauthorised use voids the warranty Software problems are not covered by the warranty, service charge will apply Goods cannot be returned for a refund after 7 days. All goods returned are subject to restocking fee a minimum retail 20% and wholesale 5%. Check that you have received all the goods Due to licensing issues software cannot be returned once purchased
+                    %td.signature-info
+                        %table
+                            %tr
+                                %td.text-right{width: '25%'}
+                                    Signature
+                                %td.td-underline{width: '35%'}
+                                    %div
+                                %td.text-right{width: '15%'}
+                                    Date
+                                %td.td-underline{width: '25%'}
+                                    %div
+                            %tr
+                                %td.text-right
+                                    Print Name
+                                %td.td-underline
+                                    %div
+                                %td
+                                %td
+                                    
+    %tr.balance-box
+        %td
+            %p Received with Thanks
+            %table
+                %tr
+                    %td Cash
+                    %td=@invoice.paid
+                %tr
+                    %td Eftpos
+                    %td $285.35
+
+        %td.no-padding
+            %table.total-info
+                %tr.product-header
+                    %td SubTotal
+                    %td Total Discount
+                    %td Shipping Cost
+                    %td Tax
+                    %td Total
+                %tr
+                    %td=@invoice.sub_total
+                    %td=@invoice.discount 
+                    %td
+                    %td=@invoice.tax
+                    %td=@invoice.total
+
+    %tr.footer-box
+        %td{colspan: 2}
+            Payments can be made into 01-0295-0084706-00 using the reference MAR1351.
+    %tr.footer-box
+        %td{colspan: 2}
+            ="Printed: #{DateTime.now.strftime('%m/%d/%Y')}"

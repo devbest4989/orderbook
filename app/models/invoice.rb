@@ -31,11 +31,36 @@ class Invoice < ActiveRecord::Base
         when "confirmed"
           "label-info"
         when "sent"
-          "label-primary"
+          "label-danger"
         when "partial"
           "label-warning"
         when "paid"
           "label-success"
+        end
+    end
+
+    def status_text
+        case status
+        when "draft"
+          "Draft"
+        when "confirmed"
+          "Approved"
+        when "sent"
+          "Not Paid"
+        when "partial"
+          "Partial Paid"
+        when "paid"
+          "Paid"
+        end
+    end
+
+    def payment_date
+        if self.sales_order.payment_term.after_days?
+            self.sales_order.order_date.next_day(self.sales_order.payment_term.days)
+        else
+            due_date = self.sales_order.order_date.change({ day: self.sales_order.payment_term.days })
+            due_date.next_month(1) if due_date < self.sales_order.order_date
+            due_date
         end
     end
 

@@ -4,6 +4,8 @@ class Supplier < ActiveRecord::Base
   has_many :documents, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
 
+  belongs_to :payment_term
+
   self.per_page = 25
 
   scope :main_like, ->(search) { where("(LOWER(first_name) LIKE :search) or (LOWER(last_name) LIKE :search) or (LOWER(company_name) LIKE :search)", :search => "%#{search.downcase}%") }
@@ -80,10 +82,6 @@ class Supplier < ActiveRecord::Base
 
   def payable
     0
-  end
-
-  def payment_term_label
-    ApplicationHelper::PAYMENT_TERMS[self.payment_term - 1]
   end
 
   def billing_street_short

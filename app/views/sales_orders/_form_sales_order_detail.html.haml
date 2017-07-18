@@ -15,7 +15,7 @@
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = ApplicationHelper::PAYMENT_TERMS[@sales_order.payment_term]
+        = @sales_order.payment_term.name
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
       %span.col-md-8.col-sm-8.col-xs-12.field-value          

@@ -161,7 +161,7 @@ class SuppliersController < ApplicationController
             :phone, :fax, :email, 
             :bill_street, :bill_suburb, :bill_city, :bill_state, :bill_postcode, :bill_country, 
             :ship_street, :ship_suburb, :ship_city, :ship_state, :ship_postcode, :ship_country, 
-            :payment_term, 
+            :payment_term_id, 
             :documents,
             :bank_name, :bank_account_name, :bank_number,
             :contacts)

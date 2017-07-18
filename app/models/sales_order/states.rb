@@ -67,4 +67,12 @@ class SalesOrder < ActiveRecord::Base
       "label-success"
     end
   end
+
+  def status_label
+    if status == 'fullfilled'
+      "completed"
+    else
+      status
+    end
+  end
 end

@@ -52,7 +52,7 @@
             %a{:href => customer_path(id: order.customer.id)}
               = order.customer_full_name
           %td
-            = order.status.capitalize
+            = order.status_label.capitalize
           %td.text-center
             %span{class: order.packed? || order.shipped? || order.fullfilled? ? "orange-status-active" : ""}
               %i.fa.fa-icon.fa-circle
@@ -60,7 +60,7 @@
             %span{class: order.shipped? || order.fullfilled? ? "blue-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
-            %span{class: order.invoice_total > 0 ? "white-blue-status-active" : ""}
+            %span{class: order.invoices.length > 0 ? "white-blue-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
             %span{class: order.fullfilled? ? "green-status-active" : ""}

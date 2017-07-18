@@ -22,8 +22,11 @@ Rails.application.routes.draw do
   get '/config_email' => 'plainpage#config_email'
   get '/config_warehouse' => 'plainpage#config_warehouse'
   get '/config_shipping_method' => 'plainpage#shipping_method'
+  get '/config_payment_term' => 'plainpage#config_payment_term'
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
+
+  get '/preview_invoice/:token' => 'preview#invoice', as: 'preview_invoice'
 
   # Ajax Controller
   post '/smart_search' => 'plainpage#smart_search', :defaults => { :format => 'json' }
@@ -90,6 +93,15 @@ Rails.application.routes.draw do
   end
 
   resources :taxes do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+    end
+  end
+
+  resources :payment_terms do
     collection do
       post :list
       post :remove

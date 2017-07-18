@@ -63,7 +63,7 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms*
         .col-md-8.col-sm-8.col-xs-12
-          = f.select :payment_term, ApplicationHelper::PAYMENT_TERMS.collect {|x| [x, ApplicationHelper::PAYMENT_TERMS.index(x) + 1]}, {}, {:class => 'form-control', :required => "true"}
+          = f.select :payment_term_id, PaymentTerm.all.map{|x| [x.name, x.id]}, {}, {:class => 'form-control', :required => "true"}
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
         .col-md-8.col-sm-8.col-xs-12

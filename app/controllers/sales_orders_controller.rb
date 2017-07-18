@@ -240,6 +240,7 @@ class SalesOrdersController < ApplicationController
     invoice.total = params[:total]
     invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
     invoice.status = (invoice.paid == 0) ? 0 : 1
+    invoice.preview_token = SecureRandom.hex(15)
     invoice.save
 
     params[:invoice_attributes].each do |elem|
@@ -480,7 +481,7 @@ class SalesOrdersController < ApplicationController
         :contact_name,
         :contact_phone,
         :contact_email,        
-        :payment_term,
+        :payment_term_id,
         :ref_no,
         :bill_street,
         :bill_suburb,
@@ -519,6 +520,10 @@ class SalesOrdersController < ApplicationController
     end 
 
     def make_order_invoice
+      if @sales_order.invoices.length > 0
+        return
+      end
+
       invoice_number = GlobalMap.invoice_number
 
       invoice                 = Invoice.new
@@ -529,6 +534,7 @@ class SalesOrdersController < ApplicationController
       invoice.tax             = @sales_order.tax_amount
       invoice.shipping        = @sales_order.shipping_cost
       invoice.total           = @sales_order.total_amount
+      invoice.preview_token   = SecureRandom.hex(15)
       invoice.paid            = 0
       invoice.status          = 0
       invoice.save

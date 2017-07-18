@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170709102749) do
+ActiveRecord::Schema.define(version: 20170718083402) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,9 +82,9 @@ ActiveRecord::Schema.define(version: 20170709102749) do
     t.string   "ship_state"
     t.string   "ship_postcode"
     t.string   "ship_country"
-    t.integer  "payment_term"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.integer  "payment_term_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.string   "default_price"
   end
 
@@ -134,6 +134,15 @@ ActiveRecord::Schema.define(version: 20170709102749) do
     t.datetime "created_at",                                           null: false
     t.datetime "updated_at",                                           null: false
     t.string   "file_name"
+    t.string   "preview_token"
+  end
+
+  create_table "payment_terms", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "days"
+    t.integer  "term_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "payments", force: :cascade do |t|
@@ -252,7 +261,7 @@ ActiveRecord::Schema.define(version: 20170709102749) do
     t.datetime "updated_at",                                 null: false
     t.date     "req_ship_date"
     t.date     "estimate_ship_date"
-    t.integer  "payment_term"
+    t.integer  "payment_term_id"
     t.integer  "shipping_method_id"
     t.string   "bill_street"
     t.string   "bill_suburb"
@@ -325,7 +334,7 @@ ActiveRecord::Schema.define(version: 20170709102749) do
     t.string   "ship_state"
     t.string   "ship_postcode"
     t.string   "ship_country"
-    t.integer  "payment_term"
+    t.integer  "payment_term_id"
     t.string   "bank_name"
     t.string   "bank_account_name"
     t.string   "bank_number"

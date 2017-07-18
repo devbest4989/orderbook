@@ -17,6 +17,7 @@ class SalesOrder < ActiveRecord::Base
     # The order can belong to a customer
     belongs_to :customer
     belongs_to :shipping_method
+    belongs_to :payment_term
 
     self.per_page = 25
 

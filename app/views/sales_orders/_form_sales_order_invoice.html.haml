@@ -53,8 +53,12 @@
                 %td
                   = item.total_paid
                 %td
-                  %span.label{style: 'font-size: 100%;', class: item.status_class}=item.status.capitalize
+                  %span.label{class: item.status_class}=item.status_text.upcase
                 %td
+                  =link_to invoice_path(item.id, type: :all), style: 'font-size: 20px; margin-right: 10px;', :method=> :get do
+                    %i.fa.fa-pencil-square-o
+                  =link_to preview_invoice_path(item.preview_token), style: 'font-size: 20px; margin-right: 10px;', :method=> :get, target: '_blank' do
+                    %i.fa.fa-eye
                   - if item.file_name.blank? || item.is_updated_pdf
                     =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
                       %i.fa.fa-file-pdf-o                  

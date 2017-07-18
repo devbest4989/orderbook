@@ -1,0 +1,73 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-payment-term", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Payment Terms
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        #term_container
+:javascript
+  $(document).ready(function () {
+    $('#term_container').jtable({
+        title: 'Payment Terms',
+        paging: false, //Enable paging
+        sorting: true, //Enable sorting
+        actions: {
+          listAction: '#{list_payment_terms_path()}',
+          deleteAction: '#{remove_payment_terms_path()}',
+          updateAction: '#{change_payment_terms_path()}',
+          createAction: '#{append_payment_terms_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            name: {
+                title: 'Payment Term',
+                width: '50%',
+                inputClass: 'form-control validate[required]'                
+            },
+            days: {
+                title: 'Payment Days',
+                width: '30%',
+                inputClass: 'form-control validate[required]'                
+            },
+            term_type: {
+                title: 'Payment Term Type',
+                width: '20%',
+                inputClass: 'form-control input-sm validate[required]',
+                options: { 'after_days': 'After Days', 'fixed_day': 'Fixed Day' }
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+
+    //Load student list from server
+    $('#term_container').jtable('load');
+  });

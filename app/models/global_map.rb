@@ -30,7 +30,7 @@ class GlobalMap < ActiveRecord::Base
   def self.invoice_number
     invoice_number = GlobalMap.value_by('invoice_no').to_i + 1
     GlobalMap.set_object('invoice_no', invoice_number)
-    return "INV#" + invoice_number.to_s.rjust(8, '0')
+    return "INV#" + invoice_number.to_s.rjust(6, '0')
   end
 
   def self.set_object(key, value)

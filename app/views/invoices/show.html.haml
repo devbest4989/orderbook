@@ -14,6 +14,11 @@
               More..
               %span.caret
             %ul.dropdown-menu.more-action{:role => "menu"}
+              - unless @invoice.preview_token.nil?
+                %li
+                  =link_to preview_invoice_path(@invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
+                    Preview
+                %li.divider
               - if @invoice.draft?
                 %li
                   =link_to approve_invoice_path(@invoice, type: params[:type]), class: 'invoice-header-link', method: :post do

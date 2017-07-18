@@ -83,6 +83,9 @@ class PlainpageController < ApplicationController
   def shipping_method
   end
 
+  def config_payment_term
+  end
+
   # Ajax Request
   def smart_search
     customers = Customer.main_like(params[:key])

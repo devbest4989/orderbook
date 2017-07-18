@@ -170,7 +170,7 @@ class CustomersController < ApplicationController
             :phone, :fax, :email, 
             :bill_street, :bill_suburb, :bill_city, :bill_state, :bill_postcode, :bill_country, 
             :ship_street, :ship_suburb, :ship_city, :ship_state, :ship_postcode, :ship_country, 
-            :payment_term,
+            :payment_term_id,
             :default_price,
             :documents,
             :contacts)
