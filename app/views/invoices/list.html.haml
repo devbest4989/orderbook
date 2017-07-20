@@ -11,10 +11,19 @@
             All Invoices
         %li
           = link_to list_by_type_invoices_path(:type => 'draft'), class: "no-border" do
-            Draft
+            Draft Invoices
         %li
           = link_to list_by_type_invoices_path(:type => 'confirmed'), class: "no-border" do
-            Confirmed
+            Approved Invoices
+        %li
+          = link_to list_by_type_invoices_path(:type => 'sent') do
+            Not Paid Invoices
+        %li
+          = link_to list_by_type_invoices_path(:type => 'partial'), class: "no-border" do
+            Partial Paid Invoices
+        %li
+          = link_to list_by_type_invoices_path(:type => 'paid'), class: "no-border" do
+            Paid Invoices
       %ul.nav.navbar-right.panel_toolbox
         %li
           %a.collapse-link

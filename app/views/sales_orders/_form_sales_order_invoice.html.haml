@@ -187,8 +187,9 @@
 
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
-          - unless item.status == 'confirmed'
+          - unless item.draft?
             %button#btn_update_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal", "data-itemid" => "#{item.id}", "data-url" => invoice_path(item)} Save
+          - if item.draft?
             %button#btn_update_invoice.btn.btn-info{:type => "button", "data-dismiss" => "modal", "data-itemid" => "#{item.id}", "data-url" => invoice_path(item)} Confirm
 
 :javascript

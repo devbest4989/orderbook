@@ -44,6 +44,15 @@ class InvoicesController < ApplicationController
     when 'confirmed'
       @invoices = Invoice.where(status: 1)
                   .paginate(page: params[:page])
+    when 'sent'
+      @invoices = Invoice.where(status: 2)
+                  .paginate(page: params[:page])
+    when 'partial'
+      @invoices = Invoice.where(status: 3)
+                  .paginate(page: params[:page])
+    when 'paid'
+      @invoices = Invoice.where(status: 4)
+                  .paginate(page: params[:page])
     end
 
     respond_to do |format|
@@ -60,8 +69,8 @@ class InvoicesController < ApplicationController
     invoice.tax = params[:tax_total]
     invoice.shipping = params[:shipping_total]
     invoice.total = params[:total]
-    invoice.paid = params[:action_name] == 'update' ? 0 : params[:total] #params[:paid].to_f == 0 ? 0 : params[:paid]
-    invoice.status = params[:action_name] == 'update' ? 0 : 1
+    # invoice.paid = params[:action_name] == 'update' ? 0 : params[:total] #params[:paid].to_f == 0 ? 0 : params[:paid]
+    # invoice.status = params[:action_name] == 'update' ? 0 : 1
     invoice.file_name = ''
     invoice.save
 
@@ -143,6 +152,13 @@ class InvoicesController < ApplicationController
   end
 
   def mail
+  end
+
+  def remove_payment
+    payment = Payment.find(params[:payment])
+    payment.delete
+
+    redirect_to invoice_path(params[:id])
   end
 
   def add_payment

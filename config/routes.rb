@@ -185,6 +185,7 @@ Rails.application.routes.draw do
       post :mail
       post :add_payment, :defaults => { :format => 'json' }
       post :approve
+      delete :remove_payment
     end
 
     collection do

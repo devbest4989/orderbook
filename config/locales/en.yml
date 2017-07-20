@@ -48,4 +48,7 @@ en:
         header:
           all: "All Invoices"
           draft: "Draft Invoices"
-          confirmed: "Confirmed Invoices"
+          confirmed: "Approved Invoices"
+          sent: "Not Paid Invoices"
+          partial: "Partial Paid Invoices"
+          paid: "Paid Invoices"

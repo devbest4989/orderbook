@@ -1,19 +1,22 @@
 .right_col.invoices-wrapper{:role => "main"}
   .left-sub-sidebar
-    = render 'nav_invoice', add_url: new_invoice_path, active_elem: "sub-nav-#{@invoice.id}", nav_name: 'Invoices', sub_elems: @invoices, type: 'show', cat_name: 'Invoice Detail', invoice_type: params[:type]
+    = render 'nav_invoice', add_url: new_invoice_path, active_elem: "sub-nav-#{@invoice.id}", nav_name: t("invoice.container.list.header.#{params[:type]}"), sub_elems: @invoices, type: 'show', cat_name: 'Invoice Detail', invoice_type: params[:type]
   .right-content
     .x_panel
       .x_title
         %h2           
           ="Invoice #{@invoice.token}" 
         %span.label{class: @invoice.status_class}
-          = "#{@invoice.status.capitalize}"
+          = "#{@invoice.status_text.capitalize}"
         %ul.nav.navbar-right.panel_toolbox
           %li
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
               More..
               %span.caret
             %ul.dropdown-menu.more-action{:role => "menu"}
+              %li
+                =link_to 'javascript:;', class: 'invoice-header-link', id: 'edit_invoice' do
+                  Edit
               - unless @invoice.preview_token.nil?
                 %li
                   =link_to preview_invoice_path(@invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
@@ -57,6 +60,10 @@
               %i.fa.fa-close
         .clearfix
       .x_content
+        .row
+          .col-md-12.text-right
+            %a#btn_update_invoice.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => invoice_path(@invoice)}
+              Save
         / Nav tabs
         .row.no-margin  
           .col-md-6.col-sm-6.col-xs-12
@@ -109,7 +116,7 @@
                       =elem.sales_item.sold_item.sku    
                     %td 
                       =elem.sales_item.sold_item.name
-                    %td
+                    %td.editable{"contentEditable" => "false"}
                       =elem.quantity
                     %td 
                       =elem.sales_item.unit_price
@@ -153,13 +160,35 @@
                     %tr
                       %td{:style => 'border:none; background: white; text-align: right;'} 
                         ="Payment on #{payment.payment_date}:"
-                      %td.money{:style => 'border:none; background: white; width:12%;'}
+                      %td.payment-record.money{:style => 'border:none; background: white; width:12%;'}
                         =payment.amount
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Amount Due:
-                    %td.money{:style => 'border:none; background: white; width:12%;'}
+                    %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
                       =@invoice.total - @invoice.total_paid
+        .ln_solid
+        .row.no-margin
+          .col-md-12{:style => "overflow:auto;"}
+            %h4 Payment Records
+            / start project list
+            %div
+              %table#payment_record_list.activity_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th Payment Date
+                    %th Amount
+                    %th 
+                %tbody
+                  - @invoice.payments.each do |item|
+                    %tr
+                      %td
+                        =item.payment_date
+                      %td 
+                        =item.amount
+                      %td
+                        =link_to remove_payment_invoice_path(@invoice, payment: item.id), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                          %i.fa.fa-icon.fa-minus-circle
 
   .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}
     .modal-dialog.modal-md
