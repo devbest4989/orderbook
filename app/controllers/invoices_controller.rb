@@ -158,7 +158,10 @@ class InvoicesController < ApplicationController
     payment = Payment.find(params[:payment])
     payment.delete
 
-    redirect_to invoice_path(params[:id])
+    invoice = Invoice.find(params[:id])
+    invoice.remove_payment!
+
+    redirect_to invoice_path(params[:id], type: params[:type])
   end
 
   def add_payment

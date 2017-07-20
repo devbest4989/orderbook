@@ -187,7 +187,7 @@
                       %td 
                         =item.amount
                       %td
-                        =link_to remove_payment_invoice_path(@invoice, payment: item.id), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                        =link_to remove_payment_invoice_path(@invoice, payment: item.id, type: params[:type]), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                           %i.fa.fa-icon.fa-minus-circle
 
   .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}

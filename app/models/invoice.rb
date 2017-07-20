@@ -78,4 +78,16 @@ class Invoice < ActiveRecord::Base
         self.sales_order.invoice!
     end
 
+    def remove_payment!
+        if self.total_paid >= self.total
+            self.status = 'paid'
+        elsif self.total_paid == 0
+            self.status = 'sent'
+        else
+            self.status = 'partial'
+        end
+        save!
+        self.sales_order.invoice!
+    end
+
 end
