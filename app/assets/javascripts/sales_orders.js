@@ -4,3 +4,4 @@
 //= require sales_order/sales_order_list.js
 //= require sales_order/sales_order_new.js
 //= require sales_order/sales_order_toolbar.js
+//= require sales_order/sales_order_product.js

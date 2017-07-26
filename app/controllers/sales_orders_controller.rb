@@ -89,17 +89,24 @@ class SalesOrdersController < ApplicationController
   # PATCH/PUT /sales_orders/1.json
   def update
     respond_to do |format|
-      @sales_order.attributes = safe_params
-      @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
-      @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
+      unless params[:save_action].blank?
+        @sales_order.attributes = safe_params
+        @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
+        @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
+      else
+        @sales_order.sales_items.delete_all
+      end
+
       if @sales_order.update(safe_params)
         if params[:save_action] == 'quote'
           @sales_order.quote!
           add_action_history('quote', 'update', @sales_order.token)
-        else
+        elsif params[:save_action] == 'confirm'
           @sales_order.confirm!
           add_action_history('confirm', 'update', @sales_order.token)
           make_order_invoice
+        else
+          @sales_order.quote!
         end        
         # redirect_to sales_order_url(@sales_order)
         result = {:Result => "OK", :Record => @sales_order, :url => sales_order_url(@sales_order, {type: 'all'})}
@@ -135,6 +142,7 @@ class SalesOrdersController < ApplicationController
     else
       @sales_order.confirm!
       add_action_history('confirm', 'update', @sales_order.token)
+      make_order_invoice
     end
     redirect_to sales_order_url(@sales_order)
   end

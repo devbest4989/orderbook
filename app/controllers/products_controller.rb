@@ -214,6 +214,7 @@ class ProductsController < ApplicationController
     set_product_lines
     set_brands
     get_sub_produts
+    set_sales_items
   end
 
   # GET /products/new
@@ -240,7 +241,7 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       if @product.save
-        generate_product_sku
+        generate_product_sku @product
         save_product_prices
         format.html { redirect_to product_path(@product), notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
@@ -552,6 +553,10 @@ class ProductsController < ApplicationController
       else
         @products = Product.all.ordered
       end
+    end
+
+    def set_sales_items
+      @sales_items = SalesItem.where(sold_item_id: params[:id])
     end
 
     def build_products_from_csv_file

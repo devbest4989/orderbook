@@ -94,7 +94,7 @@ var SalesOrdersNew = function () {
               //   }
               // });
 
-              $('#sales_order_payment_term').val(data.info.payment_term);
+              $('#sales_order_payment_term_id').val(data.info.payment_term_id);
               $('#sales_order_price_name').val(data.info.default_price);
 
               var contactArray = $.map(data.contacts, function(value, key) {
@@ -191,14 +191,14 @@ var SalesOrdersNew = function () {
         var reqData = $(form_id).serializeArray();
         reqData.push({name: 'sales_order[customer_id]', value: $('.customer-box .es-list .es-visible').val()});
         reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text()});
-        tdata = t.serialize();
+        
+        tdata = serializeProductTable();
         for(i = 0; i < tdata.length; i++){
           for(key in tdata[i]){
             item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
             reqData.push({name: item_key, value: tdata[i][key]});
           }
         }
-
 
         var reqUrl = ($('#sales_order_id').val() == '') ? "/sales_orders" : "/sales_orders/" + $('#sales_order_id').val();
         $.ajax({
@@ -239,7 +239,33 @@ var SalesOrdersNew = function () {
       $('.bs-callout-info').addClass('hidden');
       $('.bs-callout-warning').removeClass('hidden');
     }
-  };    
+  };
+
+  var serializeProductTable = function(){
+    var data = [];
+    var rows = $("#product_item_list tbody > tr");
+
+    $(rows).each(function () {
+
+        var row = {};
+
+        $(this).children("td").each(function () {
+
+            var field = $(this).children("input").data('field');
+
+            if(field != '' && field != undefined){
+                row[field] = $(this).children("input").val();
+            }
+        });
+
+        if(row['sold_item_id'] != 0){
+          data.push(row);
+        }        
+    });
+    
+    return data;
+
+  }
 
   return {
     handleSalesOrderNewCommand: function () {

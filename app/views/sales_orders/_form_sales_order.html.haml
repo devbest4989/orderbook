@@ -172,25 +172,21 @@
   .row
     .col-md-12
       %h4 Product Information
-      / start project list
-      %table#product_list.table.table-hover.projects.margin-bottom-5
+      %table#product_item_list.table.table-hover.projects.margin-bottom-5
         %thead
           %tr
-            %th
-              Product Details
+            %th Product Details
             %th Quantity
             %th Unit Price
             %th Discount(%)
             %th Tax(%)
             %th Amount
             %th
+            %th
         %tbody
 
   .row.form-group 
     .col-md-6.text-center
-      %a#add_product.btn{href: 'javascript:;'}
-        %i.fa.fa-icon.fa-cube
-        + Add New Product
     .col-md-6.text-center
       %a.btn
         + Add Custom Product
@@ -238,79 +234,5 @@
 :javascript
   jQuery(document).ready(function() {
     SalesOrdersNew.initSalesOrderNewForm();
-  });
-
-:javascript
-  var t = new Table({
-      id: "product_list",
-      fields: {
-          "Product Name": {
-              "class": "edit",
-              "type": "string",
-              "css" : 'style = "width: 30%"'
-          },
-          "Quantity": {
-              "class": "edit",
-              "type": "int",
-              "css" : 'style = "width: 15%"',
-              "field_name" : 'quantity'
-          },
-          "Unit Price": {
-              "class": "edit",
-              "type": "money",
-              "css" : 'style = "width: 10%"',
-              "field_name" : 'unit_price'
-          }, 
-          "Discount(%)": {
-              "class": "edit",
-              "type": "float",
-              "css" : 'style = "width: 10%"',
-              "field_name" : 'discount_rate'
-          },
-          "Tax(%)": {
-              "class": "edit",
-              "type": "float",
-              "css" : 'style = "width: 10%"',
-              "control" : "#tax_select_",
-              "field_name" : 'tax_rate'
-          },
-          "Amount": { 
-              "class": "money", 
-              "type": "calc", 
-              "formula": [ 
-                  { "line_total": [{ "c": -3 }, { "c": -4 }, {"c": -2}] } 
-              ], 
-              "css" : 'style = "width: 15%"' 
-          },           
-          " ": {
-              "class": "",
-              "type": "html",
-              "css" : 'style = "width: 10%"'
-          },          
-          "ProductId": {
-              "class": "",
-              "type": "int",
-              "css" : 'style = "width: 0%; display:none;"',
-              "style" : 'display:none;',
-              "field_name" : 'sold_item_id'
-          }          
-      },
-      data: [],
-      direction: "asc"
-  });
-
-  $(document).ready(function() {
-    var grid_data = [#{@item_data}];    
-    t.setdata(grid_data);
-    t.render();
-
-    $("#add_product").on("click", function() {
-        t.addRow();
-    });    
-
-    $("#product_list").on("click", '.delete-row', function() {
-      var row_id = $(this).attr('data-id');
-      t.delRow(row_id);
-    });    
-
+    SalesOrdersProductTable.initProductTable();
   });

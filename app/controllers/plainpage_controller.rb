@@ -173,6 +173,37 @@ class PlainpageController < ApplicationController
     end    
   end
 
+  # Ajax Product Request
+  def product_search
+
+    products = Product.lived.main_like(params[:key]).limit(20)
+    result_product = []
+    products.each do | elem |
+      item = {
+        :icon => 'fa-cube',
+        :name => elem.name,
+        :sku => elem.sku,
+        :id => elem.id,
+        :brand => elem.brand.name,
+        :brand_id => elem.brand.id,
+        :category => elem.category.name,
+        :category_id => elem.category.id,
+        :product_line => elem.product_line.name,
+        :product_line_id => elem.product_line.id,
+        :quantity => elem.stock
+      }
+      result_product << item
+    end    
+    product_html = render_to_string :template => 'plainpage/snippet/product_result', :layout => false, :locals => {products: result_product}, formats: :html
+
+    respond_to do |format|
+      result = {:result => "OK", 
+                products: result_product
+              }
+      format.json {render :json => result}
+    end    
+  end
+
   private
   def set_company_config(key)
     setting = Setting.object_by(key)

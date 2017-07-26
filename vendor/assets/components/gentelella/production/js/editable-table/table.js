@@ -828,7 +828,7 @@ Table.prototype.fillCell = function(id, callback) {
               error:function(){
                 $('td#'+namecell).empty().text('');
               }   
-            });         
+            });
         } else {
             $(cell).text($(cell).children("select").text());
         }

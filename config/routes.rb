@@ -30,6 +30,7 @@ Rails.application.routes.draw do
 
   # Ajax Controller
   post '/smart_search' => 'plainpage#smart_search', :defaults => { :format => 'json' }
+  post '/product_search' => 'plainpage#product_search', :defaults => { :format => 'json' }
 
   devise_for :users
 

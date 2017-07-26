@@ -49,6 +49,13 @@ var SalesOrdersEdit = function(){
           $('#sales_order_ship_city').val(data.info.ship_city);
           $('#sales_order_ship_country').val(data.info.ship_country);
 
+          $('#sales_order_contact_name').val(data.info.first_name + " " + data.info.last_name);
+          $('#sales_order_contact_phone').val(data.info.phone);
+          $('#sales_order_contact_email').val(data.info.email);
+
+          $('#sales_order_payment_term_id').val(data.info.payment_term_id);
+          $('#sales_order_price_name').val(data.info.default_price);
+
           var contactArray = $.map(data.contacts, function(value, key) {
             return {
               value: value.first_name + " " + value.last_name,
@@ -116,6 +123,59 @@ var SalesOrdersEdit = function(){
       } else {        
       }
     });
+
+    // Save Product Table
+    $('.btn-order-product').click(function() {
+      var validate = $('#edit_order_product_form').parsley().validate();
+      validateFront('#edit_order_product_form');
+      if(validate === true){
+        var message = "Do you want to update product list?";
+        var ret = confirm(message);
+        if(ret){
+          $('#email_action').val('1');
+        } else {
+          return;
+        }
+
+        reqData = [];
+        reqData.push({name: 'sales_order[total_amount]', value: $('#total_cell').text().trim()});
+        
+        var tdata = serializeProductTable();
+        for(i = 0; i < tdata.length; i++){
+          for(key in tdata[i]){
+            item_key = 'sales_order[sales_items_attributes]['+i+']['+key+']';
+            reqData.push({name: item_key, value: tdata[i][key]});
+          }
+        }
+        
+        var reqUrl = "/sales_orders/" + $('#sales_order_id').val();
+        $.ajax({
+          url: reqUrl,
+          type: "PATCH",
+          datatype: 'json',
+          data: reqData,
+          success: function(data){
+            if(data.Result == "OK"){
+              window.location.href = data.url;
+            } else {
+              new PNotify({
+                title: 'Error!',
+                text: data.Message,
+                type: 'error'
+              });              
+            }
+          },
+          error:function(){
+            new PNotify({
+              title: 'Error!',
+              text: 'Order request is not processed.',
+              type: 'error'
+            });              
+          }   
+        });                         
+      } else {        
+      }
+    });
   }
 
   var validateFront = function(form_id) {
@@ -128,6 +188,31 @@ var SalesOrdersEdit = function(){
     }
   };    
 
+  var serializeProductTable = function(){
+    var data = [];
+    var rows = $("#product_item_list tbody > tr");
+
+    $(rows).each(function () {
+
+        var row = {};
+
+        $(this).children("td").each(function () {
+
+            var field = $(this).children("input").data('field');
+
+            if(field != '' && field != undefined){
+                row[field] = $(this).children("input").val();
+            }
+        });
+
+        if(row['sold_item_id'] != 0){
+          data.push(row);
+        }        
+    });
+    
+    return data;
+
+  }
 
   return {
     initEditDetailForm: function () {

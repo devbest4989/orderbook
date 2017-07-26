@@ -1,0 +1,73 @@
+= form_for(@sales_order, html: { class: 'form-horizontal form-label-left', 'data-parsley-validate' => '', id: 'edit_order_product_form' }) do |f|
+  .col-md-12.text-right
+    %a.btn-save.btn.btn-info.btn-order-product{:href => 'javascript:;'}
+      Save
+  .col-md-12{:style => "overflow:auto;"}
+    %h4 Product Information
+    / start project list
+    %div
+      %table#product_item_list.table.table-hover.projects.margin-bottom-5
+        %thead
+          %tr
+            %th{width: "35%", style: 'min-width: 300px;'} Product Name
+            %th Quantity
+            %th Unit Price
+            %th Discount(%)
+            %th Tax(%)
+            %th{width: "15%", style: 'min-width: 100px;'} Amount
+            %th
+            %th
+        %tbody
+          - @sales_order.sales_items.each_with_index do |item, index|
+            %tr.product-row{id: "product_row_#{index + 1}"}
+              %td.product-name 
+                =item.sold_item.name    
+              %td 
+                %input.form-control.product-field.item-qty.text-right{'data-row' => index + 1, 'data-field' => "quantity", type: "text", 'data-parsley-type' => 'number', value: item.quantity, class: "row-#{index + 1}"}
+              %td 
+                %input.form-control.product-field.item-price.text-right{'data-row' => index + 1, 'data-field' => "unit_price", type: "text", 'data-parsley-type' => 'number', value: item.unit_price, class: "row-#{index + 1}"}              
+              %td 
+                %input.form-control.product-field.item-discount.text-right{'data-row' => index + 1, 'data-field' => "discount_rate", type: "text", 'data-parsley-type' => 'number', value: item.discount_rate, class: "row-#{index + 1}"}              
+              %td 
+                %input.form-control.product-field.item-tax.text-right{'data-row' => index + 1, 'data-field' => "tax_rate", type: "text", 'data-parsley-type' => 'number', value: item.tax_rate, class: "row-#{index + 1}"}              
+              %td.line-total 
+                =item.quantity * item.unit_price - item.discount_amount
+              %td.product-action
+                - if @sales_order.quote?
+                  %a{href: 'javascript:;', 'data-product-row' => "#product_row_#{index + 1}"}
+                    %i.fa.fa-icon.fa-trash
+              %td
+                %input.product-field.item-id{type: 'hidden', 'data-row' => 0, 'data-field' => "sold_item_id", value: item.sold_item_id, class: "row-#{index + 1}"}
+
+      %table.table.projects
+        %tbody
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b SubTotal:
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.sub_total
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.discount_amount 
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Shipping Cost:
+            %td#shipping_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.shipping_cost
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Tax:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.tax_amount
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total:
+            %td#total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.total_amount
+
+:javascript
+  $(document).ready(function() {
+    SalesOrdersProductTable.initProductTable();
+  });

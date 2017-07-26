@@ -55,6 +55,9 @@
           %li
             %a{"data-toggle" => "tab", :href => "#tab_purchase", "aria-expanded" => "false"} 
               Purchase
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_selling", "aria-expanded" => "false"} 
+              Selling
         .tab-content
           #tab_overview{:class => "tab-pane active"}
             = render 'partial_overview'
@@ -64,3 +67,5 @@
             = render 'partial_warehouse'
           #tab_purchase{:class => "tab-pane"}
             = render 'partial_purchase'
+          #tab_selling{:class => "tab-pane"}
+            = render 'partial_selling'

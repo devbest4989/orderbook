@@ -53,13 +53,12 @@ class Product < ActiveRecord::Base
 
   def stock
     quantity
-    #open_qty - sales_qty + purchase_qty
+    # open_qty - sales_qty + purchase_qty
   end
 
   def stock!
     #stock_level_adjustments.sum(:adjustment)
     self.quantity = open_qty - sales_qty + purchase_qty
-    self.save!
   end
 
   def sales_qty
@@ -91,7 +90,7 @@ class Product < ActiveRecord::Base
   end
 
   def update_stock_status
-
+    self.stock!
     if self.stock.to_i > self.reorder_qty.to_i
       self.stock_status = :instock
     else
