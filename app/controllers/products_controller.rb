@@ -214,7 +214,7 @@ class ProductsController < ApplicationController
     set_product_lines
     set_brands
     get_sub_produts
-    set_sales_items
+    set_movement_items
   end
 
   # GET /products/new
@@ -555,8 +555,48 @@ class ProductsController < ApplicationController
       end
     end
 
-    def set_sales_items
-      @sales_items = SalesItem.where(sold_item_id: params[:id])
+    def set_movement_items
+      sql = "
+        SELECT pr.*
+        FROM
+        (
+            (
+            SELECT
+                pr.id id,
+                pr.created_at move_date,
+                '-' token,
+                0 order_id,
+                'Open Quantity' customer_name,
+                0 customer_id,
+                pr.open_qty quantity,
+                '' as status,
+                'Open' as type    
+            FROM products pr
+            WHERE
+                pr.id = #{params[:id]}
+            )
+            UNION ALL
+            (
+            SELECT 
+                pr.id id,
+                so.order_date move_date,
+                so.token token,
+                so.id order_id,
+                concat(cu.first_name, ' ', cu.last_name) as customer_name,
+                cu.id customer_id,
+                si.quantity as quantity,
+                so.status as status,
+                'Sale Order' as type
+            FROM products pr
+            LEFT JOIN sales_items si ON pr.id = si.sold_item_id
+            LEFT JOIN sales_orders so ON si.sales_order_id = so.id
+            LEFT JOIN customers cu ON so.customer_id = cu.id
+            WHERE so.status <> 'quote' AND pr.id = #{params[:id]}
+            )
+        ) AS pr
+        ORDER BY pr.move_date DESC
+      "
+      @item_movements = ActiveRecord::Base.connection.exec_query(sql)
     end
 
     def build_products_from_csv_file

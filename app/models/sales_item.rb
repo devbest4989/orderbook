@@ -107,6 +107,7 @@ class SalesItem < ActiveRecord::Base
     # of the monetary items and allocating stock as appropriate.
     def confirm!
       cache_pricing!
+      self.sold_item.save!
     end
 
     # Trigged when the associated order is cancelled..

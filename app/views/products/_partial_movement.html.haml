@@ -1,0 +1,27 @@
+%table.table.table-bordered.projects
+  %thead
+    %tr{:style => "background: rgba(52,73,94,0.94); color: #ECF0F1;"}
+      %th{:style => "width: 15%"} Type
+      %th{:style => "width: 15%"} Date
+      %th{:style => "width: 20%"} SO#
+      %th{:style => "width: 20%"} Customer
+      %th{:style => "width: 15%"} Amount
+      %th{:style => "width: 10%"} Status
+  %tbody
+    - @item_movements.each do |item|
+      %tr
+        %td
+          %strong=item['type']
+        %td=item['move_date'].to_date
+        - if item['order_id'].to_i > 0
+          %td=link_to item['token'], sales_order_path(item['order_id'])
+        - else
+          %td=item['token']          
+        - if item['customer_id'].to_i  > 0
+          %td=link_to item['customer_name'], customer_path(item['customer_id'])
+        - else
+          %td=item['customer_name']          
+        %td=item['quantity']
+        %td
+          %span{:class => "label label-md #{movement_status(item['status'])}"}
+            =item['status'].capitalize

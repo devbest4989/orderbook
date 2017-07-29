@@ -47,25 +47,15 @@
             %a{"data-toggle" => "tab", :href => "#tab_overview", "aria-expanded" => "true"} 
               Overview                                    
           %li
-            %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "false"} 
-              Detail
-          %li
             %a{"data-toggle" => "tab", :href => "#tab_stock_location", "aria-expanded" => "false"} 
               Stock Location
           %li
-            %a{"data-toggle" => "tab", :href => "#tab_purchase", "aria-expanded" => "false"} 
-              Purchase
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_selling", "aria-expanded" => "false"} 
-              Selling
+            %a{"data-toggle" => "tab", :href => "#tab_movement", "aria-expanded" => "false"} 
+              Movement
         .tab-content
           #tab_overview{:class => "tab-pane active"}
             = render 'partial_overview'
-          #tab_detail{:class => "tab-pane"}
-            = render 'partial_detail'
           #tab_stock_location{:class => "tab-pane"}
             = render 'partial_warehouse'
-          #tab_purchase{:class => "tab-pane"}
-            = render 'partial_purchase'
-          #tab_selling{:class => "tab-pane"}
-            = render 'partial_selling'
+          #tab_movement{:class => "tab-pane"}
+            = render 'partial_movement'
