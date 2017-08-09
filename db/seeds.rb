@@ -10,7 +10,7 @@ admin = User.create(email: "admin@orderbook.com",
 					password: "password", 
 					first_name: "Admin",
 					last_name: "Manager",
-					role: 2)
+					role: 0)
 
 p "Create Tax..."
 Tax.create(rate: 15, name: "GST15", description: "Goods Service Tax")
