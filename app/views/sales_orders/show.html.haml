@@ -31,8 +31,8 @@
               %li
                 =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
                   Create Invoice
-              %li.divider
               - if @sales_order.quote?
+                %li.divider
                 %li
                   =link_to sales_order_path(@sales_order), method: :delete, data: { confirm: 'Are you sure?' }, class: 'order-header-link' do
                     Delete
