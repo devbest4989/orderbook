@@ -119,7 +119,7 @@ var InvoiceDetail = function () {
       }, function(start, end, label) {
     });
 
-    $('#button_record_payment').click(function(){
+    $('#button_record_payment').click(function(){      
       var reqUrl = '/invoices/' + $('#invoice_id').val() + '/add_payment'
       $.ajax({
         url: reqUrl,
@@ -127,7 +127,10 @@ var InvoiceDetail = function () {
         datatype: 'json',
         data: {
           payment_date: $('#payment_date').val(),
-          payment_amount: $('#payment_amount').val()
+          payment_amount: $('#payment_amount').val(),
+          payment_mode: $('#payment_mode').val(),
+          reference_no: $('#reference_no').val(),
+          note: $('#note').val()          
         },
         success: function(data){
           if(data.Result == "OK"){
@@ -148,14 +151,14 @@ var InvoiceDetail = function () {
           });              
         }   
       });
-
-      $('#payment_date').val('');
-      $('#payment_amount').val('');
     });
 
     $('#cancel_record_payment').click(function(){
       $('#payment_date').val('');
       $('#payment_amount').val('');
+      $('#payment_mode').val('');
+      $('#reference_no').val('');
+      $('#note').val('');
     });
 
     function calculateInvoice(){

@@ -168,8 +168,11 @@ class InvoicesController < ApplicationController
     set_invoice
     payment = Payment.new
     payment.invoice_id = @invoice.id
-    payment.payment_date = Date.strptime(params[:payment_date],  "%Y-%m-%d")
+    payment.payment_date = Date.strptime(params[:payment_date],  "%d-%m-%Y")
     payment.amount = params[:payment_amount]
+    payment.payment_mode = params[:payment_mode]
+    payment.reference_no = params[:reference_no]
+    payment.note = params[:note]
 
     respond_to do |format|
       result = {}

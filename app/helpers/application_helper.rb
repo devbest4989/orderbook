@@ -6,6 +6,14 @@ module ApplicationHelper
     '20th of Following Month : Due on 20th of following month'
     ].freeze  
 
+  PAYMENT_MODE = [
+    'Cash',
+    'Cheque',
+    'Credit Card',
+    'Bank Transfer (Direct Credit)',
+    'Direct Debit ( Bank Remittance)'
+    ].freeze  
+
   def custom_link_to_remove_fields name, f, opts={}
     f.hidden_field(:_destroy) + __custom_link_to_function(name, "remove_fields(this)", 'red', class: opts[:class])
   end
