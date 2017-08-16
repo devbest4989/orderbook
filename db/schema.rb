@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170718083402) do
+ActiveRecord::Schema.define(version: 20170815082843) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,13 @@ ActiveRecord::Schema.define(version: 20170718083402) do
   end
 
   add_index "categories", ["name"], name: "index_categories_on_name", unique: true, using: :btree
+
+  create_table "condition_terms", force: :cascade do |t|
+    t.string   "title"
+    t.string   "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "contacts", force: :cascade do |t|
     t.string   "first_name"
@@ -83,9 +90,10 @@ ActiveRecord::Schema.define(version: 20170718083402) do
     t.string   "ship_postcode"
     t.string   "ship_country"
     t.integer  "payment_term_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.string   "default_price"
+    t.integer  "status",          default: 0
   end
 
   create_table "documents", force: :cascade do |t|
@@ -280,6 +288,7 @@ ActiveRecord::Schema.define(version: 20170718083402) do
     t.string   "contact_email"
     t.string   "contact_phone"
     t.string   "ref_no"
+    t.integer  "condition_term_id"
   end
 
   add_index "sales_orders", ["customer_id"], name: "index_sales_orders_on_customer_id", using: :btree
@@ -338,8 +347,9 @@ ActiveRecord::Schema.define(version: 20170718083402) do
     t.string   "bank_name"
     t.string   "bank_account_name"
     t.string   "bank_number"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "status",            default: 0
   end
 
   create_table "taxes", force: :cascade do |t|

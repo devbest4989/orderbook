@@ -59,7 +59,7 @@
             %a.btn.btn-info.btn-xs{:href => edit_product_path(product), title: 'Edit'}
               %i.fa.fa-icon.fa-pencil
             =link_to product_path(product), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Delete' do
-              %i.fa.fa-trash-o              
+              %i.fa.fa-trash-o
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @products, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}

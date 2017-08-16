@@ -56,7 +56,7 @@
               = invoice.sales_order.token
           %td
             %a{:href => customer_path(id: invoice.sales_order.customer.id)}
-              = invoice.sales_order.customer_full_name
+              = invoice.sales_order.customer_full_name.html_safe
           %td
             %span.label{class: invoice.status_class}=invoice.status_text.upcase
           %td

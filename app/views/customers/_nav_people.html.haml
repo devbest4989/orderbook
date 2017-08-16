@@ -28,10 +28,10 @@
             %li{ :class => "sub-nav-#{elem.id} element" }
               - if type == 'show'
                 %a{:href => customer_path(elem)}
-                  = elem.full_name                  
+                  = elem.company_title                  
               - else
                 %a{:href => edit_customer_path(elem)}
-                  = elem.full_name                                
+                  = elem.company_title                                
 :javascript
   jQuery(document).ready(function() {
     $('#sidebar-menu li').removeClass('current-page');

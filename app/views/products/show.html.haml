@@ -14,9 +14,6 @@
             %span.label.label-danger= @product.status_label
         %ul.nav.navbar-right.panel_toolbox
           %li
-            =link_to edit_product_path(@product), class: 'product-header-link' do
-              %i.fa.fa-edit
-          %li
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
               More..
               %span.caret

@@ -105,10 +105,10 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
-                    %th{:style => "width: 10%"} Price ($)
+                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                     %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
-                    %th{:style => "width: 10%"} Amount ($)
+                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                 %tbody
                 - @invoice.invoice_items.each do |elem|
                   %tr
@@ -215,3 +215,8 @@
   jQuery(document).ready(function() {
     InvoiceDetail.initActionHandler();
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

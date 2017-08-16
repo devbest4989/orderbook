@@ -1,4 +1,4 @@
-.right_col{:role => "main"}
+.right_col.customer-wrapper{:role => "main"}
   .left-sub-sidebar
     = render 'nav_people', add_url: new_customer_path(), active_elem: "sub-nav-#{@customer.id}", nav_name: 'Customers', sub_elems: @customers, type: 'show', cat_name: 'Customer'
   .right-content
@@ -7,6 +7,8 @@
         %a{:href => edit_customer_path(@customer)}
           %h2
             =@customer.full_name
+        %span.label{class: @customer.status_class}
+          = "#{@customer.status.capitalize}"        
         %ul.nav.navbar-right.panel_toolbox
           %li
             %a.collapse-link
@@ -24,9 +26,6 @@
           %li
             %a{"data-toggle" => "tab", :href => "#tab_transaction", "aria-expanded" => "false"} 
               Transaction
-          %li
-            %a{"data-toggle" => "tab", :href => "#tab_productlist", "aria-expanded" => "false"} 
-              Product List
           %li
             %a{"data-toggle" => "tab", :href => "#tab_statement", "aria-expanded" => "false"} 
               Statement

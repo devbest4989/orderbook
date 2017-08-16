@@ -42,7 +42,7 @@
     .col-md-12
       %h3 Payable
       %h2
-        = number_to_currency(@supplier.payable, precision: 2)
+        = "#{Setting.value_by('format.currency')} #{number_with_precision(@supplier.payable, precision: 2)}"
   .row.customer-address
     .col-md-6
       %h4 Billing Address

@@ -25,6 +25,9 @@ Setting.create(key: "company.fax", 		value: "438795473895", 			conf_type: 1)
 Setting.create(key: "company.email", 	value: "kinjal@local.com", 		conf_type: 1)
 Setting.create(key: "company.url", 		value: "http://orderbook.com", 	conf_type: 1)
 
+p "Create Default Currency"
+Setting.create(key: "format.currency",  value: "$", 					conf_type: 2)
+
 p "Create Tax Details..."
 PaymentTerm.create(name: "7-Days : Due on 7 days after Date of Invoice Issued", days: 7, term_type: 0)
 PaymentTerm.create(name: "14-Days : Due on 14 days after Date of Invoice Issued", days: 14, term_type: 0)

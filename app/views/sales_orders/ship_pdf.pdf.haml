@@ -30,3 +30,8 @@
                     %tr
                         %td=item.sales_item.sold_item.name    
                         %td=item.quantity
+
+:css
+    table td.money:before{    
+        content: '#{Setting.value_by('format.currency')} ' !important;
+    }

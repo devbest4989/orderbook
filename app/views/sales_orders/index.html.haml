@@ -125,3 +125,8 @@
     });  
 
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

@@ -20,14 +20,14 @@ var SalesOrdersNew = function () {
     $('#order_date').daterangepicker({
       singleDatePicker: true,
       calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
+      format: 'DD-MM-YYYY'
     }, function(start, end, label) {
     });
 
     $('#estimate_ship_date').daterangepicker({
       singleDatePicker: true,
       calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
+      format: 'DD-MM-YYYY'
       }, function(start, end, label) {
     });
 

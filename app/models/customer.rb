@@ -17,6 +17,8 @@ class Customer < ActiveRecord::Base
   scope :email_like, ->(search) { where("email LIKE ?", "%#{search}%") }
   scope :ordered, -> { order(id: :desc) }
 
+  enum status: [:active, :inactive]
+
   # The name of the customer in the format of "Company (First Last)" or if they don't have
   # company specified, just "First Last".
   #
@@ -110,6 +112,15 @@ class Customer < ActiveRecord::Base
 
   def shipping_address_state_short
     "#{ship_state_long} #{ship_postcode}"
+  end
+
+  def status_class
+      case status
+      when "active"
+        "label-success"
+      when "confirmed"
+        "label-default"
+      end
   end
 
 end

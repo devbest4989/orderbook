@@ -37,7 +37,7 @@
               %table.sales-order-side-elem
                 %tr
                   %td.customer-name
-                    = "#{elem.customer_full_name}"
+                    = "#{elem.customer_full_name}".html_safe
                   %td.text-right
                     = "$ #{elem.total_amount}"
                 %tr

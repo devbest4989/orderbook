@@ -490,6 +490,7 @@ class SalesOrdersController < ApplicationController
         :contact_phone,
         :contact_email,        
         :payment_term_id,
+        :condition_term_id,
         :ref_no,
         :bill_street,
         :bill_suburb,

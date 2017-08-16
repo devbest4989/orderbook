@@ -8,14 +8,20 @@
           ="Sales Order #{@sales_order.token}" 
         %span.label{class: @sales_order.status_class}
           = "#{@sales_order.status_text.capitalize}"
-        - if @sales_order.quote?
-          = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "btn-confirm-sm btn btn-default btn-xs" do
-            Confirm
         %ul.nav.navbar-right.panel_toolbox
           %li
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
-              %i.fa.fa-plus
+              More..
+              %span.caret
             %ul.dropdown-menu.more-action{:role => "menu"}
+              %li
+                =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
+                  Edit
+              - if @sales_order.quote?
+                %li
+                  = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "order-header-link" do
+                    Confirm
+              %li.divider
               %li
                 =link_to '#', class: 'order-header-link create-package-link', data: {toggle: 'modal', target: '#package_modal'} do
                   Create Pick List
@@ -25,9 +31,11 @@
               %li
                 =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
                   Create Invoice
-          %li
-            =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
-              %i.fa.fa-edit
+              %li.divider
+              - if @sales_order.quote?
+                %li
+                  =link_to sales_order_path(@sales_order), method: :delete, data: { confirm: 'Are you sure?' }, class: 'order-header-link' do
+                    Delete
           - unless @sales_order.quote?
             %li
               %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
@@ -35,13 +43,13 @@
               %ul.dropdown-menu.more-action{:role => "menu"}
                 %li
                   =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#package_pdf_modal'} do
-                    Pick List
+                    Pick List to PDF
                 %li
                   =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#shipment_pdf_modal'} do
-                    Shippment
+                    Shippment to PDF
                 %li
                   =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_pdf_modal'} do
-                    Invoice
+                    Invoice to PDF
             %li
               %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
                 %i.fa.fa-print
@@ -60,13 +68,13 @@
                 %i.fa.fa-envelope-o
               %ul.dropdown-menu.more-action{:role => "menu"}
                 %li
-                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#'} do
                     Mail Pick List
                 %li
-                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#'} do
                     Mail Shippment
                 %li
-                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#'} do
                     Mail Invoice
           %li
             %a.collapse-link
@@ -372,10 +380,10 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
-                    %th{:style => "width: 10%"} Price ($)
+                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                     %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
-                    %th{:style => "width: 10%"} Amount ($)
+                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                 %tbody
                 - @sales_order.sales_items.each do |item|
                   %tr
@@ -454,8 +462,8 @@
                   %tr
                     %th Invoice Number
                     %th Invoice Date
-                    %th Total ($)
-                    %th Paid ($)
+                    %th= "Total (#{Setting.value_by('format.currency')})"
+                    %th= "Paid (#{Setting.value_by('format.currency')})"
                     %th Status
                     %th 
 
@@ -490,3 +498,8 @@
   jQuery(document).ready(function() {
     
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

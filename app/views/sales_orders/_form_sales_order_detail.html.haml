@@ -37,6 +37,10 @@
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
         = @sales_order.shipping_method.name
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.condition_term.title unless @sales_order.condition_term.nil?
 .ln_solid
 .form-horizontal.form-label-left{:style => "overflow:auto;"}
   .col-md-6.col-sm-6.col-xs-12

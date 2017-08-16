@@ -16,3 +16,13 @@
               %i.fa.fa-close
         .clearfix
       .x_content
+        = form_tag("/edit_config_format", method: "put", class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '')
+        .row{:style => 'margin: 0 0 10px 0;'}
+          .col-md-12.col-sm-12.col-xs-12.text-right
+            = submit_tag "Save", class: 'btn btn-primary'
+        .form-group
+          .col-md-9.col-sm-9.col-xs-12{:style => "padding-right: 0;"}  
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Default Currency
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'format.currency', @standard_setting['format.currency'], class: 'form-control', :placeholder => "Default Currency"

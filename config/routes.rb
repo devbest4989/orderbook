@@ -23,14 +23,17 @@ Rails.application.routes.draw do
   get '/config_warehouse' => 'plainpage#config_warehouse'
   get '/config_shipping_method' => 'plainpage#shipping_method'
   get '/config_payment_term' => 'plainpage#config_payment_term'
+  get '/config_condition_term' => 'plainpage#config_condition_term'
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
+  put '/edit_config_format' => 'plainpage#edit_config_format'
 
   get '/preview_invoice/:token' => 'preview#invoice', as: 'preview_invoice'
 
   # Ajax Controller
   post '/smart_search' => 'plainpage#smart_search', :defaults => { :format => 'json' }
   post '/product_search' => 'plainpage#product_search', :defaults => { :format => 'json' }
+  post '/product_by_id' => 'plainpage#product_by_id', :defaults => { :format => 'json' }
 
   devise_for :users
 
@@ -103,6 +106,15 @@ Rails.application.routes.draw do
   end
 
   resources :payment_terms do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+    end
+  end
+
+  resources :condition_terms do
     collection do
       post :list
       post :remove

@@ -15,6 +15,8 @@ class Supplier < ActiveRecord::Base
   scope :phone_like, ->(search) { where("phone LIKE ?", "%#{search}%") }
   scope :email_like, ->(search) { where("email LIKE ?", "%#{search}%") }
 
+  enum status: [:active, :inactive]
+
   def name
     company_name.blank? ? full_name : "#{company_name} (#{full_name})"
   end
@@ -98,5 +100,14 @@ class Supplier < ActiveRecord::Base
 
   def shipping_address_state_short
     "#{ship_state_long} #{ship_postcode}"
+  end
+
+  def status_class
+      case status
+      when "active"
+        "label-success"
+      when "confirmed"
+        "label-default"
+      end
   end
 end

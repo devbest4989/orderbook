@@ -1,4 +1,7 @@
 =content_for :title, "Invoice - #{@invoice.token}"
+.preview-print-box.text-right
+    =link_to generate_pdf_invoice_path(@invoice), class: 'btn btn-primary', method: :post, target: '_blank' do
+        Print
 .preview-invoice-box
     %table.sales-order-box
         %tr.main-info-box
@@ -109,4 +112,4 @@
                 Payments can be made into 01-0295-0084706-00 using the reference MAR1351.
         %tr.footer-box
             %td{colspan: 2}
-                ="Printed: #{DateTime.now.strftime('%m/%d/%Y')}"
+                ="Printed: #{DateTime.now.strftime('%d-%m-%Y')}"

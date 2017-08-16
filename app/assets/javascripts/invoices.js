@@ -115,7 +115,7 @@ var InvoiceDetail = function () {
     $('#payment_date').daterangepicker({
       singleDatePicker: true,
       calender_style: "picker_4",
-      format: 'YYYY-MM-DD'
+      format: 'DD-MM-YYYY'
       }, function(start, end, label) {
     });
 

@@ -40,9 +40,9 @@
 .col-md-8.col-sm-8.col-xs-12
   .row.overview-payable
     .col-md-12
-      %h3 Payable
+      %h3 Receivable
       %h2
-        = number_to_currency(@customer.receivable, precision: 2)
+        = "#{Setting.value_by('format.currency')} #{number_with_precision(@customer.receivable, precision: 2)}"
   .row.customer-address
     .col-md-6
       %h4 Billing Address

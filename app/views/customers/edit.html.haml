@@ -22,14 +22,14 @@
             %a{"data-toggle" => "tab", :href => "#tab_personal", "aria-expanded" => "true"} 
               %i.fa.fa-cog
               Customer Info
+          %li{:class => (flash[:last_action]=="update_contact") ? "active" : ""}
+            %a{"data-toggle" => "tab", :href => "#tab_contact", "aria-expanded" => "false"} 
+              %i.fa.fa-book
+              Contacts
           %li{:class => (flash[:last_action]=="update_document") ? "active" : ""}
             %a{"data-toggle" => "tab", :href => "#tab_document", "aria-expanded" => "false"} 
               %i.fa.fa-folder-open
               Document
-          %li{:class => (flash[:last_action]=="update_contact") ? "active" : ""}
-            %a{"data-toggle" => "tab", :href => "#tab_contact", "aria-expanded" => "false"} 
-              %i.fa.fa-folder-open
-              Contacts
         .tab-content
           #tab_personal{:class => "tab-pane #{(flash[:last_action]=="update_info" || flash[:last_action] == nil) ? "active" : ""}"}
             = render 'form_info'

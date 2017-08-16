@@ -20,11 +20,11 @@
         %td
           =order.customer_name
         %td
-          =number_to_currency(order.total_amount, precision: 2)
+          = "#{Setting.value_by('format.currency')} #{number_with_precision(order.total_amount, precision: 2)}"
         %td 
-          =number_to_currency(order.total_paid_amount, precision: 2)
+          = "#{Setting.value_by('format.currency')} #{number_with_precision(order.total_paid_amount, precision: 2)}"
         %td 
-          =number_to_currency(order.total_amount - order.total_paid_amount, precision: 2)
+          = "#{Setting.value_by('format.currency')} #{number_with_precision(order.total_amount - order.total_paid_amount, precision: 2)}"
         %td
           %span{:class => "label label-md #{order.status_class}"}
             =order.status_text.capitalize

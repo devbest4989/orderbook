@@ -23,3 +23,8 @@
     SalesOrdersCommon.initSiderMenuList();
     SalesOrdersNew.handleSalesOrderNewCommand();
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

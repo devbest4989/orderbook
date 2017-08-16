@@ -111,3 +111,8 @@
     %tr.footer-box
         %td{colspan: 2}
             Printed: 23/07/2016 10
+
+:css
+    table td.money:before{    
+        content: '#{Setting.value_by('format.currency')} ' !important;
+    }

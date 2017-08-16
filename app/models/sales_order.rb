@@ -18,6 +18,7 @@ class SalesOrder < ActiveRecord::Base
     belongs_to :customer
     belongs_to :shipping_method
     belongs_to :payment_term
+    belongs_to :condition_term
 
     self.per_page = 25
 
@@ -40,7 +41,7 @@ class SalesOrder < ActiveRecord::Base
     #
     # @return [String]
     def customer_full_name
-      customer.full_name
+      "#{customer.company_name} (<small>#{customer.full_name}</small>)"
     end
 
     # Is this order empty? (i.e. doesn't have any items associated with it)

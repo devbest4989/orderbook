@@ -13,17 +13,17 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Total
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
-          $
+          = "#{Setting.value_by('format.currency')}"
           = @sales_order.total_amount
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Invoice Total
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
-          $
+          = "#{Setting.value_by('format.currency')}"
           = @sales_order.invoice_total
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Paid
         %span.col-md-8.col-sm-8.col-xs-12.field-value          
-          $
+          = "#{Setting.value_by('format.currency')}"
           = @sales_order.total_paid_amount
   .row.no-margin
     .col-md-12{:style => "overflow:auto;"}
@@ -34,8 +34,8 @@
             %tr
               %th Invoice Number
               %th Invoice Date
-              %th Total ($)
-              %th Paid ($)
+              %th= "Total (#{Setting.value_by('format.currency')})"
+              %th= "Paid (#{Setting.value_by('format.currency')})"
               %th Status
               %th 
               %th 
@@ -123,10 +123,10 @@
                       %th{:style => "width: 15%"} SKU
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Quantity
-                      %th{:style => "width: 10%"} Price ($)
+                      %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
-                      %th{:style => "width: 10%"} Amount ($)
+                      %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                   %tbody
                   - item.invoice_items.each do |elem|
                     %tr

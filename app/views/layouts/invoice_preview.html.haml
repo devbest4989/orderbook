@@ -3,6 +3,7 @@
   %head
     %title= content_for?(:title) ? yield(:title) : "OrderBook"
     = stylesheet_link_tag    'preview', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
     = csrf_meta_tags
     %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}/
   %body{:style => "background:#F7F7F7;"}

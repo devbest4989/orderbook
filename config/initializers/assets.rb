@@ -11,3 +11,5 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.precompile += %w( search.js )
 
 Rails.application.config.assets.precompile += %w( footermanifest.js people_overview.coffee people_edit.coffee products.js pdf.scss preview.scss)
+
+Date::DATE_FORMATS[:default]="%d-%m-%Y"

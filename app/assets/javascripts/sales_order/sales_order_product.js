@@ -150,9 +150,24 @@ var SalesOrdersProductTable = function () {
           }
           $('.item-qty.row-0').focus().select();
           $('#product_row_0 select.item-name').hide();
-          $('#product_row_0 td.product-name').text($('#product_row_0 select.item-name').text());
+          $('#product_row_0 td.product-name').text($('#product_row_0 select.item-name').text());          
           $('#product_row_0 .item-id.row-0').val(value);
-          addNewProductLine();
+
+          $.ajax({
+              url: '/product_by_id',
+              type: 'POST',
+              data: {
+                id: value
+              },
+              dataType: 'json',
+              error: function() {
+                $('#product_row_0 td.available-qty').html('');
+              },
+              success: function(res) {
+                $('#product_row_0 td.available-qty').html(res.product.quantity + '<br/>Available');
+                addNewProductLine();
+              }
+          });          
         },
         load: function(query, callback) {
             if (!query.length) return callback();
@@ -183,6 +198,8 @@ var SalesOrdersProductTable = function () {
           <td>\
             <input class="form-control row-0 product-field item-qty text-right" data-row="0" readonly data-field="quantity" type="text" data-parsley-type="number" value="0">\
           </td>\
+          <td class="text-center available-qty">\
+          </td>\
           <td>\
             <input class="form-control row-0 product-field item-price text-right" data-row="0" readonly data-field="unit_price" type="text" data-parsley-type="number" value="0">\
           </td>\
@@ -192,7 +209,7 @@ var SalesOrdersProductTable = function () {
           <td>\
             <input class="form-control row-0 product-field item-tax text-right" data-row="0" readonly data-field="tax_rate" type="text" data-parsley-type="number" value="0">\
           </td>\
-          <td class="line-total" width="15%" style="min-width: 100px;"></td>\
+          <td class="line-total money" width="15%" style="min-width: 100px;"></td>\
           <td class="product-action">\
           </td>\
           <td><input class="form-control row-0 product-field item-id" data-row="0" data-field="sold_item_id" type="hidden" value="">\

@@ -1,4 +1,4 @@
-.right_col{:role => "main"}
+.right_col.supplier-wrapper{:role => "main"}
   .left-sub-sidebar
     = render 'nav_people', add_url: new_supplier_path(), active_elem: "sub-nav-#{@supplier.id}", nav_name: 'Suppliers', sub_elems: @suppliers, type: 'show', cat_name: 'Supplier'
   .right-content
@@ -7,6 +7,8 @@
         %a{:href => edit_supplier_path(@supplier)}
           %h2
             =@supplier.full_name
+        %span.label{class: @supplier.status_class}
+          = "#{@supplier.status.capitalize}"        
         %ul.nav.navbar-right.panel_toolbox
           %li
             %a.collapse-link

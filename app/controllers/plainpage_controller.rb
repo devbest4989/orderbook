@@ -36,13 +36,13 @@ class PlainpageController < ApplicationController
 
   def edit_config_company
     set_company_logo 'company.image'
-    set_company_config 'company.name'
-    set_company_config 'company.trading'
-    set_company_config 'company.address'
-    set_company_config 'company.phone'
-    set_company_config 'company.fax'
-    set_company_config 'company.email'
-    set_company_config 'company.url'
+    set_global_config 'company.name'
+    set_global_config 'company.trading'
+    set_global_config 'company.address'
+    set_global_config 'company.phone'
+    set_global_config 'company.fax'
+    set_global_config 'company.email'
+    set_global_config 'company.url'
 
     if params['company.image']
       tmp = params['company.image'].tempfile    
@@ -51,6 +51,11 @@ class PlainpageController < ApplicationController
       File.chmod(0777, destiny_file)
     end
     redirect_to config_company_path
+  end
+
+  def edit_config_format
+    set_global_config 'format.currency', 2 # 2: Default Currency
+    redirect_to config_format_path    
   end
 
   def config_company
@@ -72,6 +77,11 @@ class PlainpageController < ApplicationController
   end
 
   def config_format
+    profile_info = Setting.station
+    @standard_setting = {}
+    profile_info.each do |info|
+      @standard_setting[info.key] = info.value
+    end
   end
 
   def config_station
@@ -204,10 +214,34 @@ class PlainpageController < ApplicationController
     end    
   end
 
+  def product_by_id
+    product = Product.find(params[:id])
+
+    result_product = {
+      :name => product.name,
+      :sku => product.sku,
+      :id => product.id,
+      :brand => product.brand.name,
+      :brand_id => product.brand.id,
+      :category => product.category.name,
+      :category_id => product.category.id,
+      :product_line => product.product_line.name,
+      :product_line_id => product.product_line.id,
+      :quantity => product.stock
+    }
+
+    respond_to do |format|
+      result = {:result => "OK", 
+                product: result_product
+              }
+      format.json {render :json => result}
+    end    
+  end
+
   private
-  def set_company_config(key)
+  def set_global_config(key, type = 1)
     setting = Setting.object_by(key)
-    setting.conf_type = 1
+    setting.conf_type = type
     setting.value = params[key]
     setting.save    
   end

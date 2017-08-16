@@ -20,7 +20,7 @@
             %td 
               =item.quantity
             %td 
-              ="$ #{item.unit_price}"
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
             %td 
               =item.discount_rate
             %td 

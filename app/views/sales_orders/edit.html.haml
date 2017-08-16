@@ -10,19 +10,6 @@
         %span.label{class: @sales_order.status_class}
           = "#{@sales_order.status_text.capitalize}"
         %ul.nav.navbar-right.panel_toolbox
-          / %li
-          /   %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
-          /     %i.fa.fa-plus
-          /   %ul.dropdown-menu.more-action{:role => "menu"}
-          /     %li
-          /       =link_to 'javascript:;', class: 'order-header-link' do
-          /         Create Pick List
-          /     %li
-          /       =link_to 'javascript:;', class: 'order-header-link' do
-          /         Create Shippment
-          /     %li
-          /       =link_to 'javascript:;', class: 'order-header-link' do
-          /         Create Invoice
           %li
             %a.collapse-link
               %i.fa.fa-chevron-up
@@ -74,3 +61,8 @@
   jQuery(document).ready(function() {    
     
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

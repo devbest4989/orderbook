@@ -40,4 +40,9 @@
 :javascript
   jQuery(document).ready(function() {
     SalesOrdersCommon.initSiderMenuList();
-  });      
+  });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }
