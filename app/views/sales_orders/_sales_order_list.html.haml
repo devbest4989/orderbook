@@ -72,7 +72,7 @@
             - if order.quote?
               = link_to update_status_sales_order_path(order, {save_action: 'confirm'}), method: :post, :class => "btn btn-success btn-xs", title: 'Confirm' do
                 %i.fa.fa-check
-              = link_to sales_order_path(order), method: :delete, :class => "btn btn-danger btn-xs", title: 'Cancel' do
+              = link_to sales_order_path(order), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
                 %i.fa.fa-times
               = link_to '#', :class => "btn btn-primary btn-xs", title: 'Email' do
                 %i.fa.fa-envelope

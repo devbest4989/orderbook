@@ -124,7 +124,7 @@ class SalesOrdersController < ApplicationController
       @sales_order.sales_items.delete_all
       @sales_order.destroy
       respond_to do |format|
-        format.html { redirect_to sales_orders_url, notice: 'Sales Order was deleted successfully.' }
+        format.html { redirect_to list_by_type_sales_orders_path(type: 'all'), notice: 'Sales Order was deleted successfully.' }
         format.json { head :no_content }
       end
     else 
