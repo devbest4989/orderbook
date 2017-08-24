@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170816152937) do
+ActiveRecord::Schema.define(version: 20170824054436) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -121,12 +121,13 @@ ActiveRecord::Schema.define(version: 20170816152937) do
     t.integer  "invoice_id"
     t.integer  "sales_item_id"
     t.integer  "quantity"
-    t.decimal  "sub_total",     precision: 8, scale: 2, default: 0.0
-    t.decimal  "total",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "discount",      precision: 8, scale: 2, default: 0.0
-    t.decimal  "tax",           precision: 8, scale: 2, default: 0.0
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.decimal  "sub_total",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",                precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",             precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",                  precision: 8, scale: 2, default: 0.0
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
+    t.integer  "sales_custom_item_id"
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -217,6 +218,19 @@ ActiveRecord::Schema.define(version: 20170816152937) do
   add_index "products", ["brand_id"], name: "index_products_on_brand_id", using: :btree
   add_index "products", ["category_id"], name: "index_products_on_category_id", using: :btree
   add_index "products", ["product_line_id"], name: "index_products_on_product_line_id", using: :btree
+
+  create_table "sales_custom_items", force: :cascade do |t|
+    t.decimal  "quantity",        precision: 8, scale: 2
+    t.decimal  "unit_price",      precision: 8, scale: 2
+    t.decimal  "tax_amount",      precision: 8, scale: 2
+    t.decimal  "tax_rate",        precision: 8, scale: 2
+    t.integer  "sales_order_id"
+    t.string   "item_name"
+    t.decimal  "discount_rate",   precision: 8, scale: 2
+    t.decimal  "discount_amount", precision: 8, scale: 2
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
 
   create_table "sales_item_activities", force: :cascade do |t|
     t.integer  "quantity"

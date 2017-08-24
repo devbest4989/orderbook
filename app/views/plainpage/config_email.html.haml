@@ -16,3 +16,35 @@
               %i.fa.fa-close
         .clearfix
       .x_content
+        = form_tag("/edit_config_email", method: "put", class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '')
+        .row{:style => 'margin: 0 0 10px 0;'}
+          .col-md-12.text-right
+            = submit_tag "Save", class: 'btn btn-primary'
+        .row
+          .col-md-9.col-sm-9.col-xs-12{:style => "padding-right: 0;"}  
+            %h4 Invoice Settings
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Invoice Template
+              .col-md-8.col-sm-8.col-xs-12.form-group{style: 'margin-top: 8px;'}
+                = radio_button_tag 'invoice.template', @email_config['invoice.template'], (@email_config['invoice.template'] == 'classic')
+                Classic
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Invoice Title
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'invoice.title', @email_config['invoice.title'], class: 'form-control', :placeholder => "Invoice Title"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Invoice Accent Color
+              .col-md-8.col-sm-8.col-xs-12.form-group
+                = text_field_tag 'invoice.color', @email_config['invoice.color'], class: 'form-control colorpicker-element', :placeholder => "Invoice Accent Color"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Show Logo
+              .col-md-8.col-sm-8.col-xs-12.form-group{style: 'margin-top: 8px;'}
+                = check_box_tag 'invoice.logo', @email_config['invoice.logo'], (@email_config['invoice.logo'] == 'on'), :placeholder => "Show Logo"        
+        %hr
+        .row
+
+
+:javascript
+  $(document).ready(function () {
+    $('.colorpicker-element').colorpicker();
+  });

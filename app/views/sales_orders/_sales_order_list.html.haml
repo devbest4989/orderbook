@@ -74,9 +74,9 @@
                 %i.fa.fa-check
               = link_to sales_order_path(order), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
                 %i.fa.fa-times
-              = link_to '#', :class => "btn btn-primary btn-xs", title: 'Email' do
+              = link_to print_sales_order_path(order), method: :post, :class => "btn btn-primary btn-xs", title: 'Email', target: '_blank' do
                 %i.fa.fa-envelope
-              = link_to '#', :class => "btn btn-info btn-xs", title: 'Print' do
+              = link_to print_sales_order_path(order), method: :post, :class => "btn btn-info btn-xs", title: 'Print', target: '_blank' do
                 %i.fa.fa-print
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @sales_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'

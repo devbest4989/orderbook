@@ -22,15 +22,23 @@
                   = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "order-header-link" do
                     Confirm
               %li.divider
-              %li
-                =link_to '#', class: 'order-header-link create-package-link', data: {toggle: 'modal', target: '#package_modal'} do
-                  Create Pick List
-              %li
-                =link_to '#', class: 'order-header-link create-shippment-link', data: {toggle: 'modal', target: '#shipment_modal'} do
-                  Create Shippment
-              %li
-                =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
-                  Create Invoice
+              - if @sales_order.quote?
+                %li
+                  = link_to '#', method: :post, :class => "order-header-link", title: 'Email', target: '_blank' do
+                    Email
+                %li
+                  = link_to print_sales_order_path(@sales_order), method: :post, :class => "order-header-link", title: 'Print', target: '_blank' do
+                    Print
+              - else
+                %li
+                  =link_to '#', class: 'order-header-link create-package-link', data: {toggle: 'modal', target: '#package_modal'} do
+                    Create Pick List
+                %li
+                  =link_to '#', class: 'order-header-link create-shippment-link', data: {toggle: 'modal', target: '#shipment_modal'} do
+                    Create Shippment
+                %li
+                  =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                    Create Invoice
               - if @sales_order.quote?
                 %li.divider
                 %li
@@ -403,6 +411,25 @@
                       =item.quantity * item.unit_price - item.discount_amount
                     %td{:style => "display: none;"} 
                       =item.id
+                    %td{:style => "display: none;"} product
+                - @sales_order.sales_custom_items.each do |item|
+                  %tr
+                    %td                      
+                    %td 
+                      =item.item_name
+                    %td.editable{"contentEditable" => "true"}
+                      =item.quantity
+                    %td 
+                      =item.unit_price
+                    %td 
+                      =item.discount_rate
+                    %td 
+                      =item.tax_rate
+                    %td
+                      =item.quantity * item.unit_price - item.discount_amount
+                    %td{:style => "display: none;"} 
+                      =item.id
+                    %td{:style => "display: none;"} custom_product
 
               %table.table.projects
                 %tbody

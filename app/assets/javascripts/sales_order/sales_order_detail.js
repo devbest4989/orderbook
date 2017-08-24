@@ -274,7 +274,8 @@ var SalesOrderDetail = function () {
           "discount" : $(tr).find('td:eq(4)').text().trim(),
           "tax" : $(tr).find('td:eq(5)').text().trim(),
           "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim()
+          "id" : $(tr).find('td:eq(7)').text().trim(),
+          "type" : $(tr).find('td:eq(8)').text().trim()
         });    
       }); 
       var reqUrl = $('#invoice_req_url').val();
@@ -331,13 +332,15 @@ var SalesOrderDetail = function () {
         var price = $(tr).find('td:eq(3)').text().trim();
         var discount = $(tr).find('td:eq(4)').text().trim();
         var tax = $(tr).find('td:eq(5)').text().trim();
-        row_amount = quantity * price * (100 -discount) * 0.01;
+        row_amount = quantity * price * (100 - discount) * 0.01;
         $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
 
-        subTotal += row_amount;
+        row_amount = $(tr).find('td:eq(6)').text().trim();
+
+        subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;
         taxTotal += quantity * price * tax * 0.01;
-        total += row_amount + quantity * price * tax * 0.01;
+        total += (row_amount * 1) + quantity * price * tax * 0.01;
       });
 
       var paid = 0;//$( modalId + ' #paid_amount').val();
@@ -360,7 +363,8 @@ var SalesOrderDetail = function () {
           "discount" : $(tr).find('td:eq(4)').text().trim(),
           "tax" : $(tr).find('td:eq(5)').text().trim(),
           "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim()
+          "id" : $(tr).find('td:eq(7)').text().trim(),
+          "type" : $(tr).find('td:eq(8)').text().trim()
         });    
       }); 
       var reqUrl = $(this).data('url');

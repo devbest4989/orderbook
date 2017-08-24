@@ -200,6 +200,16 @@ var SalesOrdersNew = function () {
           }
         }
 
+        t_custom_data = serializeCustomProductTable();
+        for(i = 0; i < t_custom_data.length; i++){
+          for(key in t_custom_data[i]){
+            if(key != 'sold_item_id'){
+              item_key = 'sales_order[sales_custom_items_attributes]['+i+']['+key+']';
+              reqData.push({name: item_key, value: t_custom_data[i][key]});                          
+            }
+          }
+        }
+
         var reqUrl = ($('#sales_order_id').val() == '') ? "/sales_orders" : "/sales_orders/" + $('#sales_order_id').val();
         $.ajax({
           url: reqUrl,
@@ -224,7 +234,8 @@ var SalesOrdersNew = function () {
               type: 'error'
             });              
           }   
-        });                         
+        });
+
       } else {        
       }
     });
@@ -258,14 +269,37 @@ var SalesOrdersNew = function () {
             }
         });
 
-        if(row['sold_item_id'] != 0){
+        if(row['sold_item_id'] > 0){
           data.push(row);
         }        
-    });
-    
+    });  
     return data;
-
   }
+
+  var serializeCustomProductTable = function(){
+    var data = [];
+    var rows = $("#product_item_list tbody > tr");
+
+    $(rows).each(function () {
+
+        var row = {};
+
+        $(this).children("td").each(function () {
+
+            var field = $(this).children("input").data('field');
+
+            if(field != '' && field != undefined){
+                row[field] = $(this).children("input").val();
+            }
+        });
+
+        if(row['sold_item_id'] == -1){
+          data.push(row);
+        }        
+    });  
+    return data;
+  }
+
 
   return {
     handleSalesOrderNewCommand: function () {

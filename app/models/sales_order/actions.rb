@@ -7,6 +7,7 @@ class SalesOrder < ActiveRecord::Base
 
   def quote!
     sales_items.each(&:confirm!)
+    sales_custom_items.each(&:confirm!)
   end
   # This method should be executed by the application when the order should be completed
   # by the customer. It will raise exceptions if anything goes wrong or return true if

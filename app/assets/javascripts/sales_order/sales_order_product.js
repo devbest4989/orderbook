@@ -25,12 +25,18 @@ var SalesOrdersProductTable = function () {
           } else if($(this).hasClass('item-discount')){
             $(row_class + '.item-tax').focus().select();
           } else if($(this).hasClass('item-tax')){
+          } else if($(this).hasClass('custom-item-name')){
+            $(row_class + '.item-qty').focus().select();
           }
           calculateLineAmount(this);
           event.stopPropagation();
           return false;
           break;
       }
+    });
+
+    $('.add-custom-product').click(function(e){
+      addNewCustomProductLine();
     });
   } 
 
@@ -95,7 +101,6 @@ var SalesOrdersProductTable = function () {
 
     addProductBlankLine();
 
-
     $.ajax({
       url: "/products/list_by_id",
       type: 'POST',
@@ -113,6 +118,30 @@ var SalesOrdersProductTable = function () {
         $('td#'+namecell).empty().text('');
       }   
     });
+  }
+
+  var addNewCustomProductLine = function(){
+    var row_number = ($('#product_item_list tbody tr').length > 1) ? $($('#product_item_list tbody tr')[$('#product_item_list tbody tr').length - 2]).attr('id').replace('product_row_', '') : 0;
+    row_number++;
+    var row_class = 'row-' + row_number;
+    var row_id = 'product_row_' + row_number;
+    var product_id = $('#product_row_0 .item-id.row-0').val();
+
+    var customNameTemplate = '<input class="form-control row-0 product-field custom-item-name" data-row="0" data-field="item_name" type="text" data-parsley-required value="">';
+    $('#product_row_0 td.product-name').html(customNameTemplate);
+    $('#product_row_0 .custom-item-name.row-0').focus().select();
+    $('#product_row_0 .item-id.row-0').val("-1");
+
+    $('.row-0').removeAttr('readonly');
+    $('.row-0').addClass(row_class);
+    $('.row-0').attr('data-row', row_number);
+    $('.'+row_class).removeClass('row-0');
+
+    var removeTemplate ='<a href="javascript:;" data-product-row="#'+row_id+'"><i class="fa fa-icon fa-trash"></i></a>';
+    $('#product_row_0 td.product-action').html(removeTemplate);
+    $('#product_row_0').attr('id', row_id);
+
+    addProductBlankLine();    
   }
 
   var removeProductLine = function(){
@@ -212,7 +241,7 @@ var SalesOrdersProductTable = function () {
           <td class="line-total money" width="15%" style="min-width: 100px;"></td>\
           <td class="product-action">\
           </td>\
-          <td><input class="form-control row-0 product-field item-id" data-row="0" data-field="sold_item_id" type="hidden" value="">\
+          <td><input class="form-control row-0 product-field item-id" data-row="0" data-field="sold_item_id" type="hidden" value="0">\
           </td>\
         </tr>';
     $('#product_item_list tbody').append(template);

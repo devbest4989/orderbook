@@ -47,6 +47,7 @@
 //= require js/validation-engine/languages/jquery.validationEngine-en.js
 //= require js/validation-engine/jquery.validationEngine.js
 //= require js/bootstrap-datepicker/bootstrap-datepicker.min
+//= require js/colorpicker/bootstrap-colorpicker.min
 //= require js/editable-table/table
 //= require js/notify/pnotify.core
 //= require js/notify/pnotify.buttons

@@ -1,8 +1,9 @@
 
 .sales-order-box{
 	width: 100%;
-	border-spacing: 2px;
+	border-spacing: 2px;	
 	border-collapse: collapse;
+	border: none;
 	font-size: 12px;
 	tr{
 		padding: 10px;
@@ -14,19 +15,20 @@
 			}
 		}
 	}
-	.main-info-box{
-		border: 1px solid #333;
+	.main-info-box{		
+		border-bottom: 1px solid #333;
 	}
 
 	.address-box{
 		td{
-			border: 1px solid #333;
+			padding-top: 30px;
+			// border: 1px solid #333;
 			font-weight: 600;
 		}
 	}
 
 	.details-box{
-		border: 1px solid #333;
+		// border: 1px solid #333;
 		td{
 			padding: 0;
 			vertical-align: top;
@@ -34,7 +36,7 @@
 	}
 
 	.signature-box{
-		border: 1px solid #333;
+		border-top: 1px solid #333;
 		tr{
 			td{
 				&.terms-info{
@@ -46,7 +48,8 @@
 
 	.balance-box{
 		td{
-			border: 1px solid #333;
+			border-top: 1px solid #333;
+			border-bottom: 1px solid #333;
 		}
 
 		table{
@@ -74,13 +77,22 @@
 	}
 
 	.footer-box{
-		border: 1px solid #333;
+		// border: 1px solid #333;
+		td{
+			padding-bottom: 20px;
+		}
 	}
 
 	table.order-main-info{
 		width: 100%;
 		border-spacing: 2px;
 		border-collapse: collapse;
+		margin-top: 30px;
+
+		.company-logo img{
+			max-width: 300px;
+			max-height: 100px;
+		}
 	}
 
 	table.order-product-info{

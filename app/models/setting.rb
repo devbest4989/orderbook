@@ -2,6 +2,7 @@ class Setting < ActiveRecord::Base
   validates :key, presence: true, uniqueness: true  
   scope :company_profile, -> { where(:conf_type => 1) }
   scope :station, -> { where(:conf_type => 2) }
+  scope :email_template, -> { where(:conf_type => 3) }
 
   KEYS = %w(
     company.image 
@@ -12,7 +13,28 @@ class Setting < ActiveRecord::Base
     company.fax 
     company.email 
     company.url
-    format.currency)
+    format.currency
+
+    invoice.template
+    invoice.color
+    invoice.title
+    invoice.logo
+
+    package.template
+    package.color
+    package.title
+    package.logo
+
+    shipment.template
+    shipment.color
+    shipment.title
+    shipment.logo
+
+    quote.template
+    quote.color
+    quote.title
+    quote.logo
+    )
 
   def self.value_by(key)
     Setting.object_by(key).try(:value)

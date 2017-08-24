@@ -95,6 +95,7 @@ class SalesOrdersController < ApplicationController
         @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
       else
         @sales_order.sales_items.delete_all
+        @sales_order.sales_custom_items.delete_all
       end
 
       if @sales_order.update(safe_params)
@@ -195,7 +196,7 @@ class SalesOrdersController < ApplicationController
 
   def print
     set_sales_order
-    get_first_invoice
+    # get_first_invoice
 
     # Self Company Profile
     profile_info = Setting.company_profile
@@ -254,11 +255,12 @@ class SalesOrdersController < ApplicationController
     params[:invoice_attributes].each do |elem|
       invoice_item = InvoiceItem.new
       invoice_item.invoice_id = invoice.id
-      invoice_item.sales_item_id = elem[1][:id].to_i
+      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
       invoice_item.quantity   = elem[1][:quantity].to_i
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
+      invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
       invoice_item.save
     end
 
@@ -302,32 +304,32 @@ class SalesOrdersController < ApplicationController
     end
   end
 
-  def ship_pdf
-    sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:tokens]})")
-    # Self Company Profile
-    profile_info = Setting.company_profile
-    @company_profiles = {}
-    profile_info.each do |info|
-      @company_profiles[info.key] = info.value
-    end
+  # def ship_pdf
+  #   sales_item_activities = SalesItemActivity.where("sales_item_activities.token IN (#{params[:tokens]})")
+  #   # Self Company Profile
+  #   profile_info = Setting.company_profile
+  #   @company_profiles = {}
+  #   profile_info.each do |info|
+  #     @company_profiles[info.key] = info.value
+  #   end
 
-    begin
-      filename = SecureRandom.hex(10) + '.pdf'
-    end while Invoice.exists?(:file_name => filename)      
+  #   begin
+  #     filename = SecureRandom.hex(10) + '.pdf'
+  #   end while Invoice.exists?(:file_name => filename)      
 
-    save_path = Rails.root.join('public/shipments', filename)
-    File.open(save_path, 'wb') do |file|
-      file << render_to_string(
-         :pdf => "shipment",         
-         :template => 'sales_orders/shipment_pdf.pdf.haml',
-         :layout => '/layouts/sales_order.pdf.haml',
-         :locals => { 'sales_item_activities' => sales_item_activities }
-       )
-    end
+  #   save_path = Rails.root.join('public/shipments', filename)
+  #   File.open(save_path, 'wb') do |file|
+  #     file << render_to_string(
+  #        :pdf => "shipment",         
+  #        :template => 'sales_orders/shipment_pdf.pdf.haml',
+  #        :layout => '/layouts/sales_order.pdf.haml',
+  #        :locals => { 'sales_item_activities' => sales_item_activities }
+  #      )
+  #   end
 
-    redirect_path = '/shipments/' + filename
-    redirect_to redirect_path    
-  end
+  #   redirect_path = '/shipments/' + filename
+  #   redirect_to redirect_path    
+  # end
 
   def pack
     package_number = GlobalMap.package_number
@@ -507,7 +509,8 @@ class SalesOrdersController < ApplicationController
         :total_amount,        
         :customer_id,
         :notes,        
-        sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate]
+        sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
+        sales_custom_items_attributes: [:item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
       )
     end
 
@@ -556,6 +559,19 @@ class SalesOrdersController < ApplicationController
         invoice_item.discount       = elem.discount_rate
         invoice_item.tax            = elem.tax_rate
         invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        invoice_item.sales_custom_item_id = 0
+        invoice_item.save
+      end
+
+      @sales_order.sales_custom_items.each do |elem|
+        invoice_item                = InvoiceItem.new
+        invoice_item.invoice_id     = invoice.id
+        invoice_item.sales_item_id  = 0
+        invoice_item.quantity       = elem.quantity
+        invoice_item.discount       = elem.discount_rate
+        invoice_item.tax            = elem.tax_rate
+        invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        invoice_item.sales_custom_item_id = elem.id
         invoice_item.save
       end
 

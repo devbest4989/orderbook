@@ -46,7 +46,7 @@ class PlainpageController < ApplicationController
 
     if params['company.image']
       tmp = params['company.image'].tempfile    
-      destiny_file = File.join('public', 'images', params['company.image'].original_filename)
+      destiny_file = File.join('public', 'images', 'logo', params['company.image'].original_filename)
       FileUtils.move tmp.path, destiny_file
       File.chmod(0777, destiny_file)
     end
@@ -56,6 +56,30 @@ class PlainpageController < ApplicationController
   def edit_config_format
     set_global_config 'format.currency', 2 # 2: Default Currency
     redirect_to config_format_path    
+  end
+
+  def edit_config_email
+    set_global_config 'invoice.template', 3
+    set_global_config 'invoice.title', 3
+    set_global_config 'invoice.color', 3
+    set_global_config 'invoice.logo', 3
+
+    set_global_config 'package.template', 3
+    set_global_config 'package.title', 3
+    set_global_config 'package.color', 3
+    set_global_config 'package.logo', 3
+
+    set_global_config 'shipment.template', 3
+    set_global_config 'shipment.title', 3
+    set_global_config 'shipment.color', 3
+    set_global_config 'shipment.logo', 3
+
+    set_global_config 'quote.template', 3
+    set_global_config 'quote.title', 3
+    set_global_config 'quote.color', 3
+    set_global_config 'quote.logo', 3
+
+    redirect_to config_email_path
   end
 
   def config_company
@@ -88,6 +112,16 @@ class PlainpageController < ApplicationController
   end
 
   def config_email
+    set_default_config('invoice.template', 3, 'classic')
+    set_default_config('package.template', 3, 'classic')
+    set_default_config('shipment.template', 3, 'classic')
+    set_default_config('quote.template', 3, 'classic')
+
+    email_info = Setting.email_template
+    @email_config = {}
+    email_info.each do |info|
+      @email_config[info.key] = info.value
+    end
   end
 
   def shipping_method
@@ -243,6 +277,13 @@ class PlainpageController < ApplicationController
     setting = Setting.object_by(key)
     setting.conf_type = type
     setting.value = params[key]
+    setting.save    
+  end
+
+  def set_default_config(key, type, value)
+    setting = Setting.object_by(key)
+    setting.conf_type = type
+    setting.value = value
     setting.save    
   end
 

@@ -130,22 +130,41 @@
                   %tbody
                   - item.invoice_items.each do |elem|
                     %tr
-                      %td
-                        =elem.sales_item.sold_item.sku    
-                      %td 
-                        =elem.sales_item.sold_item.name
-                      %td.editable{"contentEditable" => "true"}
-                        =elem.quantity
-                      %td 
-                        =elem.sales_item.unit_price
-                      %td 
-                        =elem.sales_item.discount_rate
-                      %td 
-                        =elem.sales_item.tax_rate
-                      %td
-                        =elem.sub_total
-                      %td{:style => "display: none;"} 
-                        =elem.sales_item_id
+                      - if elem.sales_item.nil?
+                        %td                          
+                        %td 
+                          =elem.sales_custom_item.item_name
+                        %td.editable{"contentEditable" => "true"}
+                          =elem.quantity
+                        %td 
+                          =elem.sales_custom_item.unit_price
+                        %td 
+                          =elem.sales_custom_item.discount_rate
+                        %td 
+                          =elem.sales_custom_item.tax_rate
+                        %td
+                          =elem.sub_total
+                        %td{:style => "display: none;"} 
+                          =elem.sales_custom_item_id
+                        %td{:style => "display: none;"} custom_product
+                      - else
+                        %td
+                          =elem.sales_item.sold_item.sku    
+                        %td 
+                          =elem.sales_item.sold_item.name                      
+                        %td.editable{"contentEditable" => "true"}
+                          =elem.quantity
+                        %td 
+                          =elem.sales_item.unit_price
+                        %td 
+                          =elem.sales_item.discount_rate
+                        %td 
+                          =elem.sales_item.tax_rate
+                        %td
+                          =elem.sub_total
+                        %td{:style => "display: none;"} 
+                          =elem.sales_item_id
+                        %td{:style => "display: none;"} product
 
                 %table.table.projects
                   %tbody

@@ -47,7 +47,7 @@
         .col-md-8.col-sm-8.col-xs-12
           = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control'}
       .form-group
-        %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition*
         .col-md-8.col-sm-8.col-xs-12
           = f.select :condition_term_id, ConditionTerm.all.map{|x| [x.title, x.id]}, {}, {:class => 'form-control', :required => "true"}
     .col-md-6.col-sm-6.col-xs-12

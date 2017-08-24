@@ -26,7 +26,21 @@
             %td 
               =item.tax_rate
             %td 
-              =item.quantity * item.unit_price - item.discount_amount
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+        - @sales_order.sales_custom_items.each do |item|
+          %tr
+            %td 
+              =item.item_name    
+            %td 
+              =item.quantity
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
+            %td 
+              =item.discount_rate
+            %td 
+              =item.tax_rate
+            %td
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
       %table.table.projects
         %tbody
           %tr

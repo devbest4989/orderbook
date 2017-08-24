@@ -1,117 +1,75 @@
-%table.sales-order-box
+=content_for :title, "SalesOrder - #{@sales_order.token}"
+%table.pack-order-box
     %tr.main-info-box
         %td{colspan: 2}
             %table.order-main-info
                 %tr
                     %td.company-title
-                        %h2= @sales_order.customer.company_title
-                        %p= @sales_order.customer.billing_address
+                        %h4= @sales_order.customer.company_title
+                        %p{style: 'color: #555;'}= @sales_order.customer.billing_address
                     %td.order-info.text-right
-                        %p=@sales_order_invoice.token unless @sales_order_invoice.nil?
-                        %p GST Number: 
-                        %p 
-                            Date:
-                            =@sales_order_invoice.created_at.to_date unless @sales_order_invoice.nil?
-                        %p Page
-                %tr
-                    %td
-                        %p="Phone: #{@sales_order.customer.phone}"
-                        %p="Fax: #{@sales_order.customer.fax}"
-                        %h3
-                            Tax Invoice
-                            =@sales_order_invoice.token unless @sales_order_invoice.nil?
-                    %td.text-right
-                        %p="Sales Order: #{@sales_order.token}"
-                        %p="Processed By: #{@sales_order.booker.full_name}"
-    %tr.address-box
+                        %h2 SALES ORDER
+                        %p{style: 'color: #555;'}="Sales Order: #{@sales_order.token}"
+    %tr
         %td{width: "50%"}
-            %p="#{@company_profiles['company.name']}"
-            %p="#{@company_profiles['company.address']}"
-        %td{width: "50%"}
-            %p Deliver To:
+            %p Ship To:
             %p="#{@sales_order.customer.company_title}"
             %p="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
             %p="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
             %p="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+        %td.text-right{width: "50%"}
+            %p="Order Date: #{@sales_order.created_at.to_date}"
+            %p="Sales Order#: #{@sales_order.token}"
     %tr.details-box
         %td{height: 400, colspan: 2}
             %table.order-product-info
                 %tr.product-header
-                    %td Product Name                        
+                    %td{style: 'width: 50%;'} ITEM & DESCRIPTION
                     %td Quantity
                     %td Unit Price
-                    %td Discount(%)
-                    %td Tax(%)
-                    %td Amount
-                - unless @sales_order_invoice.nil?
-                    - @sales_order.sales_item_activities.where(activity: 'ship').where(token: @sales_order_invoice.activity_data).each do |item|
-                        %tr
-                            %td=item.sales_item.sold_item.name    
-                            %td=item.quantity
-                            %td="$ #{item.sales_item.unit_price}"
-                            %td=item.sales_item.discount_rate
-                            %td=item.sales_item.tax_rate
-                            %td=item.sub_total
-    %tr.signature-box
-        %td{colspan: 2}
-            %table.order-sign-info
-                %tr
-                    %td.terms-info
-                        Unless otherwise specifed computer system comes with 1 year return to base warranty Multimedia & peripheral components come with manufacturer's warranty Goods Remain the properties of PB Technologies (Penrose) Ltd until payment in full. PB Technologies reserve the right to collect unpaid goods by peaceful means Removal of any labels, tampering or similar unauthorised use voids the warranty Software problems are not covered by the warranty, service charge will apply Goods cannot be returned for a refund after 7 days. All goods returned are subject to restocking fee a minimum retail 20% and wholesale 5%. Check that you have received all the goods Due to licensing issues software cannot be returned once purchased
-                    %td.signature-info
-                        %table
-                            %tr
-                                %td.text-right{width: '25%'}
-                                    Signature
-                                %td.td-underline{width: '35%'}
-                                    %div
-                                %td.text-right{width: '15%'}
-                                    Date
-                                %td.td-underline{width: '25%'}
-                                    %div
-                            %tr
-                                %td.text-right
-                                    Print Name
-                                %td.td-underline
-                                    %div
-                                %td
-                                %td
-                                    
-    %tr.balance-box
-        %td
-            %p Received with Thanks
-            %table
-                %tr
-                    %td Cash
-                    %td $300
-                %tr
-                    %td Eftpos
-                    %td $285.35
-
-        %td.no-padding
-            %table.total-info
-                %tr.product-header
-                    %td SubTotal
-                    %td Total Discount
-                    %td Shipping Cost
-                    %td Tax
-                    %td Total
-                - unless @sales_order_invoice.nil?
+                    %td{ width: '20%' } Amount
+                - @sales_order.sales_items.each do |item|
                     %tr
-                        %td=@sales_order_invoice.sub_total
-                        %td=@sales_order_invoice.discount 
-                        %td
-                        %td=@sales_order_invoice.tax
-                        %td=@sales_order_invoice.total
-
-    %tr.footer-box
-        %td{colspan: 2}
-            Payments can be made into 01-0295-0084706-00 using the reference MAR1351.
-    %tr.footer-box
-        %td{colspan: 2}
-            Printed: 23/07/2016 10
+                        %td 
+                            =item.sold_item.name    
+                        %td 
+                            =item.quantity
+                        %td 
+                            ="#{item.unit_price}"
+                        %td 
+                            ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+                - @sales_order.sales_custom_items.each do |item|
+                    %tr
+                        %td 
+                            =item.item_name    
+                        %td 
+                            =item.quantity
+                        %td 
+                            ="#{item.unit_price}"
+                        %td 
+                            ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+    %tr
+        %td{width: "50%"}
+        %td{width: "50%"}
+            %table.total-product-info{style: 'width: 100%;'}
+                %tr
+                    %td.text-right
+                        Sub Total
+                    %td.money.text-right=@sales_order.sub_total
+                %tr
+                    %td.text-right
+                        Discount
+                    %td.money.text-right=@sales_order.discount_amount            
+                %tr
+                    %td.text-right
+                        Tax
+                    %td.money.text-right=@sales_order.tax_amount            
+                %tr{style: 'background: #eee;'}
+                    %td.text-right
+                        Total
+                    %td.money.text-right=@sales_order.total_amount
 
 :css
-  table td.money:before{    
-    content: '#{Setting.value_by('format.currency')} ' !important;
-  }
+    table td.money:before{    
+        content: '#{Setting.value_by('format.currency')} ' !important;
+    }

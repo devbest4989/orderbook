@@ -8,6 +8,9 @@ class SalesOrder < ActiveRecord::Base
     has_many :sales_items, dependent: :destroy, class_name: 'SalesItem', inverse_of: :sales_order
     accepts_nested_attributes_for :sales_items, allow_destroy: true, reject_if: proc { |a| a['sold_item_id'].blank? }
 
+    has_many :sales_custom_items, dependent: :destroy, class_name: 'SalesCustomItem', inverse_of: :sales_order
+    accepts_nested_attributes_for :sales_custom_items, allow_destroy: true
+
     # All products which are part of this order (accessed through the items)
     has_many :products, through: :sales_items, class_name: 'Product', source: :sold_item
     has_many :sales_item_activities, class_name: 'SalesItemActivity'
@@ -74,6 +77,9 @@ class SalesOrder < ActiveRecord::Base
         sales_items.each do |item|
             sub_total += item.sub_total - item.discount_amount
         end
+        sales_custom_items.each do |item|
+            sub_total += item.sub_total - item.discount_amount
+        end
         sub_total
     end
 
@@ -110,11 +116,11 @@ class SalesOrder < ActiveRecord::Base
     end
 
     def discount_amount
-        sales_items.sum("discount_amount")
+        sales_items.sum("discount_amount") + sales_custom_items.sum("discount_amount")
     end
 
     def tax_amount
-        sales_items.sum("tax_amount")
+        sales_items.sum("tax_amount") + sales_custom_items.sum("tax_amount")
     end
 
     def invoice_total

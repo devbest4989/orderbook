@@ -1,0 +1,5 @@
+%tr.footer-box
+    %td{colspan: 2}=@invoice.sales_order.notes
+%tr.footer-box
+    %td{colspan: 2}
+        ="Printed: #{DateTime.now.strftime('%m/%d/%Y')}"

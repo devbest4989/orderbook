@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
   put '/edit_config_company' => 'plainpage#edit_config_company'
   put '/edit_config_format' => 'plainpage#edit_config_format'
+  put '/edit_config_email' => 'plainpage#edit_config_email'
 
   get '/preview_invoice/:token' => 'preview#invoice', as: 'preview_invoice'
 

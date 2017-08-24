@@ -78,11 +78,12 @@ class InvoicesController < ApplicationController
     params[:invoice_attributes].each do |elem|
       invoice_item = InvoiceItem.new
       invoice_item.invoice_id = invoice.id
-      invoice_item.sales_item_id = elem[1][:id].to_i
+      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
       invoice_item.quantity   = elem[1][:quantity].to_i
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
+      invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
       invoice_item.save
     end
 
@@ -98,16 +99,19 @@ class InvoicesController < ApplicationController
   # DELETE /invoices/1
   # DELETE /invoices/1.json
   def destroy
-    @invoice.invoice_items.delete_all
-    @invoice.payments.delete_all
+    @invoice.invoice_items.destroy_all
+    @invoice.payments.destroy_all
     @invoice.destroy
     add_action_history('invoice', 'delete', @invoice.token)
     @invoice.sales_order.confirm_status!
 
     respond_to do |format|
-      format.html { redirect_to list_by_type_invoices_path(type: 'all')}
-      result = {:Result => "OK" }
-      format.json {render :json => result}
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        format.html { redirect_to list_by_type_invoices_path(type: 'all')}
+      end
     end
   end
 
@@ -129,9 +133,24 @@ class InvoicesController < ApplicationController
       File.open(save_path, 'wb') do |file|
         file << render_to_string(
            :pdf => "invoice",         
+           :page_size => "A4",
            :template => 'invoices/generate_pdf.pdf.haml',
-           :layout => '/layouts/sales_order.pdf.haml',
-           :locals => { 'invoice' => @invoice }
+           :layout => '/layouts/invoice.pdf.haml',
+           :locals => { 'invoice' => @invoice },
+           :header =>{
+              :html =>{
+                :template => 'invoices/header.pdf.haml',
+                :locals => { 'invoice' => @invoice },
+              },
+              :spacing => 0
+           },
+           :footer =>{
+              :html =>{
+                :template => 'invoices/footer.pdf.haml',
+                :locals => { 'invoice' => @invoice },
+              },
+              :spacing => 0
+           }           
          )
       end
       @invoice.file_name = filename
@@ -143,7 +162,7 @@ class InvoicesController < ApplicationController
 
     # respond_to do |format|
     #   format.pdf do
-    #     render pdf: "invoice", layout: '/layouts/sales_order.pdf.haml'
+    #     render pdf: "invoice", layout: '/layouts/invoice.pdf.haml'
     #   end
     # end    
   end
@@ -180,7 +199,7 @@ class InvoicesController < ApplicationController
         @invoice.add_payment!
         result = {:Result => "OK" }
       else
-        result = {:Result => "Failed" }
+        result = {:Result => "Failed", :Message => payment.errors.full_messages }
       end
       format.json {render :json => result}
     end
