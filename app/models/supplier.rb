@@ -3,6 +3,7 @@ class Supplier < ActiveRecord::Base
   
   has_many :documents, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
+  has_many :purchase_orders, :dependent => :restrict_with_exception
 
   belongs_to :payment_term
 
@@ -14,6 +15,7 @@ class Supplier < ActiveRecord::Base
   scope :trading_name_like, ->(search) { where("LOWER(trading_name) LIKE ?", "%#{search.downcase}%") }
   scope :phone_like, ->(search) { where("phone LIKE ?", "%#{search}%") }
   scope :email_like, ->(search) { where("email LIKE ?", "%#{search}%") }
+  scope :ordered, -> { order(id: :desc) }
 
   enum status: [:active, :inactive]
 
@@ -83,7 +85,14 @@ class Supplier < ActiveRecord::Base
   end
 
   def payable
-    0
+    total_amount = purchase_orders.where.not(status: 'draft').sum(:total_amount)
+
+    total_paid_amount = 0
+    purchase_orders.where.not(status: 'draft').each do |elem|
+      total_paid_amount += elem.total_paid_amount
+    end    
+
+    total_amount - total_paid_amount
   end
 
   def billing_street_short

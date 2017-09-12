@@ -31,6 +31,19 @@ class ProductsController < ApplicationController
     end
   end
 
+  # POST /products/list_by_sku
+  def list_purchase_by_id
+    if params[:id]
+      @product = Product.select('sku, id, name, purchase_price_ex, purchase_tax_id').includes(:purchase_tax).find(params[:id])
+    end
+
+    respond_to do |format|
+      format.json {render :json => {product: @product, 
+                                    tax: @product.purchase_tax}
+                  }
+    end
+  end
+
   # POST /products/list_by_name
   def list_by_name
 

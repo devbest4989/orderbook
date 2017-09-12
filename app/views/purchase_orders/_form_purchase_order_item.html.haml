@@ -1,0 +1,68 @@
+.form-horizontal.form-label-left{:style => "overflow:auto;"}
+  .col-md-12{:style => "overflow:auto;"}
+    %h4 Product Information
+    / start project list
+    %div
+      %table#product_list.table.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+        %thead
+          %tr
+            %th{ width: '30%' } Product Name
+            %th Quantity
+            %th Unit Price
+            %th Discount (%)
+            %th Tax (%)
+            %th{ width: '20%' } Amount
+        %tbody
+        - @purchase_order.purchase_items.each do |item|
+          %tr
+            %td 
+              =item.purchased_item.name    
+            %td 
+              =item.quantity
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
+            %td 
+              =item.discount_rate
+            %td 
+              =item.tax_rate
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+        - @purchase_order.purchase_custom_items.each do |item|
+          %tr
+            %td 
+              =item.item_name    
+            %td 
+              =item.quantity
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
+            %td 
+              =item.discount_rate
+            %td 
+              =item.tax_rate
+            %td
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+      %table.table.projects
+        %tbody
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b SubTotal:
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@purchase_order.sub_total
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@purchase_order.discount_amount 
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Tax:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@purchase_order.tax_amount
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total:
+            %td#total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@purchase_order.total_amount
+:javascript
+  $(document).ready(function() {
+  });

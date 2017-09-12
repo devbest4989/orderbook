@@ -1,0 +1,115 @@
+= form_for(@purchase_order, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '', id: 'edit_order_detail_form' }) do |f|
+  .row
+    .col-md-12.text-right
+  .row
+    .col-md-6.col-sm-6.col-xs-10
+      %label.col-md-4.col-sm-4.col-xs-12.control-label Supplier Name*
+      .col-md-7.col-sm-7.col-xs-12.form-group.customer-box
+        = f.collection_select :supplier_id, Supplier.ordered, :id, :name, {:include_blank => false}, {:class => 'form-control', :required => "true"}
+      .col-md-1.col-sm-1.col-xs-12.form-group.no-padding
+        %a.btn.btn-xs.add-customer{href: new_supplier_path()}
+          %i.fa.fa-icon.fa-plus-circle
+    .col-md-6.col-sm-6.col-xs-12.text-right
+      %a.btn-save.btn.btn-info.btn-order-detail{:href => 'javascript:;'}
+        Save
+      %a.btn-confirm.btn.btn-primary.btn-order-detail{:href => 'javascript:;'}
+        Approve
+      = f.hidden_field :token
+      = f.hidden_field :id
+      = hidden_field_tag :save_action
+  .ln_solid_narrow
+  .row
+    .col-md-6.col-sm-6.col-xs-12
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Purchase Person*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:selected => current_user.id}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date*
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :issue_date, class: 'form-control has-feedback-left', :id => "estimate_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Warehouse*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :warehouse_id, Warehouse.all, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :condition_term_id, ConditionTerm.all.map{|x| [x.title, x.id]}, {}, {:class => 'form-control', :required => "true"}
+    .col-md-6.col-sm-6.col-xs-12
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :payment_term_id, PaymentTerm.all.map{|x| [x.name, x.id]}, {}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number"
+  .ln_solid
+  .form-horizontal.form-label-left{:style => "overflow:auto;"}
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Billing Address
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :bill_street, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :bill_suburb, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :bill_city, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :bill_postcode, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
+        .col-md-8.col-sm-8.col-xs-12          
+          = render partial: 'select_bill_state', locals:{ parent_region: f.object.bill_country }
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+        .col-md-8.col-sm-8.col-xs-12
+          = f.country_select :bill_country, priority: %w(NZ), prompt: 'Select a Country'          
+    .col-md-6.col-sm-6.col-xs-12
+      %h4 Shipping Address
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :ship_street, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :ship_suburb, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :ship_city, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.text_field :ship_postcode, {class: 'form-control'}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
+        .col-md-8.col-sm-8.col-xs-12          
+          = render partial: 'select_ship_state', locals:{ parent_region: f.object.ship_country }
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+        .col-md-8.col-sm-8.col-xs-12          
+          = f.country_select :ship_country, priority: %w(NZ), prompt: 'Select a Country'
+:javascript
+  $(document).ready(function() {
+    PurchaseOrdersEdit.initEditDetailForm();    
+  });

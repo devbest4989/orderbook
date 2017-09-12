@@ -42,6 +42,15 @@ en:
           drop_shipped: "Drop Shipped Sales Orders"
           invoice: "Ready to Invoice Sales Orders"
 
+  purchase_order:
+    container:
+      list:
+        header:
+          all: "All Purchase Orders"
+          draft: "Draft Purchase Orders"
+          approved: "Approved Purchase Orders"
+          received: "Received Purchase Orders"
+
   invoice:
     container:
       list:

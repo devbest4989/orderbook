@@ -10,7 +10,10 @@ class SuppliersController < ApplicationController
   def detail_info
     @supplier = Supplier.find(params[:id])
     respond_to do |format|
-      result = {:result => "OK", :phone => @supplier.phone, :fax => @supplier.fax, :email => @supplier.email, :billing => @supplier.billing_address, :shipping =>@supplier.shipping_address }
+      result = {:result => "OK", 
+                :info => @supplier, 
+                :billing => @supplier.billing_address, 
+                :shipping =>@supplier.shipping_address }
       format.json {render :json => result}
     end
   end

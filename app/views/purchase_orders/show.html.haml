@@ -1,0 +1,346 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_purchase_order', add_url: new_purchase_order_path, active_elem: "sub-nav-#{@purchase_order.id}", nav_name: 'Purchase Orders', sub_elems: @purchase_orders, type: 'show', cat_name: 'Purchase Order Detail', order_type: params[:type]
+  .right-content
+    .x_panel
+      .x_title
+        %h2           
+          ="Purchase Order #{@purchase_order.token}" 
+        %span.label{class: @purchase_order.status_class}
+          = "#{@purchase_order.status_text.capitalize}"
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              More..
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu"}
+              %li
+                =link_to edit_purchase_order_path(@purchase_order), class: 'order-header-link' do
+                  Edit
+              - if @purchase_order.draft?
+                %li
+                  = link_to update_status_purchase_order_path(@purchase_order, {save_action: 'confirm'}), method: :post, :class => "order-header-link" do
+                    Approve
+              %li.divider
+              - if @purchase_order.draft?
+                %li
+                  = link_to '#', method: :post, :class => "order-header-link", title: 'Email', target: '_blank' do
+                    Email
+                %li
+                  = link_to print_purchase_order_path(@purchase_order), method: :post, :class => "order-header-link", title: 'Print', target: '_blank' do
+                    Print
+              - else
+                %li
+                  =link_to '#', class: 'order-header-link receive-link', data: {toggle: 'modal', target: '#receive_modal'} do
+                    Receive
+                %li
+                  =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
+                    Create Invoice
+              - if @purchase_order.draft?
+                %li.divider
+                %li
+                  =link_to purchase_order_path(@purchase_order), method: :delete, data: { confirm: 'Are you sure?' }, class: 'order-header-link' do
+                    Delete
+          - unless @purchase_order.draft?
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-file-pdf-o
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_pdf_modal'} do
+                    Invoice to PDF
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-print
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#invoice_pdf_modal'} do
+                    Print Invoice
+            %li
+              %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                %i.fa.fa-envelope-o
+              %ul.dropdown-menu.more-action{:role => "menu"}
+                %li
+                  =link_to '#', class: 'order-header-link', data: {toggle: 'modal', target: '#'} do
+                    Mail Invoice
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        / Nav tabs
+        %ul.nav.nav-tabs.bar_tabs
+          %li.tab-detail.active
+            %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
+              %i.fa.fa-folder-open-o
+              Order Details                                    
+          %li.tab-item
+            %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
+              %i.fa.fa-cubes
+              Ordered Items
+          %li.tab-receive
+            %a{"data-toggle" => "tab", :href => "#tab_receive", "aria-expanded" => "false"} 
+              %i.fa.fa-cube
+              Receiving
+          %li.tab-invoice
+            %a{"data-toggle" => "tab", :href => "#tab_invoice", "aria-expanded" => "false"} 
+              %i.fa.fa-file-text-o
+              Invoice
+          %li.tab-history
+            %a{"data-toggle" => "tab", :href => "#tab_history", "aria-expanded" => "false"} 
+              %i.fa.fa-history
+              History
+        .tab-content
+          #tab_detail{:class => "tab-pane active"}
+            = render 'form_purchase_order_detail'
+          #tab_item{:class => "tab-pane"}
+            = render 'form_purchase_order_item'
+          #tab_receive{:class => "tab-pane"}
+            = render 'form_purchase_order_receive'
+          #tab_invoice{:class => "tab-pane"}
+            = render 'form_purchase_order_invoice'
+          / #tab_history{:class => "tab-pane"}
+          /   = render 'form_purchase_order_history'
+
+#receive_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Purchase Order Receive
+      .modal-body
+        .row.no-margin
+          .col-md-6.col-sm-6.col-xs-12
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Supplier Name
+              %span.col-md-8.col-sm-8.col-xs-12.field-value          
+                = @purchase_order.supplier.name
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Purchase Order #
+              %span.col-md-8.col-sm-8.col-xs-12.field-value          
+                = @purchase_order.token
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %input#receive_req_url{type: 'hidden', value: "#{receive_purchase_order_path(@purchase_order)}"}
+            %input#receive_remove_url{type: 'hidden', value: "#{remove_activity_purchase_order_path(@purchase_order)}"}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 30%"} Product Name
+                    %th{:style => "width: 15%"} Qty on Hand
+                    %th{:style => "width: 15%"} Qty on Ordered
+                    %th{:style => "width: 10%"} Qty on Receive
+                    %th{:style => "width: 10%"} Note
+                %tbody
+                - @purchase_order.purchase_items.each do |item|
+                  %tr
+                    %td 
+                      =item.purchased_item.sku    
+                    %td 
+                      =item.purchased_item.name
+                    %td 
+                      =item.purchased_item.stock
+                    %td 
+                      =item.quantity_to_receive
+                    %td.editable{"contentEditable" => "true"}
+                      =item.quantity_to_receive
+                    %td.editable{"contentEditable" => "true"} 
+                    %td{:style => "display: none;"} 
+                      =item.id
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        - if @purchase_order.approved?        
+          %button#btn_create_receive.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#invoice_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Purchase Order Invoice
+      .modal-body
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h1= @purchase_order.supplier.company_title
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %h4.invoice_number            
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h4= @purchase_order.supplier.billing_address
+          .col-md-6.col-sm-6.col-xs-12
+            %h4.invoice_date
+              Date: 
+              =DateTime.now.strftime('%m/%d/%Y') if @purchase_order_invoice.nil?
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h5="Phone: #{@purchase_order.supplier.phone}"
+            %h5="Fax: #{@purchase_order.supplier.fax}"
+          .col-md-6.col-sm-6.col-xs-12
+            %h5="Purchase Order: #{@purchase_order.token}"
+            %h5="Processed By: #{@purchase_order.booker.full_name}"
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h4 
+            %h5="#{@company_profiles['company.name']}"
+            %h5="#{@company_profiles['company.address']}"
+          .col-md-6.col-sm-6.col-xs-12
+            %h4 Deliver To
+            %h5="#{@purchase_order.supplier.company_title}"
+            %h5="#{@purchase_order.ship_street} #{@purchase_order.ship_suburb}"
+            %h5="#{@purchase_order.ship_city} #{@purchase_order.ship_postcode}"
+            %h5="#{@purchase_order.ship_state} #{Country.coded(@purchase_order.ship_country).name}"
+            %input#invoice_req_url{type: 'hidden', value: "#{invoice_purchase_order_path(@purchase_order)}"}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 25%"} Product Name
+                    %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                    %th{:style => "width: 10%"} Discount (%)
+                    %th{:style => "width: 10%"} Tax (%)
+                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                %tbody
+                - @purchase_order.purchase_items.each do |item|
+                  %tr
+                    %td
+                      =item.purchased_item.sku    
+                    %td 
+                      =item.purchased_item.name
+                    %td.editable{"contentEditable" => "true"}
+                      =item.quantity
+                    %td 
+                      =item.unit_price
+                    %td 
+                      =item.discount_rate
+                    %td 
+                      =item.tax_rate
+                    %td
+                      =item.quantity * item.unit_price - item.discount_amount
+                    %td{:style => "display: none;"} 
+                      =item.id
+                    %td{:style => "display: none;"} product
+                - @purchase_order.purchase_custom_items.each do |item|
+                  %tr
+                    %td                      
+                    %td 
+                      =item.item_name
+                    %td.editable{"contentEditable" => "true"}
+                      =item.quantity
+                    %td 
+                      =item.unit_price
+                    %td 
+                      =item.discount_rate
+                    %td 
+                      =item.tax_rate
+                    %td
+                      =item.quantity * item.unit_price - item.discount_amount
+                    %td{:style => "display: none;"} 
+                      =item.id
+                    %td{:style => "display: none;"} custom_product
+
+              %table.table.projects
+                %tbody
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b SubTotal:
+                    %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                      =@purchase_order.sub_total
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Total Discount:
+                    %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                      =@purchase_order.discount_amount 
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Tax:
+                    %td#tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                      =@purchase_order.tax_amount
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Total:
+                    %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                      =@purchase_order.total_amount
+                  / %tr
+                  /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                  /     %b Paid:
+                  /   %td.money{:style => 'border:none; background: white; width:12%;'}
+                  /     %input#paid_amount{type:'text', style: 'width: 80%;', value: 0}
+                  / %tr
+                  /   %td{:style => 'border:none; background: white; text-align: right;'} 
+                  /     %b Change:
+                  /   %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        - unless @purchase_order.draft?
+          %button#btn_create_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#invoice_pdf_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Purchase Order Invoice List
+      .modal-body
+        .row.no-margin
+          .col-md-12{:style => "overflow:auto;"}
+            %div
+              %table#invoice_activity_list.activity_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th Invoice Number
+                    %th Invoice Date
+                    %th= "Total (#{Setting.value_by('format.currency')})"
+                    %th= "Paid (#{Setting.value_by('format.currency')})"
+                    %th Status
+                    %th 
+
+                %tbody
+                  - @purchase_order.invoices.each do |item| 
+                    %tr
+                      %td
+                        = item.token
+                      %td
+                        = item.created_at.to_date
+                      %td
+                        = item.total
+                      %td
+                        = item.paid
+                      %td
+                        - if item.status == 'draft'
+                          %span.label.label-danger{style: 'font-size: 100%;'} Draft
+                        - else
+                          %span.label.label-success{style: 'font-size: 100%;'} Paid                                    
+                      %td
+                        - if item.file_name.blank? || item.is_updated_pdf
+                          =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                            %i.fa.fa-file-pdf-o                  
+                        - else
+                          =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', target: '_blank' do
+                            %i.fa.fa-file-pdf-o                  
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+
+:javascript
+  jQuery(document).ready(function() {
+    
+  });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

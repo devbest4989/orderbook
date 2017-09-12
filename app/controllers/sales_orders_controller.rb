@@ -46,8 +46,8 @@ class SalesOrdersController < ApplicationController
       else
         @sales_order.status = 'confirmed'
       end
-      @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
-      @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
+      @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%d-%m-%Y")
+      @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%d-%m-%Y")
 
       respond_to do |format|
         if @sales_order.save
@@ -91,8 +91,8 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       unless params[:save_action].blank?
         @sales_order.attributes = safe_params
-        @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%Y-%m-%d")
-        @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%Y-%m-%d")
+        @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%d-%m-%Y")
+        @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%d-%m-%Y")
       else
         @sales_order.sales_items.delete_all
         @sales_order.sales_custom_items.delete_all

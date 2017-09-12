@@ -9,6 +9,9 @@ class Product < ActiveRecord::Base
   has_many :sales_items, class_name: 'SalesItem', dependent: :restrict_with_exception, as: :sold_item
   has_many :sales_orders, through: :sales_items, class_name: 'SalesOrder'
 
+  has_many :purchase_items, class_name: 'PurchaseItem', dependent: :restrict_with_exception, as: :purchased_item
+  has_many :purchase_orders, through: :purchase_items, class_name: 'PurchaseOrder'
+
   has_many :prices
 
   belongs_to :selling_tax, class_name: 'Tax'
@@ -59,6 +62,7 @@ class Product < ActiveRecord::Base
   def stock!
     #stock_level_adjustments.sum(:adjustment)
     self.quantity = open_qty - sales_qty + purchase_qty
+    save!
   end
 
   def sales_qty
@@ -66,7 +70,7 @@ class Product < ActiveRecord::Base
   end
 
   def purchase_qty
-    0
+    PurchaseItemActivity.includes(:purchase_item).where(activity: 'receive').where("purchase_items.purchased_item_id = #{self.id}").sum(:quantity)
   end
 
   def status_label
@@ -82,7 +86,7 @@ class Product < ActiveRecord::Base
   end
 
   def stock_status_text    
-    if self.instock?
+    if self.stock.to_i > self.reorder_qty.to_i
       "In-Stock"
     else
       "Low-Stock"
@@ -90,12 +94,12 @@ class Product < ActiveRecord::Base
   end
 
   def update_stock_status
-    self.stock!
-    if self.stock.to_i > self.reorder_qty.to_i
-      self.stock_status = :instock
-    else
-      self.stock_status = :lowstock
-    end
+    # self.stock!
+    # if self.stock.to_i > self.reorder_qty.to_i
+    #   self.stock_status = :instock
+    # else
+    #   self.stock_status = :lowstock
+    # end
   end
 
 end

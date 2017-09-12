@@ -1,0 +1,30 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %h2 New Purchase Order
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %button.btn.btn-default.btn-cancel Cancel
+        %li
+          %button.btn.btn-info.btn-save.btn-order Draft
+        %li
+          %button.btn.btn-primary.btn-confirm.btn-order Approve
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+        %li
+          %a.close-link
+            %i.fa.fa-close
+      .clearfix
+    .x_content.form-group-no-margin
+      = render 'form_purchase_order'
+:javascript
+  jQuery(document).ready(function() {
+    PurchaseOrdersCommon.initSiderMenuList();
+    PurchaseOrdersNew.handlePurchaseOrderNewCommand();
+  });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

@@ -1,0 +1,92 @@
+.form-horizontal.form-label-left{:style => "overflow:auto;"}
+  .col-md-6.col-sm-6.col-xs-12
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Company Name
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.supplier_name
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference #
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ref_no
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.payment_term.name
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Warehouse
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.warehouse.name
+  .col-md-6.col-sm-6.col-xs-12
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Purchase Person
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.booker.full_name
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Issued Date
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.order_date
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimate Shipment Date
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.issue_date
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.condition_term.title unless @purchase_order.condition_term.nil?
+.ln_solid
+.form-horizontal.form-label-left{:style => "overflow:auto;"}
+  .col-md-6.col-sm-6.col-xs-12
+    %h4 Billing Address
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.bill_street
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.bill_suburb
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.bill_city
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.bill_state
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.bill_postcode
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = Carmen::Country.all.select{|c| @purchase_order.bill_country.include?(c.code)}[0].name
+  .col-md-6.col-sm-6.col-xs-12
+    %h4 Shipping Address
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ship_street
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ship_suburb
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ship_city
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ship_state
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @purchase_order.ship_postcode
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = Carmen::Country.all.select{|c| @purchase_order.ship_country.include?(c.code)}[0].name
+:javascript
+  $(document).ready(function() {
+  });

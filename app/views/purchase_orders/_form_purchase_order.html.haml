@@ -1,0 +1,222 @@
+= form_for(@purchase_order, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
+  .row
+    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+      - if @purchase_order.errors.any?
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×   
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@purchase_order.errors.count, "error")}."
+          %ul
+            - @purchase_order.errors.full_messages.each do |msg|
+              %li= msg
+  .row
+    .col-md-6.col-sm-6.col-xs-10
+      .form-group{style: 'margin-top: 10px;'}
+        %label.col-md-4.col-sm-4.col-xs-12.control-label Supplier Name*
+        .col-md-7.col-sm-7.col-xs-12.form-group.customer-box
+          = collection_select :supplier_id, '', Supplier.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+        .col-md-1.col-sm-1.col-xs-12.form-group.no-padding
+          %a.btn.btn-xs.add-customer{href: new_supplier_path()}
+            %i.fa.fa-icon.fa-plus-circle
+    .col-md-6.col-sm-6.col-xs-12.text-right
+      %h3{style: 'padding-right: 15px;'}
+        = @purchase_order.token
+      = f.hidden_field :token
+      = f.hidden_field :id
+      = hidden_field_tag :save_action
+      = hidden_field_tag :email_action
+  .ln_solid_narrow
+  .row
+    .col-md-6.col-sm-6.col-xs-12
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Purchase Person*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:selected => current_user.id}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date*
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date
+        .col-md-8.col-sm-8.col-xs-12
+          %fieldset.xdisplay_inputx.has-feedback
+            = f.text_field :issue_date, class: 'form-control has-feedback-left', :id => "estimate_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
+            %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
+            %span#inputSuccess2Status4.sr-only (success)        
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Warehouse*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.collection_select :warehouse_id, Warehouse.all, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+    .col-md-6.col-sm-6.col-xs-12
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :payment_term_id, PaymentTerm.all.map{|x| [x.name, x.id]}, {}, {:class => 'form-control', :required => "true"}
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number"
+      .row
+        .col-md-6.col-sm-6.col-xs-12.text-center
+          %a.btn{href: '#', data: {toggle: 'modal', target: '.bs-billing-modal'}}
+            %label Billing Address
+          %address#billing_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+          = f.hidden_field :bill_street
+          = f.hidden_field :bill_suburb
+          = f.hidden_field :bill_city
+          = f.hidden_field :bill_state
+          = f.hidden_field :bill_postcode
+          = f.hidden_field :bill_country
+          .modal.fade.bs-billing-modal{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+            .modal-dialog.modal-md
+              .modal-content
+                .modal-header
+                  %button.close{"data-dismiss" => "modal", :type => "button"}
+                    %span{"aria-hidden" => "true"} ×
+                  %h4.modal-title Billing Address
+                .modal-body
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_street, '', class: 'form-control', :placeholder => "Street"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_city, '', class: 'form-control', :placeholder => "City"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_state, '', class: 'form-control', :placeholder => "State"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :bill_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+                    .col-md-8.col-sm-8.col-xs-12
+                      = country_select :bill_country, '',  priority: %w(NZ), prompt: 'Select a Country', class: 'form-control'
+                .modal-footer
+                  %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+                  %button#btn_bill_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
+
+        .col-md-6.col-sm-6.col-xs-12.text-center
+          %a.btn{href: '#', data: {toggle: 'modal', target: '.bs-shipping-modal'}}
+            %label Shipping Address
+          %address#shipping_info{:style => "padding-top: 8px; margin-bottom: 0;"}
+          = f.hidden_field :ship_street
+          = f.hidden_field :ship_suburb
+          = f.hidden_field :ship_city
+          = f.hidden_field :ship_state
+          = f.hidden_field :ship_postcode
+          = f.hidden_field :ship_country
+          .modal.fade.bs-shipping-modal{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+            .modal-dialog.modal-md
+              .modal-content
+                .modal-header
+                  %button.close{"data-dismiss" => "modal", :type => "button"}
+                    %span{"aria-hidden" => "true"} ×
+                  %h4.modal-title Shipping Address
+                .modal-body
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_street, '', class: 'form-control', :placeholder => "Street"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 City
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_city, '', class: 'form-control', :placeholder => "City"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 State
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_state, '', class: 'form-control', :placeholder => "State"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
+                    .col-md-8.col-sm-8.col-xs-12
+                      = text_field_tag :ship_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                  .form-group
+                    %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
+                    .col-md-8.col-sm-8.col-xs-12
+                      = country_select :ship_country, '', priority: %w(NZ), class: 'form-control', prompt: 'Select a Country'
+                .modal-footer
+                  %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+                  %button#btn_ship_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
+  .ln_solid_narrow
+  .row
+    .col-md-12
+      %h4 Product Information
+      %table#product_item_list.table.table-hover.projects.margin-bottom-5
+        %thead
+          %tr
+            %th Product Details
+            %th Quantity
+            %th 
+            %th Unit Price
+            %th Discount(%)
+            %th Tax(%)
+            %th Amount
+            %th
+            %th
+        %tbody
+
+  .row.form-group 
+    .col-md-6.text-center
+    .col-md-6.text-center
+      %a.btn.add-custom-product
+        + Add Custom Product
+
+  .ln_solid_narrow
+  .row
+    .col-md-6          
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Supplier Note
+        .col-md-8.col-sm-8.col-xs-12
+          = f.text_area :notes, cols: 40, rows: 5, class: 'form-control order-note'      
+    .col-md-6          
+      %table.table.projects
+        %tbody
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b SubTotal:
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Shipping Cost:
+            %td#shipping_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Tax:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:40%;'}
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total:
+            %td#total_cell.money{:style => 'border:none; background: white; width:40%;'}
+
+  .ln_solid_narrow
+  .row
+    .col-md-6
+      .form-group
+        %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition*
+        .col-md-8.col-sm-8.col-xs-12
+          = f.select :condition_term_id, ConditionTerm.all.map{|x| [x.title, x.id]}, {}, {:class => 'form-control', :required => "true"}
+
+
+:javascript
+  jQuery(document).ready(function() {
+    PurchaseOrdersNew.initPurchaseOrderNewForm();
+    PurchaseOrdersProductTable.initProductTable();
+  });

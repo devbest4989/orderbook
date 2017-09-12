@@ -3,6 +3,7 @@ class Invoice < ActiveRecord::Base
     has_many :payments, class_name: 'Payment'
 
     belongs_to :sales_order, class_name: 'SalesOrder'
+    belongs_to :purchase_order, class_name: 'PurchaseOrder'
     
     enum status: [:draft, :confirmed, :sent, :partial, :paid]
 

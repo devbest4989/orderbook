@@ -1,0 +1,50 @@
+.x_panel
+  .x_title
+    %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+      %h2
+        = nav_name
+        %span.fa.fa-chevron-down.list-type-down
+    %ul.dropdown-menu
+      %li
+        = link_to list_by_type_purchase_orders_path(:type => 'all') do
+          All Purchase Orders
+      %li
+        = link_to list_by_type_purchase_orders_path(:type => 'draft'), class: "no-border" do
+          Draft
+      %li
+        = link_to list_by_type_purchase_orders_path(:type => 'approved'), class: "no-border" do
+          Approved
+      %li
+        = link_to list_by_type_purchase_orders_path(:type => 'received'), class: "no-border" do
+          Received
+    %ul.nav.navbar-right.panel_toolbox
+      %li
+        %a.add-link{ :href => add_url }
+          %i.fa.fa-cart-plus
+    .clearfix
+  #order_side_menu.x_content{:style => "max-height:800px;"}
+    .sub_menu_side
+      %ul.nav.side-menu
+        - sub_elems.each do |elem|
+          %li{ :class => "sub-nav-#{elem.id} element" }
+            %a{:href => (type == 'show') ? purchase_order_path(elem, type: order_type) : edit_purchase_order_path(elem) }
+              %table.sales-order-side-elem
+                %tr
+                  %td.customer-name
+                    = "#{elem.supplier_full_name}".html_safe
+                  %td.text-right
+                    = "$ #{elem.total_amount}"
+                %tr
+                  %td.sales-order-property
+                    = "#{elem.token} | #{elem.order_date}"
+                    %br
+                    = "Ref: #{elem.ref_no}"
+                  %td.text-right
+                    %span.label{class: "#{elem.status_class}"}
+                      = elem.status_text.capitalize
+      %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
+:javascript
+  jQuery(document).ready(function() {
+    PurchaseOrdersCommon.initSiderMenuList();
+    PurchaseOrderDetail.initPurchaseOrderNavList();
+  });

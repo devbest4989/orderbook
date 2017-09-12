@@ -1,0 +1,42 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+        %h2
+          =t("purchase_order.container.list.header.#{params[:type]}")
+          %span.fa.fa-chevron-down.list-type-down
+      %ul.dropdown-menu
+        %li
+          = link_to list_by_type_purchase_orders_path(:type => 'all') do
+            All Purchase Orders
+        %li
+          = link_to list_by_type_purchase_orders_path(:type => 'draft'), class: "no-border" do
+            Draft
+        %li
+          = link_to list_by_type_purchase_orders_path(:type => 'approved'), class: "no-border" do
+            Approved
+        %li
+          = link_to list_by_type_purchase_orders_path(:type => 'received'), class: "no-border" do
+            Received
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.add-link{ :href => new_purchase_order_path }
+            %i.fa.fa-cart-plus
+            %span New Order
+        / %li
+        /   = select_tag :bulk_action, options_for_select([['Create Pack-List Slip', 1], ['Create Delivery Slip', 2], ['Create Invoice', 3]]), {:include_blank => 'Select Creation', class: 'form-control'}
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+      .clearfix
+    .x_content
+      = render 'purchase_order_list'
+:javascript
+  jQuery(document).ready(function() {
+    PurchaseOrdersCommon.initSiderMenuList();
+  });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

@@ -53,6 +53,10 @@ Rails.application.routes.draw do
   get '/customers/ship_state' => 'customers#ship_state'
   post '/customer/detail_info/:id' => 'customers#detail_info', :defaults => { :format => 'json' }  
 
+  get '/suppliers/bill_state' => 'suppliers#bill_state'
+  get '/suppliers/ship_state' => 'suppliers#ship_state'
+  post '/supplier/detail_info/:id' => 'suppliers#detail_info', :defaults => { :format => 'json' }  
+
   resources :customers do
     member do
       put :update_document
@@ -94,6 +98,25 @@ Rails.application.routes.draw do
 
     collection do
       get  ':type/list_orders', to: 'sales_orders#list_by_type', as: 'list_by_type'
+    end
+  end
+
+  resources :purchase_orders do
+    member do
+      post :update_status
+      post :book
+      post :cancel
+      post :return
+      post :receive
+      post :invoice
+      post :get_invoice
+      post :remove_activity
+      post :print, :defaults => { :format => 'pdf' }
+      post :pack_pdf, :defaults => { :format => 'pdf' }
+    end
+
+    collection do
+      get  ':type/list_orders', to: 'purchase_orders#list_by_type', as: 'list_by_type'
     end
   end
 
@@ -181,6 +204,7 @@ Rails.application.routes.draw do
       post :list_by_sku
       post :list_by_name
       post :list_by_id
+      post :list_purchase_by_id
       post :bulk_action
       get  ':type/list_products', to: 'products#list_by_type', as: 'list_by_type'
       get  :upload
