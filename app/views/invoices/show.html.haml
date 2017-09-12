@@ -65,126 +65,198 @@
             %a#btn_update_invoice.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => invoice_path(@invoice)}
               Save
         / Nav tabs
-        .row.no-margin  
-          .col-md-6.col-sm-6.col-xs-12
-            %h1= @sales_order.customer.company_title
-          .col-md-6.col-sm-6.col-xs-12.text-right
-            %h4.invoice_number=@invoice.token
-        .row.no-margin  
-          .col-md-6.col-sm-6.col-xs-12
-            %h4= @sales_order.customer.billing_address
-          .col-md-6.col-sm-6.col-xs-12
-            %h4.invoice_date
-              Date: 
-              =@invoice.created_at.to_date
-        .row.no-margin  
-          .col-md-6.col-sm-6.col-xs-12
-            %h5="Phone: #{@sales_order.customer.phone}"
-            %h5="Fax: #{@sales_order.customer.fax}"
-          .col-md-6.col-sm-6.col-xs-12
-            %h5="Sales Order: #{@sales_order.token}"
-            %h5="Processed By: #{@sales_order.booker.full_name}"
-        .row.no-margin  
-          .col-md-6.col-sm-6.col-xs-12
-            %h4 
-            %h5="#{@company_profiles['company.name']}"
-            %h5="#{@company_profiles['company.address']}"
-          .col-md-6.col-sm-6.col-xs-12
-            %h4 Deliver To
-            %h5="#{@sales_order.customer.company_title}"
-            %h5="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
-            %h5="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
-            %h5="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+        -unless @sales_order.nil?
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h1= @sales_order.customer.company_title
+            .col-md-6.col-sm-6.col-xs-12.text-right
+              %h4.invoice_number=@invoice.token
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h4= @sales_order.customer.billing_address
+            .col-md-6.col-sm-6.col-xs-12
+              %h4.invoice_date
+                Date: 
+                =@invoice.created_at.to_date
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h5="Phone: #{@sales_order.customer.phone}"
+              %h5="Fax: #{@sales_order.customer.fax}"
+            .col-md-6.col-sm-6.col-xs-12
+              %h5="Sales Order: #{@sales_order.token}"
+              %h5="Processed By: #{@sales_order.booker.full_name}"
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h4 
+              %h5="#{@company_profiles['company.name']}"
+              %h5="#{@company_profiles['company.address']}"
+            .col-md-6.col-sm-6.col-xs-12
+              %h4 Deliver To
+              %h5="#{@sales_order.customer.company_title}"
+              %h5="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
+              %h5="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
+              %h5="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+        -else
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h1= @purchase_order.supplier.company_title
+            .col-md-6.col-sm-6.col-xs-12.text-right
+              %h4.invoice_number=@invoice.token
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h4= @purchase_order.supplier.billing_address
+            .col-md-6.col-sm-6.col-xs-12
+              %h4.invoice_date
+                Date: 
+                =@invoice.created_at.to_date
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h5="Phone: #{@purchase_order.supplier.phone}"
+              %h5="Fax: #{@purchase_order.supplier.fax}"
+            .col-md-6.col-sm-6.col-xs-12
+              %h5="Sales Order: #{@purchase_order.token}"
+              %h5="Processed By: #{@purchase_order.booker.full_name}"
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h4 
+              %h5="#{@company_profiles['company.name']}"
+              %h5="#{@company_profiles['company.address']}"
+            .col-md-6.col-sm-6.col-xs-12
+              %h4 Deliver To
+              %h5="#{@purchase_order.supplier.company_title}"
+              %h5="#{@purchase_order.ship_street} #{@purchase_order.ship_suburb}"
+              %h5="#{@purchase_order.ship_city} #{@purchase_order.ship_postcode}"
+              %h5="#{@purchase_order.ship_state} #{Country.coded(@purchase_order.ship_country).name}"
+          .row.no-margin  
+            .col-md-12{:style => "overflow:auto;"}
+              / start project list
+              %div
+                %table#product_list.table.table-bordered.projects.margin-bottom-5
+                  %thead
+                    %tr
+                      %th{:style => "width: 15%"} SKU
+                      %th{:style => "width: 25%"} Product Name
+                      %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                      %th{:style => "width: 10%"} Discount (%)
+                      %th{:style => "width: 10%"} Tax (%)
+                      %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                  %tbody
+                  - if @invoice.is_sales_invoice?
+                    - @invoice.invoice_items.each do |elem|
+                      %tr
+                        - if elem.sales_item.nil?
+                          %td                          
+                          %td 
+                            =elem.sales_custom_item.item_name
+                          %td.editable{"contentEditable" => "true"}
+                            =elem.quantity
+                          %td 
+                            =elem.sales_custom_item.unit_price
+                          %td 
+                            =elem.sales_custom_item.discount_rate
+                          %td 
+                            =elem.sales_custom_item.tax_rate
+                          %td
+                            =elem.sub_total
+                          %td{:style => "display: none;"} 
+                            =elem.sales_custom_item_id
+                          %td{:style => "display: none;"} custom_product
+                        - else
+                          %td
+                            =elem.sales_item.sold_item.sku    
+                          %td 
+                            =elem.sales_item.sold_item.name                      
+                          %td.editable{"contentEditable" => "true"}
+                            =elem.quantity
+                          %td 
+                            =elem.sales_item.unit_price
+                          %td 
+                            =elem.sales_item.discount_rate
+                          %td 
+                            =elem.sales_item.tax_rate
+                          %td
+                            =elem.sub_total
+                          %td{:style => "display: none;"} 
+                            =elem.sales_item_id
+                          %td{:style => "display: none;"} product
+                  - else
+                    - @invoice.invoice_items.each do |elem|
+                      %tr
+                        - if elem.purchase_item.nil?
+                          %td                          
+                          %td 
+                            =elem.purchase_custom_item.item_name
+                          %td.editable{"contentEditable" => "true"}
+                            =elem.quantity
+                          %td 
+                            =elem.purchase_custom_item.unit_price
+                          %td 
+                            =elem.purchase_custom_item.discount_rate
+                          %td 
+                            =elem.purchase_custom_item.tax_rate
+                          %td
+                            =elem.sub_total
+                          %td{:style => "display: none;"} 
+                            =elem.purchase_custom_item_id
+                          %td{:style => "display: none;"} custom_product
+                        - else
+                          %td
+                            =elem.purchase_item.purchased_item.sku    
+                          %td 
+                            =elem.purchase_item.purchased_item.name                      
+                          %td.editable{"contentEditable" => "true"}
+                            =elem.quantity
+                          %td 
+                            =elem.purchase_item.unit_price
+                          %td 
+                            =elem.purchase_item.discount_rate
+                          %td 
+                            =elem.purchase_item.tax_rate
+                          %td
+                            =elem.sub_total
+                          %td{:style => "display: none;"} 
+                            =elem.purchase_item_id
+                          %td{:style => "display: none;"} product
 
-          .col-md-12{:style => "overflow:auto;"}
-            / start project list
-            %div
-              %table#product_list.table.table-bordered.projects.margin-bottom-5
-                %thead
-                  %tr
-                    %th{:style => "width: 15%"} SKU
-                    %th{:style => "width: 25%"} Product Name
-                    %th{:style => "width: 10%"} Quantity
-                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
-                    %th{:style => "width: 10%"} Discount (%)
-                    %th{:style => "width: 10%"} Tax (%)
-                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
-                %tbody
-                - @invoice.invoice_items.each do |elem|
-                  %tr
-                    - if elem.sales_item.nil?
-                      %td                          
-                      %td 
-                        =elem.sales_custom_item.item_name
-                      %td.editable{"contentEditable" => "true"}
-                        =elem.quantity
-                      %td 
-                        =elem.sales_custom_item.unit_price
-                      %td 
-                        =elem.sales_custom_item.discount_rate
-                      %td 
-                        =elem.sales_custom_item.tax_rate
-                      %td
-                        =elem.sub_total
-                      %td{:style => "display: none;"} 
-                        =elem.sales_custom_item_id
-                      %td{:style => "display: none;"} custom_product
-                    - else
-                      %td
-                        =elem.sales_item.sold_item.sku    
-                      %td 
-                        =elem.sales_item.sold_item.name                      
-                      %td.editable{"contentEditable" => "true"}
-                        =elem.quantity
-                      %td 
-                        =elem.sales_item.unit_price
-                      %td 
-                        =elem.sales_item.discount_rate
-                      %td 
-                        =elem.sales_item.tax_rate
-                      %td
-                        =elem.sub_total
-                      %td{:style => "display: none;"} 
-                        =elem.sales_item_id
-                      %td{:style => "display: none;"} product
-              %table.table.projects
-                %tbody
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b SubTotal:
-                    %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.sub_total
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Total Discount:
-                    %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.discount 
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Shipping Cost:
-                    %td#shipping_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.shipping
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Tax:
-                    %td#tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.tax
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Total:
-                    %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.total
-                  - @invoice.payments.each do |payment|
+                %table.table.projects
+                  %tbody
                     %tr
                       %td{:style => 'border:none; background: white; text-align: right;'} 
-                        ="Payment on #{payment.payment_date}:"
-                      %td.payment-record.money{:style => 'border:none; background: white; width:12%;'}
-                        =payment.amount
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Amount Due:
-                    %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.total - @invoice.total_paid
+                        %b SubTotal:
+                      %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.sub_total
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Total Discount:
+                      %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.discount 
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Shipping Cost:
+                      %td#shipping_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.shipping
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Tax:
+                      %td#tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.tax
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Total:
+                      %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.total
+                    - @invoice.payments.each do |payment|
+                      %tr
+                        %td{:style => 'border:none; background: white; text-align: right;'} 
+                          ="Payment on #{payment.payment_date}:"
+                        %td.payment-record.money{:style => 'border:none; background: white; width:12%;'}
+                          =payment.amount
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Amount Due:
+                      %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.total - @invoice.total_paid
         .ln_solid
         .row.no-margin
           .col-md-12{:style => "overflow:auto;"}

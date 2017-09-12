@@ -203,6 +203,42 @@ class PurchaseOrdersController < ApplicationController
     end
   end
 
+  def invoice
+    invoice_number = GlobalMap.invoice_number
+
+    invoice = Invoice.new
+    invoice.token = invoice_number
+    invoice.purchase_order_id = params[:id]
+    invoice.sub_total = params[:sub_total]
+    invoice.discount = params[:discount_total]
+    invoice.tax = params[:tax_total]
+    invoice.total = params[:total]
+    invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
+    invoice.status = (invoice.paid == 0) ? 0 : 1
+    invoice.preview_token = SecureRandom.hex(15)
+    invoice.save
+
+    params[:invoice_attributes].each do |elem|
+      invoice_item = InvoiceItem.new
+      invoice_item.invoice_id = invoice.id
+      invoice_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+      invoice_item.quantity   = elem[1][:quantity].to_i
+      invoice_item.discount   = elem[1][:discount]
+      invoice_item.tax        = elem[1][:tax]
+      invoice_item.sub_total  = elem[1][:sub_total]
+      invoice_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      invoice_item.save
+    end
+
+    add_action_history('invoice', 'create', invoice_number)
+    @purchase_order.invoice!(current_user)
+
+    respond_to do |format|
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def add_action_history(action_name, action_type, action_number)

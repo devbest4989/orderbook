@@ -14,6 +14,10 @@ class Invoice < ActiveRecord::Base
     scope :partial, -> { where(:status => "partial") }
     scope :paid, -> { where(:status => "paid") }
 
+    def is_sales_invoice?
+        (sales_order_id.to_i != 0)
+    end
+
     def file_name_path
         '/invoices/' + file_name
     end
@@ -76,7 +80,11 @@ class Invoice < ActiveRecord::Base
             self.status = 'partial'
         end
         save!
-        self.sales_order.invoice!
+        if self.is_sales_invoice?
+            self.sales_order.invoice!
+        else
+            self.purchase_order.invoice!
+        end
     end
 
     def remove_payment!
@@ -88,7 +96,11 @@ class Invoice < ActiveRecord::Base
             self.status = 'partial'
         end
         save!
-        self.sales_order.invoice!
+        if self.is_sales_invoice?
+            self.sales_order.invoice!
+        else
+            self.purchase_order.invoice!
+        end
     end
 
 end

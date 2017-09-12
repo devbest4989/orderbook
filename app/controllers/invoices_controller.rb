@@ -36,22 +36,22 @@ class InvoicesController < ApplicationController
     order_key = get_order_key
     case params[:type]
     when 'all'
-      @invoices = Invoice.all
+      @invoices = Invoice.where.not(sales_order_id: 0)
                   .paginate(page: params[:page])
     when 'draft'
-      @invoices = Invoice.where(status: 0)
+      @invoices = Invoice.where.not(sales_order_id: 0).where(status: 0)
                   .paginate(page: params[:page])
     when 'confirmed'
-      @invoices = Invoice.where(status: 1)
+      @invoices = Invoice.where.not(sales_order_id: 0).where(status: 1)
                   .paginate(page: params[:page])
     when 'sent'
-      @invoices = Invoice.where(status: 2)
+      @invoices = Invoice.where.not(sales_order_id: 0).where(status: 2)
                   .paginate(page: params[:page])
     when 'partial'
-      @invoices = Invoice.where(status: 3)
+      @invoices = Invoice.where.not(sales_order_id: 0).where(status: 3)
                   .paginate(page: params[:page])
     when 'paid'
-      @invoices = Invoice.where(status: 4)
+      @invoices = Invoice.where.not(sales_order_id: 0).where(status: 4)
                   .paginate(page: params[:page])
     end
 
@@ -78,17 +78,27 @@ class InvoicesController < ApplicationController
     params[:invoice_attributes].each do |elem|
       invoice_item = InvoiceItem.new
       invoice_item.invoice_id = invoice.id
-      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
       invoice_item.quantity   = elem[1][:quantity].to_i
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
-      invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      if invoice.is_sales_invoice?
+        invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+        invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      else
+        invoice_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+        invoice_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      end
       invoice_item.save
     end
 
     add_action_history('invoice', 'update', invoice.token)
-    @invoice.sales_order.invoice!(current_user)
+
+    if invoice.is_sales_invoice?
+      invoice.sales_order.invoice!(current_user)
+    else
+      invoice.purchase_order.invoice!(current_user)
+    end
 
     respond_to do |format|
       result = {:Result => "OK" }
@@ -99,11 +109,16 @@ class InvoicesController < ApplicationController
   # DELETE /invoices/1
   # DELETE /invoices/1.json
   def destroy
+    if @invoice.is_sales_invoice?
+      @invoice.sales_order.confirm_status!
+    else
+      @invoice.purchase_order.confirm_status!
+    end    
+
     @invoice.invoice_items.destroy_all
     @invoice.payments.destroy_all
     @invoice.destroy
     add_action_history('invoice', 'delete', @invoice.token)
-    @invoice.sales_order.confirm_status!
 
     respond_to do |format|
       if request.xhr?
@@ -220,10 +235,17 @@ class InvoicesController < ApplicationController
     end
 
     def add_action_history(action_name, action_type, action_number)
-      @invoice.sales_order.action_histories.create!(action_name: action_name, 
-                                            action_type: action_type, 
-                                            action_number: action_number, 
-                                            user: current_user)
+      unless @invoice.sales_order.nil?
+        @invoice.sales_order.action_histories.create!(action_name: action_name, 
+                                              action_type: action_type, 
+                                              action_number: action_number, 
+                                              user: current_user)
+      else
+        @invoice.purchase_order.action_histories.create!(action_name: action_name, 
+                                              action_type: action_type, 
+                                              action_number: action_number, 
+                                              user: current_user)
+      end
     end
 
     def get_order_key
@@ -263,6 +285,10 @@ class InvoicesController < ApplicationController
     end
 
     def set_sales_order
-      @sales_order = SalesOrder.find(@invoice.sales_order_id)
+      if @invoice.is_sales_invoice?
+        @sales_order = SalesOrder.find(@invoice.sales_order_id)
+      else
+        @purchase_order = PurchaseOrder.find(@invoice.purchase_order_id)
+      end
     end
 end

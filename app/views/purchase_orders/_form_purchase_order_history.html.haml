@@ -1,0 +1,36 @@
+.form-horizontal.form-label-left{:style => "overflow:auto;"}
+  .row.no-margin
+    .col-md-12{:style => "overflow:auto;"}
+      %h4 Activity History
+      / start project list
+      %div{:style => "min-width:900px;"}
+        %table.activity_list.table.table-bordered.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+          %thead
+            %tr
+              %th{:style => "width: 15%"} Action Date
+              %th{:style => "width: 20%"} Action Name
+              %th{:style => "width: 15%"} Action Type
+              %th{:style => "width: 20%"} Action Number
+              %th{:style => "width: 30%"} Actor
+          %tbody
+          - @purchase_order.action_histories.each do |item|          
+            %tr
+              %td 
+                =item.created_at.to_date
+              %td 
+                =item.action_name.capitalize
+              %td
+                - case item.action_type
+                - when 'create'
+                  %span.label.label-primary
+                    =item.action_type.capitalize
+                - when 'update'
+                  %span.label.label-success
+                    =item.action_type.capitalize
+                - when 'delete'                
+                  %span.label.label-danger
+                    =item.action_type.capitalize
+              %td 
+                =item.action_number
+              %td 
+                =item.user.full_name

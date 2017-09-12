@@ -181,6 +181,7 @@ var PurchaseOrderDetail = function () {
           shipping_total: '0',
           total: $('#invoice_modal #total_cell').text()
       };
+
       do_activity(reqUrl, data, 'invoice');
     });    
 

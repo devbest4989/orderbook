@@ -66,6 +66,8 @@ class PurchaseOrder < ActiveRecord::Base
     result = self.status
     if (total_paid_amount >= total_amount && self.received?)
       result = 'fullfilled'
+    elsif (total_paid_amount <= total_amount)
+      result = receive_status
     end
     return result
   end

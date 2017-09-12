@@ -102,8 +102,8 @@
             = render 'form_purchase_order_receive'
           #tab_invoice{:class => "tab-pane"}
             = render 'form_purchase_order_invoice'
-          / #tab_history{:class => "tab-pane"}
-          /   = render 'form_purchase_order_history'
+          #tab_history{:class => "tab-pane"}
+            = render 'form_purchase_order_history'
 
 #receive_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
   .modal-dialog.modal-lg
