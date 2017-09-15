@@ -77,10 +77,10 @@
             %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
               %i.fa.fa-folder-open-o
               Order Details                                    
-          %li.tab-item
-            %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
-              %i.fa.fa-cubes
-              Ordered Items
+          / %li.tab-item
+          /   %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
+          /     %i.fa.fa-cubes
+          /     Ordered Items
           %li.tab-receive
             %a{"data-toggle" => "tab", :href => "#tab_receive", "aria-expanded" => "false"} 
               %i.fa.fa-cube
@@ -96,8 +96,8 @@
         .tab-content
           #tab_detail{:class => "tab-pane active"}
             = render 'form_purchase_order_detail'
-          #tab_item{:class => "tab-pane"}
-            = render 'form_purchase_order_item'
+          / #tab_item{:class => "tab-pane"}
+          /   = render 'form_purchase_order_item'
           #tab_receive{:class => "tab-pane"}
             = render 'form_purchase_order_receive'
           #tab_bill{:class => "tab-pane"}
@@ -198,7 +198,6 @@
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
                     %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
-                    %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
                     %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                 %tbody
@@ -212,8 +211,6 @@
                       =item.quantity
                     %td 
                       =item.unit_price
-                    %td 
-                      =item.discount_rate
                     %td 
                       =item.tax_rate
                     %td
@@ -231,8 +228,6 @@
                     %td 
                       =item.unit_price
                     %td 
-                      =item.discount_rate
-                    %td 
                       =item.tax_rate
                     %td
                       =item.quantity * item.unit_price - item.discount_amount
@@ -247,11 +242,6 @@
                       %b SubTotal:
                     %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
                       =@purchase_order.sub_total
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Total Discount:
-                    %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@purchase_order.discount_amount 
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Tax:

@@ -21,8 +21,6 @@ var PurchaseOrdersProductTable = function () {
           if($(this).hasClass('item-qty')){
             $(row_class + '.item-price').focus().select();
           } else if($(this).hasClass('item-price')){
-            $(row_class + '.item-discount').focus().select();
-          } else if($(this).hasClass('item-discount')){
             $(row_class + '.item-tax').focus().select();
           } else if($(this).hasClass('item-tax')){
           } else if($(this).hasClass('custom-item-name')){
@@ -44,10 +42,10 @@ var PurchaseOrdersProductTable = function () {
     var row_name = '.row-' + $(item).data('row');
     var qty = $('.item-qty'+row_name).val();
     var price = $('.item-price'+row_name).val();
-    var discount = $('.item-discount'+row_name).val();
+    var discount = 0;
     var tax = $('.item-tax'+row_name).val();
 
-    var amount = qty * price * (100 - discount)/100.0;
+    var amount = qty * price;
 
     var line_name = '#product_row_' + $(item).data('row');
     $(line_name + ' .line-total').text(amount.toFixed(2));
@@ -63,23 +61,20 @@ var PurchaseOrdersProductTable = function () {
       var row_name = '.row-' + row_number;
       var qty = $('.item-qty'+row_name).val();
       var price = $('.item-price'+row_name).val();
-      var discount = $('.item-discount'+row_name).val();
+      var discount = 0;
       var tax = $('.item-tax'+row_name).val();
       var discount_value  = 0.0;
 
       sub_total += qty * price;
       
-      discount_value = discount * qty * price * 0.01;
-      discount_total += discount_value;
-
-      sub_total -= discount_value;
+      discount_value = 0;
+      discount_total = 0;
 
       tax_total += tax * qty * price * 0.01;
     });
 
     total += sub_total + tax_total;
     $("td#sub_total_cell").text(sub_total.toFixed(2));
-    $("td#discount_total_cell").text(discount_total.toFixed(2));
     $("td#tax_total_cell").text(tax_total.toFixed(2));
     $("td#total_cell").text(total.toFixed(2));
   }
@@ -230,9 +225,6 @@ var PurchaseOrdersProductTable = function () {
           </td>\
           <td>\
             <input class="form-control row-0 product-field item-price text-right" data-row="0" readonly data-field="unit_price" type="text" data-parsley-type="number" value="0">\
-          </td>\
-          <td>\
-            <input class="form-control row-0 product-field item-discount text-right" data-row="0" readonly data-field="discount_rate" type="text" data-parsley-type="number" value="0">\
           </td>\
           <td>\
             <input class="form-control row-0 product-field item-tax text-right" data-row="0" readonly data-field="tax_rate" type="text" data-parsley-type="number" value="0">\

@@ -113,7 +113,6 @@
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Quantity
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
-                      %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
                       %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                   %tbody
@@ -127,8 +126,6 @@
                           =elem.quantity
                         %td 
                           =elem.purchase_custom_item.unit_price
-                        %td 
-                          =elem.purchase_custom_item.discount_rate
                         %td 
                           =elem.purchase_custom_item.tax_rate
                         %td
@@ -146,8 +143,6 @@
                         %td 
                           =elem.purchase_item.unit_price
                         %td 
-                          =elem.purchase_item.discount_rate
-                        %td 
                           =elem.purchase_item.tax_rate
                         %td
                           =elem.sub_total
@@ -162,11 +157,6 @@
                         %b SubTotal:
                       %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
                         =item.sub_total
-                    %tr
-                      %td{:style => 'border:none; background: white; text-align: right;'} 
-                        %b Total Discount:
-                      %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                        =item.discount 
                     %tr
                       %td{:style => 'border:none; background: white; text-align: right;'} 
                         %b Tax:

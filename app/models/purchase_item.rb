@@ -41,7 +41,7 @@ class PurchaseItem < ActiveRecord::Base
     # @return [BigDecimal]
 
     def discount_amount
-      read_attribute(:discount_amount) || (sub_total / BigDecimal(100)) * discount_rate
+      read_attribute(:discount_amount) || 0
     end
 
     # The tax rate for the item
@@ -78,8 +78,8 @@ class PurchaseItem < ActiveRecord::Base
       write_attribute :unit_price, unit_price
       write_attribute :tax_rate, tax_rate
       write_attribute :tax_amount, (sub_total / BigDecimal(100)) * tax_rate
-      write_attribute :discount_rate, discount_rate
-      write_attribute :discount_amount, (sub_total / BigDecimal(100)) * discount_rate
+      write_attribute :discount_rate, 0
+      write_attribute :discount_amount, 0
     end
 
     # Cache the pricing for this order item and save

@@ -313,8 +313,8 @@ class PurchaseOrdersController < ApplicationController
         :total_amount,        
         :supplier_id,
         :notes,        
-        purchase_items_attributes: [:purchased_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
-        purchase_custom_items_attributes: [:item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
+        purchase_items_attributes: [:purchased_item_id, :quantity, :unit_price, :tax_rate],
+        purchase_custom_items_attributes: [:item_name, :quantity, :unit_price, :tax_rate]
       )
     end
 
@@ -331,7 +331,6 @@ class PurchaseOrdersController < ApplicationController
       bill.sub_total       = @purchase_order.sub_total
       bill.discount        = @purchase_order.discount_amount 
       bill.tax             = @purchase_order.tax_amount
-      bill.shipping        = 0
       bill.total           = @purchase_order.total_amount
       bill.preview_token   = SecureRandom.hex(15)
       bill.paid            = 0

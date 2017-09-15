@@ -35,6 +35,55 @@ class PurchaseOrder < ActiveRecord::Base
                              .joins("LEFT JOIN purchase_items ON purchase_orders.id = purchase_items.purchase_order_id")
                             }
 
+    def bill_country_long
+        if !self.bill_country.blank?
+         Country.coded(self.bill_country).name
+        else
+          return ""
+        end
+    end
+
+    def bill_state_long
+        if !self.bill_country.blank? && !self.bill_state.blank?
+          if self.bill_country == 'NZ'
+           self.bill_state
+          else
+           Country.coded(self.bill_country).subregions.coded(self.bill_state).name
+          end
+        else
+          return ""
+        end
+    end
+
+    def ship_country_long
+        if !self.ship_country.blank?
+          Country.coded(self.ship_country).name
+        else
+          return ""
+        end   
+    end
+
+    def ship_state_long
+        if !self.ship_country.blank? && !self.ship_state.blank?
+          if self.ship_country == 'NZ'
+           self.ship_state
+          else
+           Country.coded(self.ship_country).subregions.coded(self.ship_state).name
+          end
+        else
+          return ""
+        end
+    end
+
+
+    def billing_address
+        "#{bill_street} #{bill_suburb} #{bill_city} #{bill_postcode} #{bill_state_long} #{bill_country_long}"
+    end
+
+    def shipping_address
+        "#{ship_street} #{ship_suburb} #{ship_city} #{ship_postcode} #{ship_state_long} #{ship_country_long}"
+    end
+
     def supplier_name
       supplier.name
     end

@@ -164,11 +164,11 @@ var PurchaseOrderDetail = function () {
       $('#bill_modal #product_list tbody tr').each(function(row, tr){
         billItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "discount" : 0,
+          "tax" : $(tr).find('td:eq(4)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(5)').text().trim(),
+          "id" : $(tr).find('td:eq(6)').text().trim(),
+          "type" : $(tr).find('td:eq(7)').text().trim()
         });    
       }); 
       var reqUrl = $('#bill_req_url').val();
@@ -176,7 +176,7 @@ var PurchaseOrderDetail = function () {
           bill_attributes: billItemData, 
           // paid: $('#bill_modal #paid_amount').val(),
           sub_total: $('#bill_modal #sub_total_cell').text(),
-          discount_total: $('#bill_modal #discount_total_cell').text(),
+          discount_total: 0,
           tax_total: $('#bill_modal #tax_total_cell').text(),
           shipping_total: '0',
           total: $('#bill_modal #total_cell').text()
@@ -224,23 +224,22 @@ var PurchaseOrderDetail = function () {
         var row_amount = 0;
         var quantity = $(tr).find('td:eq(2)').text().trim();
         var price = $(tr).find('td:eq(3)').text().trim();
-        var discount = $(tr).find('td:eq(4)').text().trim();
-        var tax = $(tr).find('td:eq(5)').text().trim();
-        row_amount = quantity * price * (100 - discount) * 0.01;
-        $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
+        var discount = 0;
+        var tax = $(tr).find('td:eq(4)').text().trim();
+        row_amount = quantity * price;
+        $(tr).find('td:eq(5)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(6)').text().trim();
+        row_amount = $(tr).find('td:eq(5)').text().trim();
 
         subTotal += (row_amount * 1);
-        discountTotal += quantity * price * discount * 0.01;
+        discountTotal = 0;
         taxTotal += quantity * price * tax * 0.01;
         total += (row_amount * 1) + quantity * price * tax * 0.01;
       });
 
       var paid = 0;//$( modalId + ' #paid_amount').val();
       change = paid - total;
-      $( modalId + ' #sub_total_cell').text(subTotal.toFixed(2));
-      $( modalId + ' #discount_total_cell').text(discountTotal.toFixed(2));
+      $( modalId + ' #sub_total_cell').text(subTotal.toFixed(2));      
       $( modalId + ' #tax_total_cell').text(taxTotal.toFixed(2));
       $( modalId + ' #total_cell').text(total.toFixed(2));
       $( modalId + ' #change_cell').text(change.toFixed(2));
@@ -254,11 +253,11 @@ var PurchaseOrderDetail = function () {
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
         billItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "discount" : 0,
+          "tax" : $(tr).find('td:eq(4)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(5)').text().trim(),
+          "id" : $(tr).find('td:eq(6)').text().trim(),
+          "type" : $(tr).find('td:eq(7)').text().trim()
         });    
       }); 
       var reqUrl = $(this).data('url');
@@ -267,7 +266,7 @@ var PurchaseOrderDetail = function () {
           action_name: action_name, 
           // paid: $( modalId + ' #paid_amount').val(),
           sub_total: $( modalId + ' #sub_total_cell').text(),
-          discount_total: $( modalId + ' #discount_total_cell').text(),
+          discount_total: 0,
           tax_total: $( modalId + ' #tax_total_cell').text(),
           shipping_total: '0',
           total: $( modalId + ' #total_cell').text()

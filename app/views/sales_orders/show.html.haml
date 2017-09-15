@@ -98,10 +98,10 @@
             %a{"data-toggle" => "tab", :href => "#tab_detail", "aria-expanded" => "true"} 
               %i.fa.fa-folder-open-o
               Order Details                                    
-          %li.tab-item
-            %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
-              %i.fa.fa-cubes
-              Ordered Items
+          / %li.tab-item
+          /   %a{"data-toggle" => "tab", :href => "#tab_item", "aria-expanded" => "false"} 
+          /     %i.fa.fa-cubes
+          /     Ordered Items
           %li.tab-pack
             %a{"data-toggle" => "tab", :href => "#tab_pack", "aria-expanded" => "false"} 
               %i.fa.fa-cube
@@ -121,8 +121,8 @@
         .tab-content
           #tab_detail{:class => "tab-pane active"}
             = render 'form_sales_order_detail'
-          #tab_item{:class => "tab-pane"}
-            = render 'form_sales_order_item'
+          / #tab_item{:class => "tab-pane"}
+          /   = render 'form_sales_order_item'
           #tab_pack{:class => "tab-pane"}
             = render 'form_sales_order_pack'
           #tab_shipment{:class => "tab-pane"}

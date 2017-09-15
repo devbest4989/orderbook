@@ -20,6 +20,11 @@
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
         = @sales_order.price_name
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Bill Address
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.billing_address
+
   .col-md-6.col-sm-6.col-xs-12
     .form-group
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Person
@@ -41,60 +46,84 @@
       %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
         = @sales_order.condition_term.title unless @sales_order.condition_term.nil?
+    .form-group
+      %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Address
+      %span.col-md-8.col-sm-8.col-xs-12.field-value          
+        = @sales_order.shipping_address
+
 .ln_solid
+
 .form-horizontal.form-label-left{:style => "overflow:auto;"}
-  .col-md-6.col-sm-6.col-xs-12
-    %h4 Billing Address
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.bill_street
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.bill_suburb
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.bill_city
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.bill_state
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.bill_postcode
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = Carmen::Country.all.select{|c| @sales_order.bill_country.include?(c.code)}[0].name
-  .col-md-6.col-sm-6.col-xs-12
-    %h4 Shipping Address
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Address
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.ship_street
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.ship_suburb
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 City
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.ship_city
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 State / Province
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.ship_state
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = @sales_order.ship_postcode
-    .form-group
-      %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
-      %span.col-md-8.col-sm-8.col-xs-12.field-value          
-        = Carmen::Country.all.select{|c| @sales_order.ship_country.include?(c.code)}[0].name
+  .col-md-12{:style => "overflow:auto;"}
+    %h4 Product Information
+    / start project list
+    %div
+      %table#product_list.table.projects.margin-bottom-5{:style => "table-layout: fixed;"}
+        %thead
+          %tr
+            %th{ width: '30%' } Product Name
+            %th Quantity
+            %th Unit Price
+            %th Discount (%)
+            %th Tax (%)
+            %th{ width: '20%' } Amount
+        %tbody
+        - @sales_order.sales_items.each do |item|
+          %tr
+            %td 
+              =item.sold_item.name    
+            %td 
+              =item.quantity
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
+            %td 
+              =item.discount_rate
+            %td 
+              =item.tax_rate
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+        - @sales_order.sales_custom_items.each do |item|
+          %tr
+            %td 
+              =item.item_name    
+            %td 
+              =item.quantity
+            %td 
+              ="#{Setting.value_by('format.currency')} #{item.unit_price}"
+            %td 
+              =item.discount_rate
+            %td 
+              =item.tax_rate
+            %td
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+      %table.table.projects
+        %tbody
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b SubTotal:
+            %td#sub_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.sub_total
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total Discount:
+            %td#discount_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.discount_amount 
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Shipping Cost:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.shipping_cost
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Tax:
+            %td#tax_total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.tax_amount
+          %tr
+            %td{:style => 'border:none; background: white; text-align: right;'} 
+              %b Total:
+            %td#total_cell.money{:style => 'border:none; background: white; width:20%;'}
+              =@sales_order.total_amount
+
 :javascript
   $(document).ready(function() {
   });

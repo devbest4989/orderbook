@@ -81,8 +81,8 @@ class BillsController < ApplicationController
       bill_item.discount   = elem[1][:discount]
       bill_item.tax        = elem[1][:tax]
       bill_item.sub_total  = elem[1][:sub_total]
-      bill_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
-      bill_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      bill_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+      bill_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
       bill_item.save
     end
 
