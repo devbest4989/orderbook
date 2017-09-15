@@ -14,7 +14,7 @@ class PurchaseOrder < ActiveRecord::Base
     has_many :products, through: :purchase_items, class_name: 'Product', source: :purchased_item
     has_many :purchase_item_activities, class_name: 'PurchaseItemActivity'
     has_many :action_histories, -> { where(item_type: 'PurchaseOrder') }, class_name: 'ActionHistory', foreign_key: 'item_id', dependent: :destroy
-    has_many :invoices, class_name: 'Invoice'
+    has_many :bills, class_name: 'Bill'
 
     # The order can belong to a supplier
     belongs_to :supplier
@@ -106,13 +106,13 @@ class PurchaseOrder < ActiveRecord::Base
         purchase_items.sum("tax_amount") + purchase_custom_items.sum("tax_amount")
     end
 
-    def invoice_total
-        invoices.sum("total")
+    def bill_total
+        bills.sum("total")
     end
 
     def total_paid_amount
         total_paid = 0
-        invoices.each do |item|
+        bills.each do |item|
             total_paid += item.total_paid
         end
         total_paid
@@ -130,19 +130,19 @@ class PurchaseOrder < ActiveRecord::Base
         self.purchase_item_activities.where(activity: 'receive').order(:token)
     end
 
-    def invoice_activities
-        self.purchase_item_activities.where(activity: 'invoice').order(:token)
+    def bill_activities
+        self.purchase_item_activities.where(activity: 'bill').order(:token)
     end
 
     def receive_activities_elems
         self.purchase_item_activities.where(activity: 'receive').group(:token).count
     end
 
-    def invoice_activities_elems
-        self.purchase_item_activities.where(activity: 'invoice').group(:token).count
+    def bill_activities_elems
+        self.purchase_item_activities.where(activity: 'bill').group(:token).count
     end
 
-    def invoice_activities_datas
-        self.purchase_item_activities.where(activity: 'invoice').group(:activity_data).select(:activity_data).map{|elem| elem.activity_data}
+    def bill_activities_datas
+        self.purchase_item_activities.where(activity: 'bill').group(:activity_data).select(:activity_data).map{|elem| elem.activity_data}
     end
 end

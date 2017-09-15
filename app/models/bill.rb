@@ -1,8 +1,8 @@
-class Invoice < ActiveRecord::Base
-    has_many :invoice_items, class_name: 'InvoiceItem'
-    has_many :payments, class_name: 'Payment'
+class Bill < ActiveRecord::Base
+    has_many :bill_items, class_name: 'BillItem'
+    has_many :payments, class_name: 'BillPayment'
 
-    belongs_to :sales_order, class_name: 'SalesOrder'
+    belongs_to :purchase_order, class_name: 'PurchaseOrder'
     
     enum status: [:draft, :confirmed, :sent, :partial, :paid]
 
@@ -14,7 +14,7 @@ class Invoice < ActiveRecord::Base
     scope :paid, -> { where(:status => "paid") }
 
     def file_name_path
-        '/invoices/' + file_name
+        '/bills/' + file_name
     end
 
     def is_updated_pdf
@@ -55,11 +55,11 @@ class Invoice < ActiveRecord::Base
     end
 
     def payment_date
-        if self.sales_order.payment_term.after_days?
-            self.sales_order.order_date.next_day(self.sales_order.payment_term.days)
+        if self.purchase_order.payment_term.after_days?
+            self.purchase_order.order_date.next_day(self.purchase_order.payment_term.days)
         else
-            due_date = self.sales_order.order_date.change({ day: self.sales_order.payment_term.days })
-            due_date.next_month(1) if due_date < self.sales_order.order_date
+            due_date = self.purchase_order.order_date.change({ day: self.purchase_order.payment_term.days })
+            due_date.next_month(1) if due_date < self.purchase_order.order_date
             due_date
         end
     end
@@ -75,8 +75,7 @@ class Invoice < ActiveRecord::Base
             self.status = 'partial'
         end
         save!
-
-        self.sales_order.invoice!
+        self.purchase_order.bill!
     end
 
     def remove_payment!
@@ -88,7 +87,6 @@ class Invoice < ActiveRecord::Base
             self.status = 'partial'
         end
         save!
-        self.sales_order.invoice!
+        self.purchase_order.bill!
     end
-
 end

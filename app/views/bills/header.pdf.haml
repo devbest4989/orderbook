@@ -1,0 +1,29 @@
+%tr.main-info-box
+    %td{colspan: 2}
+        %table.order-main-info
+            %tr
+                - if Setting.value_by('invoice.logo') == 'on' && !Setting.value_by('company.image').nil?
+                    %td.text-center.company-logo
+                        = wicked_pdf_image_tag("/images/logo/#{Setting.value_by('company.image')}")
+                - else
+                    %td.no-padding
+                %td.company-title
+                    %h2= @bill.sales_order.customer.company_title
+                    %p= @bill.sales_order.customer.billing_address
+                    %p="Phone: #{@bill.sales_order.customer.phone}"
+                    %p="Fax: #{@bill.sales_order.customer.fax}"
+                %td.order-info.text-right
+                    %p=@bill.token
+                    %p GST Number: 
+                    %p 
+                        Date:
+                        =@bill.created_at.to_date
+                    %p Page
+            %tr
+                %td{colspan: 2}
+                    %h3
+                        = Setting.value_by('bill.title')
+                        =@bill.token
+                %td.text-right
+                    %p="Sales Order: #{@bill.sales_order.token}"
+                    %p="Processed By: #{@bill.sales_order.booker.full_name}"

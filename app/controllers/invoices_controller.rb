@@ -82,23 +82,14 @@ class InvoicesController < ApplicationController
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
-      if invoice.is_sales_invoice?
-        invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
-        invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
-      else
-        invoice_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
-        invoice_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
-      end
+      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+      invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
       invoice_item.save
     end
 
     add_action_history('invoice', 'update', invoice.token)
 
-    if invoice.is_sales_invoice?
-      invoice.sales_order.invoice!(current_user)
-    else
-      invoice.purchase_order.invoice!(current_user)
-    end
+    invoice.sales_order.invoice!(current_user)
 
     respond_to do |format|
       result = {:Result => "OK" }
@@ -109,12 +100,7 @@ class InvoicesController < ApplicationController
   # DELETE /invoices/1
   # DELETE /invoices/1.json
   def destroy
-    if @invoice.is_sales_invoice?
-      @invoice.sales_order.confirm_status!
-    else
-      @invoice.purchase_order.confirm_status!
-    end    
-
+    @invoice.sales_order.confirm_status!
     @invoice.invoice_items.destroy_all
     @invoice.payments.destroy_all
     @invoice.destroy
@@ -235,17 +221,10 @@ class InvoicesController < ApplicationController
     end
 
     def add_action_history(action_name, action_type, action_number)
-      unless @invoice.sales_order.nil?
-        @invoice.sales_order.action_histories.create!(action_name: action_name, 
-                                              action_type: action_type, 
-                                              action_number: action_number, 
-                                              user: current_user)
-      else
-        @invoice.purchase_order.action_histories.create!(action_name: action_name, 
-                                              action_type: action_type, 
-                                              action_number: action_number, 
-                                              user: current_user)
-      end
+      @invoice.sales_order.action_histories.create!(action_name: action_name, 
+                                            action_type: action_type, 
+                                            action_number: action_number, 
+                                            user: current_user)
     end
 
     def get_order_key
@@ -285,10 +264,6 @@ class InvoicesController < ApplicationController
     end
 
     def set_sales_order
-      if @invoice.is_sales_invoice?
-        @sales_order = SalesOrder.find(@invoice.sales_order_id)
-      else
-        @purchase_order = PurchaseOrder.find(@invoice.purchase_order_id)
-      end
+      @sales_order = SalesOrder.find(@invoice.sales_order_id)
     end
 end

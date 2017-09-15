@@ -134,35 +134,35 @@ var PurchaseOrderDetail = function () {
       $('#tab_shipment').addClass('active');
       $('ul.bar_tabs li.tab-shipment').addClass('active');      
       break;
-    case 'invoice':
-      $('#tab_invoice').addClass('active');
-      $('ul.bar_tabs li.tab-invoice').addClass('active');      
+    case 'bill':
+      $('#tab_bill').addClass('active');
+      $('ul.bar_tabs li.tab-bill').addClass('active');      
       break;
     }
 
     $.cookie("order_detail_last", '');
   }
 
-  var handleInvoiceTab = function(){
-    //Remove Invoice
-    $("#tab_invoice a.remove_invoice_link").click(function(){
-      var r = confirm("Do you want to remove invoice?");
+  var handleBillTab = function(){
+    //Remove bill
+    $("#tab_bill a.remove_bill_link").click(function(){
+      var r = confirm("Do you want to remove bill?");
       if (r == true) {
         var reqUrl = $(this).data('activity');    
         var data = {};
-        do_activity(reqUrl, data, 'invoice', 'delete');        
+        do_activity(reqUrl, data, 'bill', 'delete');        
       }
     });    
 
 
   }
 
-  var handleInvoiceModal = function(){
-    // Generate Invoice From Popup
-    $("#invoice_modal #btn_create_invoice").click(function(){
-      var invoiceItemData = new Array();
-      $('#invoice_modal #product_list tbody tr').each(function(row, tr){
-        invoiceItemData.push({
+  var handleBillModal = function(){
+    // Generate bill From Popup
+    $("#bill_modal #btn_create_bill").click(function(){
+      var billItemData = new Array();
+      $('#bill_modal #product_list tbody tr').each(function(row, tr){
+        billItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
           "discount" : $(tr).find('td:eq(4)').text().trim(),
           "tax" : $(tr).find('td:eq(5)').text().trim(),
@@ -171,50 +171,50 @@ var PurchaseOrderDetail = function () {
           "type" : $(tr).find('td:eq(8)').text().trim()
         });    
       }); 
-      var reqUrl = $('#invoice_req_url').val();
+      var reqUrl = $('#bill_req_url').val();
       var data = {
-          invoice_attributes: invoiceItemData, 
-          // paid: $('#invoice_modal #paid_amount').val(),
-          sub_total: $('#invoice_modal #sub_total_cell').text(),
-          discount_total: $('#invoice_modal #discount_total_cell').text(),
-          tax_total: $('#invoice_modal #tax_total_cell').text(),
+          bill_attributes: billItemData, 
+          // paid: $('#bill_modal #paid_amount').val(),
+          sub_total: $('#bill_modal #sub_total_cell').text(),
+          discount_total: $('#bill_modal #discount_total_cell').text(),
+          tax_total: $('#bill_modal #tax_total_cell').text(),
           shipping_total: '0',
-          total: $('#invoice_modal #total_cell').text()
+          total: $('#bill_modal #total_cell').text()
       };
 
-      do_activity(reqUrl, data, 'invoice');
+      do_activity(reqUrl, data, 'bill');
     });    
 
-    $("#invoice_modal #product_list td.editable").focus(function(){
+    $("#bill_modal #product_list td.editable").focus(function(){
       $(this).addClass("edit-focus");
     });
 
-    $("#invoice_modal #product_list td.editable").focusout(function(){
-      $("#invoice_modal #product_list td.editable").removeClass("edit-focus");
-      calculateInvoice();
+    $("#bill_modal #product_list td.editable").focusout(function(){
+      $("#bill_modal #product_list td.editable").removeClass("edit-focus");
+      calculateBill();
     });
 
-    $("#invoice_modal #product_list td.editable").keydown(function(event){
+    $("#bill_modal #product_list td.editable").keydown(function(event){
       code = (event.keyCode ? event.keyCode : event.which);
       switch(code) {
       case 13:
-        calculateInvoice();
+        calculateBill();
         event.preventDefault();
         break;
       }
     });
 
-    $("#invoice_modal #paid_amount").keydown(function(event){
+    $("#bill_modal #paid_amount").keydown(function(event){
       code = (event.keyCode ? event.keyCode : event.which);
       switch(code) {
       case 13:
-        calculateInvoice();
+        calculateBill();
         event.preventDefault();
         break;
       }
     });
 
-    function calculateInvoice(modalId = "#invoice_modal"){
+    function calculateBill(modalId = "#bill_modal"){
       var subTotal = 0, 
           discountTotal = 0, 
           taxTotal = 0, 
@@ -246,13 +246,13 @@ var PurchaseOrderDetail = function () {
       $( modalId + ' #change_cell').text(change.toFixed(2));
     }
 
-    $(".invoice_detail_modal #btn_update_invoice").click(function(){
-      var invoiceItemData = new Array();
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+    $(".bill_detail_modal #btn_update_bill").click(function(){
+      var billItemData = new Array();
+      var modalId = '#' + $(this).parents().find('.bill_detail_modal').attr('id');
       var action_name = ($(this).hasClass('btn-primary')) ? 'update' : 'confirm';
 
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
-        invoiceItemData.push({
+        billItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
           "discount" : $(tr).find('td:eq(4)').text().trim(),
           "tax" : $(tr).find('td:eq(5)').text().trim(),
@@ -263,7 +263,7 @@ var PurchaseOrderDetail = function () {
       }); 
       var reqUrl = $(this).data('url');
       var data = {
-          invoice_attributes: invoiceItemData,
+          bill_attributes: billItemData,
           action_name: action_name, 
           // paid: $( modalId + ' #paid_amount').val(),
           sub_total: $( modalId + ' #sub_total_cell').text(),
@@ -272,36 +272,36 @@ var PurchaseOrderDetail = function () {
           shipping_total: '0',
           total: $( modalId + ' #total_cell').text()
       };
-      do_activity(reqUrl, data, 'invoice', 'put');
+      do_activity(reqUrl, data, 'bill', 'put');
     });    
 
-    $(".invoice_detail_modal #product_list td.editable").focus(function(){
+    $(".bill_detail_modal #product_list td.editable").focus(function(){
       $(this).addClass("edit-focus");
     });
 
-    $(".invoice_detail_modal #product_list td.editable").focusout(function(){
+    $(".bill_detail_modal #product_list td.editable").focusout(function(){
       $(this).removeClass("edit-focus");
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-      calculateInvoice(modalId);
+      var modalId = '#' + $(this).parents().find('.bill_detail_modal').attr('id');
+      calculateBill(modalId);
     });
 
-    $(".invoice_detail_modal #product_list td.editable").keydown(function(event){
+    $(".bill_detail_modal #product_list td.editable").keydown(function(event){
       code = (event.keyCode ? event.keyCode : event.which);
       switch(code) {
       case 13:
-        var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-        calculateInvoice(modalId);
+        var modalId = '#' + $(this).parents().find('.bill_detail_modal').attr('id');
+        calculateBill(modalId);
         event.preventDefault();
         break;
       }
     });
 
-    $(".invoice_detail_modal #paid_amount").keydown(function(event){
+    $(".bill_detail_modal #paid_amount").keydown(function(event){
       code = (event.keyCode ? event.keyCode : event.which);
       switch(code) {
       case 13:
-        var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-        calculateInvoice(modalId);
+        var modalId = '#' + $(this).parents().find('.bill_detail_modal').attr('id');
+        calculateBill(modalId);
         event.preventDefault();
         break;
       }
@@ -320,9 +320,9 @@ var PurchaseOrderDetail = function () {
       handleReceiveTab();
     },
 
-    handleOrderInvoiceTab: function(){
-      handleInvoiceTab();
-      handleInvoiceModal();
+    handleOrderBillTab: function(){
+      handleBillTab();
+      handleBillModal();
     }
   };
 }();  

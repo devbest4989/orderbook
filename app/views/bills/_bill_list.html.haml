@@ -1,0 +1,75 @@
+.row
+  .col-md-12.col-sm-12.col-xs-12
+    .title_right
+      .col-md-8.col-sm-8.col-xs-12
+        - if !params[:key].blank?
+          %h4
+            Search by "#{params[:key]}"
+  .col-md-12
+    %table.table.table-hover.projects
+      %thead
+        %tr
+          %th{width: '1%'}
+            %input.group-checkable{type: 'checkbox'}
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'date', sort: 'asc'} do
+              Date
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'bill_no', sort: 'asc'} do
+              Bill#
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'order_no', sort: 'asc'} do
+              Purchase Order#
+          %th{width: '20%'}
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'company', sort: 'asc'} do
+              Supplier Name
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
+              Status
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'payment', sort: 'asc'} do
+              Payment Due
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'total', sort: 'asc'} do
+              Amount
+          %th
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
+              Balance
+      %tbody
+      - @bills.each do |bill|
+        %tr{class: "status"}
+          %td.bulk_action  
+            %input{type: 'checkbox', value: "#{bill.id}", name: "table_records"}
+          %td
+            = bill.created_at.to_date
+          %td
+            =link_to bill_path(bill, type: params[:type]) do
+              = bill.token          
+            / - if bill.file_name.blank? || bill.is_updated_pdf
+            /   =link_to generate_pdf_bill_path(bill), :method=> :post, target: '_blank' do
+            /     = bill.token
+            / - else
+            /   =link_to bill.file_name_path, target: '_blank' do
+            /     = bill.token
+          %td
+            %a{:href => purchase_order_path(id: bill.purchase_order.id, type: 'all')}
+              = bill.purchase_order.token
+          %td
+            %a{:href => supplier_path(id: bill.purchase_order.supplier.id)}
+              = bill.purchase_order.supplier_full_name.html_safe
+          %td
+            %span.label{class: bill.status_class}=bill.status_text.upcase
+          %td
+            = bill.payment_date
+          %td
+            = bill.total
+          %td
+            = bill.total - bill.total_paid
+
+  .col-md-12{:style => "text-align: center;"}  
+    = will_paginate @bills, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
+    %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+:javascript
+  jQuery(document).ready(function() {
+    BillList.initBillList();
+  });

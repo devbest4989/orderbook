@@ -1,0 +1,48 @@
+.x_panel
+  .x_title
+    %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+      %h2
+        = nav_name
+        %span.fa.fa-chevron-down.list-type-down
+    %ul.dropdown-menu
+      %li
+        = link_to list_by_type_bills_path(:type => 'all') do
+          All Bills            
+      %li
+        = link_to list_by_type_bills_path(:type => 'draft'), class: "no-border" do
+          Draft Bills
+      %li
+        = link_to list_by_type_bills_path(:type => 'confirmed'), class: "no-border" do
+          Approved Bills
+      %li
+        = link_to list_by_type_bills_path(:type => 'sent') do
+          Not Paid Bills
+      %li
+        = link_to list_by_type_bills_path(:type => 'partial'), class: "no-border" do
+          Partial Paid Bills
+      %li
+        = link_to list_by_type_bills_path(:type => 'paid'), class: "no-border" do
+          Paid Bills
+    %ul.nav.navbar-right.panel_toolbox
+      %li
+        %a.add-link{ :href => add_url }
+          %i.fa.fa-cart-plus
+    .clearfix
+  #bill_side_menu.x_content{:style => "max-height:800px;"}
+    .sub_menu_side
+      %ul.nav.side-menu
+        - sub_elems.each do |elem|
+          %li{ :class => "sub-nav-#{elem.id} element" }
+            %a{:href => (type == 'show') ? bill_path(elem, type: bill_type) : edit_bill_path(elem), style: 'padding: 5px !important;' }
+              %table.sales-order-side-elem{style: 'width: 100%;'}
+                %tr
+                  %td.bill-name
+                    = "#{elem.token}"
+                  %td.text-right
+                    %span.label{class: "#{elem.status_class}"}
+                      = elem.status_text.upcase
+      %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
+:javascript
+  jQuery(document).ready(function() {
+    BillDetail.initBillNavList();
+  });

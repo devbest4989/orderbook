@@ -1,13 +1,13 @@
 .right_col.invoices-wrapper{:role => "main"}
   .left-sub-sidebar
-    = render 'nav_invoice', add_url: new_invoice_path, active_elem: "sub-nav-#{@invoice.id}", nav_name: t("invoice.container.list.header.#{params[:type]}"), sub_elems: @invoices, type: 'show', cat_name: 'Invoice Detail', invoice_type: params[:type]
+    = render 'nav_bill', add_url: new_bill_path, active_elem: "sub-nav-#{@bill.id}", nav_name: t("bill.container.list.header.#{params[:type]}"), sub_elems: @bills, type: 'show', cat_name: 'Bill Detail', bill_type: params[:type]
   .right-content
     .x_panel
       .x_title
         %h2           
-          ="Invoice #{@invoice.token}" 
-        %span.label{class: @invoice.status_class}
-          = "#{@invoice.status_text.capitalize}"
+          ="Bill #{@bill.token}" 
+        %span.label{class: @bill.status_class}
+          = "#{@bill.status_text.capitalize}"
         %ul.nav.navbar-right.panel_toolbox
           %li
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
@@ -15,42 +15,42 @@
               %span.caret
             %ul.dropdown-menu.more-action{:role => "menu"}
               %li
-                =link_to 'javascript:;', class: 'invoice-header-link', id: 'edit_invoice' do
+                =link_to 'javascript:;', class: 'bill-header-link', id: 'edit_bill' do
                   Edit
-              - unless @invoice.preview_token.nil?
+              - unless @bill.preview_token.nil?
                 %li
-                  =link_to preview_invoice_path(@invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
+                  =link_to preview_bill_path(@bill.preview_token), class: 'bill-header-link', :method=> :get, target: '_blank' do
                     Preview
                 %li.divider
-              - if @invoice.draft?
+              - if @bill.draft?
                 %li
-                  =link_to approve_invoice_path(@invoice, type: params[:type]), class: 'invoice-header-link', method: :post do
+                  =link_to approve_bill_path(@bill, type: params[:type]), class: 'bill-header-link', method: :post do
                     Approve
               %li
-                =link_to '#', class: 'invoice-header-link' do
+                =link_to '#', class: 'bill-header-link' do
                   Send
-              - unless @invoice.paid?
+              - unless @bill.paid?
                 %li
-                  =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal' do
+                  =link_to '#', class: 'bill-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal' do
                     Record Payment
               %li.divider
-              - if @invoice.file_name.blank? || @invoice.is_updated_pdf
+              - if @bill.file_name.blank? || @bill.is_updated_pdf
                 %li
-                  =link_to generate_pdf_invoice_path(@invoice), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                  =link_to generate_pdf_bill_path(@bill), class: 'bill-header-link', :method=> :post, target: '_blank' do
                     Export As PDF
                 %li
-                  =link_to generate_pdf_invoice_path(@invoice), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                  =link_to generate_pdf_bill_path(@bill), class: 'bill-header-link', :method=> :post, target: '_blank' do
                     Print
               - else
                 %li
-                  =link_to @invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                  =link_to @bill.file_name_path, class: 'bill-header-link', target: '_blank' do
                     Export As PDF
                 %li
-                  =link_to @invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                  =link_to @bill.file_name_path, class: 'bill-header-link', target: '_blank' do
                     Print
               %li.divider
               %li
-                =link_to invoice_path(@invoice), method: :delete, data: { confirm: 'Are you sure?' }, class: 'invoice-header-link' do
+                =link_to bill_path(@bill), method: :delete, data: { confirm: 'Are you sure?' }, class: 'bill-header-link' do
                   Delete
           %li
             %a.collapse-link
@@ -62,39 +62,28 @@
       .x_content
         .row
           .col-md-12.text-right
-            %a#btn_update_invoice.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => invoice_path(@invoice)}
+            %a#btn_update_bill.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => bill_path(@bill)}
               Save
         / Nav tabs
         .row.no-margin  
           .col-md-6.col-sm-6.col-xs-12
-            %h1= @sales_order.customer.company_title
+            %h1= @purchase_order.supplier.company_title
           .col-md-6.col-sm-6.col-xs-12.text-right
-            %h4.invoice_number=@invoice.token
+            %h4.bill_number=@bill.token
         .row.no-margin  
           .col-md-6.col-sm-6.col-xs-12
-            %h4= @sales_order.customer.billing_address
+            %h4= @purchase_order.supplier.billing_address
           .col-md-6.col-sm-6.col-xs-12
-            %h4.invoice_date
+            %h4.bill_date
               Date: 
-              =@invoice.created_at.to_date
+              =@bill.created_at.to_date
         .row.no-margin  
           .col-md-6.col-sm-6.col-xs-12
-            %h5="Phone: #{@sales_order.customer.phone}"
-            %h5="Fax: #{@sales_order.customer.fax}"
+            %h5="Phone: #{@purchase_order.supplier.phone}"
+            %h5="Fax: #{@purchase_order.supplier.fax}"
           .col-md-6.col-sm-6.col-xs-12
-            %h5="Sales Order: #{@sales_order.token}"
-            %h5="Processed By: #{@sales_order.booker.full_name}"
-        .row.no-margin  
-          .col-md-6.col-sm-6.col-xs-12
-            %h4 
-            %h5="#{@company_profiles['company.name']}"
-            %h5="#{@company_profiles['company.address']}"
-          .col-md-6.col-sm-6.col-xs-12
-            %h4 Deliver To
-            %h5="#{@sales_order.customer.company_title}"
-            %h5="#{@sales_order.ship_street} #{@sales_order.ship_suburb}"
-            %h5="#{@sales_order.ship_city} #{@sales_order.ship_postcode}"
-            %h5="#{@sales_order.ship_state} #{Country.coded(@sales_order.ship_country).name}"
+            %h5="Purchase Order: #{@purchase_order.token}"
+            %h5="Processed By: #{@purchase_order.booker.full_name}"
         .row.no-margin  
           .col-md-12{:style => "overflow:auto;"}
             / start project list
@@ -110,42 +99,42 @@
                     %th{:style => "width: 10%"} Tax (%)
                     %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                 %tbody
-                - @invoice.invoice_items.each do |elem|
+                - @bill.bill_items.each do |elem|
                   %tr
-                    - if elem.sales_item.nil?
+                    - if elem.purchase_item.nil?
                       %td                          
                       %td 
-                        =elem.sales_custom_item.item_name
+                        =elem.purchase_custom_item.item_name
                       %td.editable{"contentEditable" => "true"}
                         =elem.quantity
                       %td 
-                        =elem.sales_custom_item.unit_price
+                        =elem.purchase_custom_item.unit_price
                       %td 
-                        =elem.sales_custom_item.discount_rate
+                        =elem.purchase_custom_item.discount_rate
                       %td 
-                        =elem.sales_custom_item.tax_rate
+                        =elem.purchase_custom_item.tax_rate
                       %td
                         =elem.sub_total
                       %td{:style => "display: none;"} 
-                        =elem.sales_custom_item_id
+                        =elem.purchase_custom_item_id
                       %td{:style => "display: none;"} custom_product
                     - else
                       %td
-                        =elem.sales_item.sold_item.sku    
+                        =elem.purchase_item.purchased_item.sku    
                       %td 
-                        =elem.sales_item.sold_item.name                      
+                        =elem.purchase_item.purchased_item.name                      
                       %td.editable{"contentEditable" => "true"}
                         =elem.quantity
                       %td 
-                        =elem.sales_item.unit_price
+                        =elem.purchase_item.unit_price
                       %td 
-                        =elem.sales_item.discount_rate
+                        =elem.purchase_item.discount_rate
                       %td 
-                        =elem.sales_item.tax_rate
+                        =elem.purchase_item.tax_rate
                       %td
                         =elem.sub_total
                       %td{:style => "display: none;"} 
-                        =elem.sales_item_id
+                        =elem.purchase_item_id
                       %td{:style => "display: none;"} product
 
               %table.table.projects
@@ -154,28 +143,23 @@
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b SubTotal:
                     %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.sub_total
+                      =@bill.sub_total
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Total Discount:
                     %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.discount 
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Shipping Cost:
-                    %td#shipping_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.shipping
+                      =@bill.discount 
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Tax:
                     %td#tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.tax
+                      =@bill.tax
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Total:
                     %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.total
-                  - @invoice.payments.each do |payment|
+                      =@bill.total
+                  - @bill.payments.each do |payment|
                     %tr
                       %td{:style => 'border:none; background: white; text-align: right;'} 
                         ="Payment on #{payment.payment_date}:"
@@ -185,7 +169,7 @@
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Amount Due:
                     %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.total - @invoice.total_paid
+                      =@bill.total - @bill.total_paid
         .ln_solid
         .row.no-margin
           .col-md-12{:style => "overflow:auto;"}
@@ -199,14 +183,14 @@
                     %th Amount
                     %th 
                 %tbody
-                  - @invoice.payments.each do |item|
+                  - @bill.payments.each do |item|
                     %tr
                       %td
                         =item.payment_date
                       %td 
                         =item.amount
                       %td
-                        =link_to remove_payment_invoice_path(@invoice, payment: item.id, type: params[:type]), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                        =link_to remove_payment_bill_path(@bill, payment: item.id, type: params[:type]), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                           %i.fa.fa-icon.fa-minus-circle
 
   .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}
@@ -215,7 +199,7 @@
         .modal-header
           %button.close{"data-dismiss" => "modal", :type => "button"}
             %span{"aria-hidden" => "true"} ×
-          %h4.modal-title Record Payment for this Invoice
+          %h4.modal-title Record Payment for this Bill
         .modal-body
           .row{style:'margin-bottom: 10px;'}
             %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date
@@ -237,14 +221,14 @@
             %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Note
             .col-md-8.col-sm-8.col-xs-12
               %textarea.form-control{name:'note', id: 'note', rows: 5}
-              %input{type:'hidden', id: 'invoice_id', :value => "#{@invoice.id}"}
+              %input{type:'hidden', id: 'bill_id', :value => "#{@bill.id}"}
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
 
 :javascript
   jQuery(document).ready(function() {
-    InvoiceDetail.initActionHandler();
+    BillDetail.initActionHandler();
   });
 
 :css

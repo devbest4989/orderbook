@@ -1,0 +1,37 @@
+.right_col.sales-orders-wrapper{:role => "main"}
+  .x_panel
+    .x_title
+      %a.dropdown-toggle{"aria-expanded" => "false", "data-toggle" => "dropdown", :href => "javascript:;"}
+        %h2
+          =t("bill.container.list.header.#{params[:type]}")
+          %span.fa.fa-chevron-down.list-type-down
+      %ul.dropdown-menu
+        %li
+          = link_to list_by_type_bills_path(:type => 'all') do
+            All Bills
+        %li
+          = link_to list_by_type_bills_path(:type => 'draft'), class: "no-border" do
+            Draft Bills
+        %li
+          = link_to list_by_type_bills_path(:type => 'confirmed'), class: "no-border" do
+            Approved Bills
+        %li
+          = link_to list_by_type_bills_path(:type => 'sent') do
+            Not Paid Bills
+        %li
+          = link_to list_by_type_bills_path(:type => 'partial'), class: "no-border" do
+            Partial Paid Bills
+        %li
+          = link_to list_by_type_bills_path(:type => 'paid'), class: "no-border" do
+            Paid Bills
+      %ul.nav.navbar-right.panel_toolbox
+        %li
+          %a.collapse-link
+            %i.fa.fa-chevron-up
+      .clearfix
+    .x_content
+      = render 'bill_list'
+:javascript
+  jQuery(document).ready(function() {
+    BillsCommon.initSiderMenuList();
+  });

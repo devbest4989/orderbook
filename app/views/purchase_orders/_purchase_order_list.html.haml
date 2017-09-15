@@ -27,9 +27,6 @@
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'packed', sort: 'asc'} do
               Received
           %th.text-center
-            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'invoiced', sort: 'asc'} do
-              Invoiced
-          %th.text-center
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'fullfilled', sort: 'asc'} do
               Fullfilled
           %th
@@ -53,9 +50,6 @@
             = order.status_label.capitalize
           %td.text-center
             %span{class: order.received? ? "orange-status-active" : ""}
-              %i.fa.fa-icon.fa-circle
-          %td.text-center
-            %span{class: order.invoices.length > 0 ? "white-blue-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
             %span{class: order.fullfilled? ? "green-status-active" : ""}

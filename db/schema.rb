@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170911142050) do
+ActiveRecord::Schema.define(version: 20170914194541) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,45 @@ ActiveRecord::Schema.define(version: 20170911142050) do
     t.integer  "user_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "bill_items", force: :cascade do |t|
+    t.integer  "bill_id"
+    t.integer  "purchase_item_id"
+    t.integer  "quantity"
+    t.decimal  "sub_total",               precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",                   precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",                precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",                     precision: 8, scale: 2, default: 0.0
+    t.integer  "purchase_custom_item_id"
+    t.datetime "created_at",                                                    null: false
+    t.datetime "updated_at",                                                    null: false
+  end
+
+  create_table "bill_payments", force: :cascade do |t|
+    t.integer  "bill_id"
+    t.decimal  "amount",       precision: 8, scale: 2, default: 0.0
+    t.date     "payment_date"
+    t.integer  "payment_mode"
+    t.string   "reference_no"
+    t.string   "note"
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+  end
+
+  create_table "bills", force: :cascade do |t|
+    t.string   "token"
+    t.integer  "purchase_order_id"
+    t.decimal  "sub_total",         precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",               precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",             precision: 8, scale: 2, default: 0.0
+    t.decimal  "paid",              precision: 8, scale: 2, default: 0.0
+    t.integer  "status"
+    t.string   "file_name"
+    t.string   "preview_token"
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
   end
 
   create_table "brands", force: :cascade do |t|
@@ -121,32 +160,29 @@ ActiveRecord::Schema.define(version: 20170911142050) do
     t.integer  "invoice_id"
     t.integer  "sales_item_id"
     t.integer  "quantity"
-    t.decimal  "sub_total",               precision: 8, scale: 2, default: 0.0
-    t.decimal  "total",                   precision: 8, scale: 2, default: 0.0
-    t.decimal  "discount",                precision: 8, scale: 2, default: 0.0
-    t.decimal  "tax",                     precision: 8, scale: 2, default: 0.0
-    t.datetime "created_at",                                                    null: false
-    t.datetime "updated_at",                                                    null: false
+    t.decimal  "sub_total",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",                precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",             precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",                  precision: 8, scale: 2, default: 0.0
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "sales_custom_item_id"
-    t.integer  "purchase_item_id"
-    t.integer  "purchase_custom_item_id"
   end
 
   create_table "invoices", force: :cascade do |t|
     t.string   "token"
     t.integer  "sales_order_id"
-    t.decimal  "sub_total",         precision: 8, scale: 2, default: 0.0
-    t.decimal  "discount",          precision: 8, scale: 2, default: 0.0
-    t.decimal  "tax",               precision: 8, scale: 2, default: 0.0
-    t.decimal  "shipping",          precision: 8, scale: 2, default: 0.0
-    t.decimal  "total",             precision: 8, scale: 2, default: 0.0
-    t.decimal  "paid",              precision: 8, scale: 2, default: 0.0
-    t.integer  "status",                                    default: 0
-    t.datetime "created_at",                                              null: false
-    t.datetime "updated_at",                                              null: false
+    t.decimal  "sub_total",      precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",       precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "shipping",       precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",          precision: 8, scale: 2, default: 0.0
+    t.decimal  "paid",           precision: 8, scale: 2, default: 0.0
+    t.integer  "status",                                 default: 0
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
     t.string   "file_name"
     t.string   "preview_token"
-    t.integer  "purchase_order_id"
   end
 
   create_table "payment_terms", force: :cascade do |t|

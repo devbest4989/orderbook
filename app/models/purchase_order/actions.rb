@@ -46,9 +46,9 @@ class PurchaseOrder < ActiveRecord::Base
     true
   end
 
-  def invoice!(user = nil)
+  def bill!(user = nil)
     run_callbacks :invoicing do
-      self.status = invoice_status
+      self.status = bill_status
       save!
     end
     true    
@@ -62,7 +62,7 @@ class PurchaseOrder < ActiveRecord::Base
     true
   end
 
-  def invoice_status
+  def bill_status
     result = self.status
     if (total_paid_amount >= total_amount && self.received?)
       result = 'fullfilled'

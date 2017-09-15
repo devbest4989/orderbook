@@ -15,7 +15,7 @@ class PurchaseOrder < ActiveRecord::Base
   scope :approved, -> { where(status: 'approved') }
   scope :received, -> { where(status: 'received') }
   scope :partial_received, -> { where(status: 'partial_received') }
-  scope :invoice, -> { where(status: 'fullfilled') }
+  scope :bill, -> { where(status: 'fullfilled') }
 
   def draft?
     status == 'draft'

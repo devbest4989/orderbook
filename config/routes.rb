@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   put '/edit_config_email' => 'plainpage#edit_config_email'
 
   get '/preview_invoice/:token' => 'preview#invoice', as: 'preview_invoice'
+  get '/preview_bill/:token' => 'preview#bill', as: 'preview_bill'
 
   # Ajax Controller
   post '/smart_search' => 'plainpage#smart_search', :defaults => { :format => 'json' }
@@ -108,8 +109,8 @@ Rails.application.routes.draw do
       post :cancel
       post :return
       post :receive
-      post :invoice
-      post :get_invoice
+      post :bill
+      post :get_bill
       post :remove_activity
       post :print, :defaults => { :format => 'pdf' }
       post :pack_pdf, :defaults => { :format => 'pdf' }
@@ -228,6 +229,21 @@ Rails.application.routes.draw do
 
     collection do
       get  ':type/list_invoices', to: 'invoices#list_by_type', as: 'list_by_type'      
+    end
+  end
+
+  resources :bills do
+    member do
+      post :generate_pdf, :defaults => { :format => 'pdf' }
+      post :print
+      post :mail
+      post :add_payment, :defaults => { :format => 'json' }
+      post :approve
+      delete :remove_payment
+    end
+
+    collection do
+      get  ':type/list_bills', to: 'bills#list_by_type', as: 'list_by_type'      
     end
   end
 

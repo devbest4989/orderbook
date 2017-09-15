@@ -64,3 +64,4 @@
 //= require sales_orders.js
 //= require purchase_orders.js
 //= require invoices.js
+//= require bills.js

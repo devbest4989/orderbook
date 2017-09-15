@@ -1,7 +1,7 @@
 class GlobalMap < ActiveRecord::Base
   validates :key, presence: true, uniqueness: true
 
-  KEYS = %w(sales_no purchase_no package_no shipping_no invoice_no receive_no)
+  KEYS = %w(sales_no purchase_no package_no shipping_no invoice_no receive_no bill_no)
 
   def self.sale_number
     order_number = GlobalMap.value_by('sales_no').to_i + 1
@@ -31,6 +31,12 @@ class GlobalMap < ActiveRecord::Base
     invoice_number = GlobalMap.value_by('invoice_no').to_i + 1
     GlobalMap.set_object('invoice_no', invoice_number)
     return "INV#" + invoice_number.to_s.rjust(6, '0')
+  end
+
+  def self.bill_number
+    bill_number = GlobalMap.value_by('bill_no').to_i + 1
+    GlobalMap.set_object('bill_no', bill_number)
+    return "BIL#" + bill_number.to_s.rjust(6, '0')
   end
 
   def self.receive_number

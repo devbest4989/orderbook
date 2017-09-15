@@ -61,3 +61,14 @@ en:
           sent: "Not Paid Invoices"
           partial: "Partial Paid Invoices"
           paid: "Paid Invoices"
+
+  bill:
+    container:
+      list:
+        header:
+          all: "All Bills"
+          draft: "Draft Bills"
+          confirmed: "Approved Bills"
+          sent: "Not Paid Bills"
+          partial: "Partial Paid Bills"
+          paid: "Paid Bills"

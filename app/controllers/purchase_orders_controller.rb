@@ -1,5 +1,5 @@
 class PurchaseOrdersController < ApplicationController
-  before_action :set_purchase_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :receive, :remove_activity, :invoice, :update_status]
+  before_action :set_purchase_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :receive, :remove_activity, :bill, :update_status]
 
   before_filter do
     locale = params[:locale]
@@ -33,7 +33,6 @@ class PurchaseOrdersController < ApplicationController
       @purchase_orders = PurchaseOrder.all.includes(:supplier)
                   .order(order_key)
                   .paginate(page: params[:page])
-
     end
 
     respond_to do |format|
@@ -66,7 +65,7 @@ class PurchaseOrdersController < ApplicationController
           else
             @purchase_order.approve!
             add_action_history('approve', 'create', @purchase_order.token)
-            make_order_invoice
+            make_order_bill
           end          
           
           result = {:Result => "OK", :Record => @purchase_order}
@@ -145,7 +144,7 @@ class PurchaseOrdersController < ApplicationController
         elsif params[:save_action] == 'approve'
           @purchase_order.approve!
           add_action_history('approve', 'update', @purchase_order.token)
-          make_order_invoice
+          make_order_bill
         else
           @purchase_order.draft!
         end        
@@ -165,7 +164,7 @@ class PurchaseOrdersController < ApplicationController
     else
       @purchase_order.approve!
       add_action_history('approve', 'update', @purchase_order.token)
-      make_order_invoice
+      make_order_bill
     end
     redirect_to purchase_order_url(@purchase_order)
   end
@@ -192,9 +191,9 @@ class PurchaseOrdersController < ApplicationController
     when 'receive'
       add_action_history('receive', 'delete', params[:activity])
       @purchase_order.receive!(current_user)
-    when 'invoice'
-      add_action_history('invoice', 'delete', params[:activity])
-      @purchase_order.invoice!(current_user)
+    when 'bill'
+      add_action_history('bill', 'delete', params[:activity])
+      @purchase_order.bill!(current_user)
     end
 
     respond_to do |format|
@@ -203,35 +202,35 @@ class PurchaseOrdersController < ApplicationController
     end
   end
 
-  def invoice
-    invoice_number = GlobalMap.invoice_number
+  def bill
+    bill_number = GlobalMap.bill_number
 
-    invoice = Invoice.new
-    invoice.token = invoice_number
-    invoice.purchase_order_id = params[:id]
-    invoice.sub_total = params[:sub_total]
-    invoice.discount = params[:discount_total]
-    invoice.tax = params[:tax_total]
-    invoice.total = params[:total]
-    invoice.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
-    invoice.status = (invoice.paid == 0) ? 0 : 1
-    invoice.preview_token = SecureRandom.hex(15)
-    invoice.save
+    bill = Bill.new
+    bill.token = bill_number
+    bill.purchase_order_id = params[:id]
+    bill.sub_total = params[:sub_total]
+    bill.discount = params[:discount_total]
+    bill.tax = params[:tax_total]
+    bill.total = params[:total]
+    bill.paid = params[:paid].to_f == 0 ? 0 : params[:paid]
+    bill.status = (bill.paid == 0) ? 0 : 1
+    bill.preview_token = SecureRandom.hex(15)
+    bill.save
 
-    params[:invoice_attributes].each do |elem|
-      invoice_item = InvoiceItem.new
-      invoice_item.invoice_id = invoice.id
-      invoice_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
-      invoice_item.quantity   = elem[1][:quantity].to_i
-      invoice_item.discount   = elem[1][:discount]
-      invoice_item.tax        = elem[1][:tax]
-      invoice_item.sub_total  = elem[1][:sub_total]
-      invoice_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
-      invoice_item.save
+    params[:bill_attributes].each do |elem|
+      bill_item = BillItem.new
+      bill_item.bill_id = bill.id
+      bill_item.purchase_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+      bill_item.quantity   = elem[1][:quantity].to_i
+      bill_item.discount   = elem[1][:discount]
+      bill_item.tax        = elem[1][:tax]
+      bill_item.sub_total  = elem[1][:sub_total]
+      bill_item.purchase_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+      bill_item.save
     end
 
-    add_action_history('invoice', 'create', invoice_number)
-    @purchase_order.invoice!(current_user)
+    add_action_history('bill', 'create', bill_number)
+    @purchase_order.bill!(current_user)
 
     respond_to do |format|
       result = {:Result => "OK" }
@@ -319,50 +318,50 @@ class PurchaseOrdersController < ApplicationController
       )
     end
 
-    def make_order_invoice
-      if @purchase_order.invoices.length > 0
+    def make_order_bill
+      if @purchase_order.bills.length > 0
         return
       end
 
-      invoice_number = GlobalMap.invoice_number
+      bill_number = GlobalMap.bill_number
 
-      invoice                 = Invoice.new
-      invoice.token           = invoice_number
-      invoice.purchase_order_id  = @purchase_order.id
-      invoice.sub_total       = @purchase_order.sub_total
-      invoice.discount        = @purchase_order.discount_amount 
-      invoice.tax             = @purchase_order.tax_amount
-      invoice.shipping        = 0
-      invoice.total           = @purchase_order.total_amount
-      invoice.preview_token   = SecureRandom.hex(15)
-      invoice.paid            = 0
-      invoice.status          = 0
-      invoice.save
+      bill                 = Bill.new
+      bill.token           = bill_number
+      bill.purchase_order_id  = @purchase_order.id
+      bill.sub_total       = @purchase_order.sub_total
+      bill.discount        = @purchase_order.discount_amount 
+      bill.tax             = @purchase_order.tax_amount
+      bill.shipping        = 0
+      bill.total           = @purchase_order.total_amount
+      bill.preview_token   = SecureRandom.hex(15)
+      bill.paid            = 0
+      bill.status          = 0
+      bill.save
 
       @purchase_order.purchase_items.each do |elem|
-        invoice_item                = InvoiceItem.new
-        invoice_item.invoice_id     = invoice.id
-        invoice_item.purchase_item_id  = elem.id
-        invoice_item.quantity       = elem.quantity
-        invoice_item.discount       = elem.discount_rate
-        invoice_item.tax            = elem.tax_rate
-        invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
-        invoice_item.purchase_custom_item_id = 0
-        invoice_item.save
+        bill_item                = BillItem.new
+        bill_item.bill_id     = bill.id
+        bill_item.purchase_item_id  = elem.id
+        bill_item.quantity       = elem.quantity
+        bill_item.discount       = elem.discount_rate
+        bill_item.tax            = elem.tax_rate
+        bill_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        bill_item.purchase_custom_item_id = 0
+        bill_item.save
       end
 
       @purchase_order.purchase_custom_items.each do |elem|
-        invoice_item                = InvoiceItem.new
-        invoice_item.invoice_id     = invoice.id
-        invoice_item.purchase_item_id  = 0
-        invoice_item.quantity       = elem.quantity
-        invoice_item.discount       = elem.discount_rate
-        invoice_item.tax            = elem.tax_rate
-        invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
-        invoice_item.purchase_custom_item_id = elem.id
-        invoice_item.save
+        bill_item                = BillItem.new
+        bill_item.bill_id     = bill.id
+        bill_item.purchase_item_id  = 0
+        bill_item.quantity       = elem.quantity
+        bill_item.discount       = elem.discount_rate
+        bill_item.tax            = elem.tax_rate
+        bill_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        bill_item.purchase_custom_item_id = elem.id
+        bill_item.save
       end
 
-      add_action_history('invoice', 'create', invoice_number)      
+      add_action_history('bill', 'create', bill_number)      
     end
 end

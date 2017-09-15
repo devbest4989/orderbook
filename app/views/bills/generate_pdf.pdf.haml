@@ -1,0 +1,86 @@
+=content_for :title, "Bill - #{@bill.token}"
+%tr.address-box
+    %td{width: "50%"}
+        %p="#{@company_profiles['company.name']}"
+        %p="#{@company_profiles['company.address']}"
+    %td{width: "50%"}
+        %p Deliver To:
+        %p="#{@bill.purchase_order.customer.company_title}"
+        %p="#{@bill.purchase_order.ship_street} #{@bill.purchase_order.ship_suburb}"
+        %p="#{@bill.purchase_order.ship_city} #{@bill.purchase_order.ship_postcode}"
+        %p="#{@bill.purchase_order.ship_state} #{Country.coded(@bill.purchase_order.ship_country).name}"
+%tr.details-box
+    %td{height: 400, colspan: 2}
+        %table.order-product-info
+            %tr.product-header
+                %td Product Name                        
+                %td Quantity
+                %td Unit Price
+                %td Discount(%)
+                %td Tax(%)
+                %td Amount
+            - @bill.bill_items.each do |elem|
+                %tr
+                    - if elem.purchase_item.nil?
+                        %td=elem.purchase_custom_item.item_name
+                        %td=elem.quantity
+                        %td=elem.purchase_custom_item.unit_price
+                        %td=elem.purchase_custom_item.discount_rate
+                        %td=elem.purchase_custom_item.tax_rate
+                        %td=elem.sub_total
+                    - else
+                        %td=elem.purchase_item.sold_item.name
+                        %td=elem.quantity
+                        %td=elem.purchase_item.unit_price
+                        %td=elem.purchase_item.discount_rate
+                        %td=elem.purchase_item.tax_rate
+                        %td=elem.sub_total
+%tr.signature-box
+    %td{colspan: 2}
+        %table.order-sign-info
+            %tr
+                %td.terms-info=@bill.purchase_order.condition_term.description unless @bill.purchase_order.condition_term.nil?
+                %td.signature-info
+                    %table
+                        %tr
+                            %td.text-right{width: '25%'}
+                                Signature
+                            %td.td-underline{width: '35%'}
+                                %div
+                            %td.text-right{width: '15%'}
+                                Date
+                            %td.td-underline{width: '25%'}
+                                %div
+                        %tr
+                            %td.text-right
+                                Print Name
+                            %td.td-underline
+                                %div
+                            %td
+                            %td
+                                
+%tr.balance-box
+    %td
+        %p Received with Thanks
+        %table
+            %tr
+                %td Cash
+                %td=@bill.paid
+            %tr
+                %td Eftpos
+                %td 
+
+    %td.no-padding
+        %table.total-info
+            %tr.product-header
+                %td SubTotal
+                %td Total Discount
+                %td Shipping Cost
+                %td Tax
+                %td Total
+            %tr
+                %td=@bill.sub_total
+                %td=@bill.discount 
+                %td
+                %td=@bill.tax
+                %td=@bill.total

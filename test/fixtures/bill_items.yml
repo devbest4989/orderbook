@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  bill_id: 1
+  purchase_item_id: 1
+  quantity: 1
+  sub_total: 9.99
+  total: 9.99
+  discount: 9.99
+  tax: 9.99
+  purchase_custom_item_id: 1
+
+two:
+  bill_id: 1
+  purchase_item_id: 1
+  quantity: 1
+  sub_total: 9.99
+  total: 9.99
+  discount: 9.99
+  tax: 9.99
+  purchase_custom_item_id: 1
