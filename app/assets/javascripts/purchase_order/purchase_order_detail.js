@@ -41,12 +41,37 @@ var PurchaseOrderDetail = function () {
       do_activity(reqUrl, data, 'receive');
     });    
 
+    // Generate Track
+    $("#tab_receive #btn_return_submit").click(function(){
+      var returnItemData = new Array();
+      $('#tab_receive #product_list tbody tr').each(function(row, tr){
+        returnItemData.push({
+          "quantity" : $(tr).find('td:eq(4)').text().trim(),
+          "note" :$(tr).find('td:eq(5)').text().trim(),
+          "id" : $(tr).find('td:eq(6)').text().trim()
+        });    
+      }); 
+      var reqUrl = $('#return_req_url').val();
+      var data = {return_attributes: returnItemData, id: $('#receive_order_id').val()};
+      do_activity(reqUrl, data, 'receive');
+    });    
+
     //Remove Track
     $("#tab_receive a.remove_track_link").click(function(){
-      var r = confirm("Do you want to remove package?");
+      var r = confirm("Do you want to remove receive?");
       if (r == true) {
         var reqUrl = $('#receive_remove_url').val();
         var data = {activity: $(this).data('activity'), type: 'receive'};
+        do_activity(reqUrl, data, 'receive');
+      }      
+    });
+
+    //Remove Track
+    $("#tab_receive a.remove_return_link").click(function(){
+      var r = confirm("Do you want to remove return?");
+      if (r == true) {
+        var reqUrl = $('#receive_remove_url').val();
+        var data = {activity: $(this).data('activity'), type: 'return'};
         do_activity(reqUrl, data, 'receive');
       }      
     });    

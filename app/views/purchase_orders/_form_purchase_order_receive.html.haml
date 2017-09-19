@@ -13,9 +13,13 @@
     .col-md-6.col-sm-6.col-xs-12.text-right
       %input#receive_req_url{type: 'hidden', value: "#{receive_purchase_order_path(@purchase_order)}"}
       %input#receive_remove_url{type: 'hidden', value: "#{remove_activity_purchase_order_path(@purchase_order)}"}
+      %input#return_req_url{type: 'hidden', value: "#{return_purchase_order_path(@purchase_order)}"}
       - if @purchase_order.approved? || @purchase_order.partial_received?
         %a#btn_receive_submit.btn.btn-primary{:href => 'javascript:;'}
-          Save      
+          Receive
+      - if @purchase_order.received? || @purchase_order.partial_received?
+        %a#btn_return_submit.btn.btn-info{:href => 'javascript:;'}
+          Return
     .col-md-12{:style => "overflow:auto;"}
       %h4 Product Information
       / start project list
@@ -27,7 +31,7 @@
               %th{:style => "width: 30%"} Product Name
               %th{:style => "width: 15%"} Qty on Hand
               %th{:style => "width: 15%"} Qty on Ordered
-              %th{:style => "width: 10%"} Qty on Received
+              %th{:style => "width: 10%"} Qty on Action
               %th{:style => "width: 10%"} Note
           %tbody
           - @purchase_order.purchase_items.each do |item|
@@ -78,6 +82,42 @@
               %td 
                 =item.note
             - if index == @purchase_order.receive_activities.length
+              ="</table></td></tr>".html_safe
+            - prev_data = item.token          
+
+  .ln_solid
+  .row.no-margin
+    .col-md-12{:style => "overflow:auto;"}
+      %h4 Returning Slips
+      %input{type: 'hidden', id: 'receive_order_id', value: @purchase_order.id}
+      / start project list
+      %div
+        %table#receive_activity_list.activity_list.table.table-bordered.projects.margin-bottom-5
+          %thead
+            %tr
+              %th Returning Number
+              %th Returning Date
+              %th Updated By
+              %th 
+          - prev_data = ''
+          - index = 0
+          - @purchase_order.return_activities.each do |item| 
+            - index = index + 1
+            - if prev_data != item.token
+              -if prev_data != ''
+                ="</table></td></tr>".html_safe
+              ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.updated_by.email}</td><td>#{'<a class="remove_return_link" href="javascript:;" data-activity="'+item.token+'"><i class="fa fa-icon fa-minus-circle"></i></a>'}</td></tr>".html_safe
+              = "<tr class='even'><td colspan='4'><table class='table projects margin-bottom-5'><thead><tr><th>SKU</th><th>Product Name</th><th>Returning Qty</th><th>Note</th></tr></thead>".html_safe
+            %tr
+              %td 
+                =item.purchase_item.purchased_item.sku
+              %td 
+                =item.purchase_item.purchased_item.name
+              %td 
+                =item.quantity
+              %td 
+                =item.note
+            - if index == @purchase_order.return_activities.length
               ="</table></td></tr>".html_safe
             - prev_data = item.token          
 :javascript

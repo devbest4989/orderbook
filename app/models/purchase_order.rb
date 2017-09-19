@@ -172,7 +172,7 @@ class PurchaseOrder < ActiveRecord::Base
     end
 
     def return_activities
-        self.purchase_item_activities.where(activity: 'return')
+        self.purchase_item_activities.where(activity: 'return').order(:token)
     end
 
     def receive_activities

@@ -1,8 +1,8 @@
 class PurchaseItemActivity < ActiveRecord::Base
 	  ACTIVITIES = %w(receive).freeze
     
-    before_save :update_product_qty
-    before_destroy :update_product_qty
+    after_save :update_product_qty
+    after_destroy :update_product_qty
     
     belongs_to :purchase_item, class_name: 'PurchaseItem'
     belongs_to :updated_by, class_name: 'User', foreign_key: 'updated_by'

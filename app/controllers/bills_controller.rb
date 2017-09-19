@@ -197,7 +197,7 @@ class BillsController < ApplicationController
       result = {}
       if payment.save
         @bill.add_payment!
-        result = {:Result => "OK" }
+        result = {:Result => "OK", :Balance => @bill.total - @bill.total_paid, :Status => @bill.status_text.upcase, :StatusClass => @bill.status_class }
       else
         result = {:Result => "Failed", :Message => payment.errors.full_messages }
       end
@@ -211,7 +211,15 @@ class BillsController < ApplicationController
       @bill.status = 'confirmed'
       @bill.save
     end
-    redirect_to bill_path(@bill, type: params[:type])
+
+    if request.xhr?
+      respond_to do |format|
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      end      
+    else
+      redirect_to bill_path(@bill, type: params[:type])
+    end
   end
 
   private

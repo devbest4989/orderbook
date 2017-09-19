@@ -29,10 +29,10 @@
               %li
                 =link_to '#', class: 'bill-header-link' do
                   Send
-              - unless @bill.paid?
+              - unless (@bill.paid? || @bill.draft?)
                 %li
                   =link_to '#', class: 'bill-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal' do
-                    Record Payment
+                    Make Payment
               %li.divider
               - if @bill.file_name.blank? || @bill.is_updated_pdf
                 %li
@@ -62,8 +62,12 @@
       .x_content
         .row
           .col-md-12.text-right
-            %a#btn_update_bill.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => bill_path(@bill)}
-              Save
+            - if params[:type] == 'edit'
+              %a#btn_update_bill.btn.btn-primary{:href => 'javascript:;', "data-url" => bill_path(@bill)}
+                Save
+            - else
+              %a#btn_update_bill.btn.btn-primary{:href => 'javascript:;', style: 'display: none;', "data-url" => bill_path(@bill)}
+                Save            
         / Nav tabs
         .row.no-margin  
           .col-md-6.col-sm-6.col-xs-12
@@ -95,7 +99,6 @@
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
                     %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
-                    %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
                     %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
                 %tbody
@@ -105,12 +108,10 @@
                       %td                          
                       %td 
                         =elem.purchase_custom_item.item_name
-                      %td.editable{"contentEditable" => "true"}
+                      %td.editable
                         =elem.quantity
                       %td 
                         =elem.purchase_custom_item.unit_price
-                      %td 
-                        =elem.purchase_custom_item.discount_rate
                       %td 
                         =elem.purchase_custom_item.tax_rate
                       %td
@@ -123,12 +124,10 @@
                         =elem.purchase_item.purchased_item.sku    
                       %td 
                         =elem.purchase_item.purchased_item.name                      
-                      %td.editable{"contentEditable" => "true"}
+                      %td.editable
                         =elem.quantity
                       %td 
                         =elem.purchase_item.unit_price
-                      %td 
-                        =elem.purchase_item.discount_rate
                       %td 
                         =elem.purchase_item.tax_rate
                       %td
@@ -144,11 +143,6 @@
                       %b SubTotal:
                     %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
                       =@bill.sub_total
-                  %tr
-                    %td{:style => 'border:none; background: white; text-align: right;'} 
-                      %b Total Discount:
-                    %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@bill.discount 
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Tax:
@@ -199,7 +193,7 @@
         .modal-header
           %button.close{"data-dismiss" => "modal", :type => "button"}
             %span{"aria-hidden" => "true"} ×
-          %h4.modal-title Record Payment for this Bill
+          %h4.modal-title Make Payment for this Bill
         .modal-body
           .row{style:'margin-bottom: 10px;'}
             %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date

@@ -32,8 +32,11 @@ class PurchaseOrder < ActiveRecord::Base
     run_callbacks :cancellation do
       write_attribute :cancelled_at, Time.now
       write_attribute :total_amount, total_amount
+      self.status = 'cancelled'
       self.canceller = user if user
       save!      
+
+      purchase_items.each(&:cancel!)
     end
     true
   end

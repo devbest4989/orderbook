@@ -24,11 +24,11 @@
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'status', sort: 'asc'} do
               Status
           %th.text-center
-            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'packed', sort: 'asc'} do
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'received', sort: 'asc'} do
               Received
           %th.text-center
-            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'fullfilled', sort: 'asc'} do
-              Fullfilled
+            = link_to 'javascript:;', class: 'link_order_by', data:{key: 'billed', sort: 'asc'} do
+              Billed
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
               Amount
@@ -47,25 +47,25 @@
             %a{:href => supplier_path(id: order.supplier.id)}
               = order.supplier_full_name.html_safe
           %td
-            = order.status_label.capitalize
+            %span.label{class: order.status_class}
+              = order.status_label.capitalize
           %td.text-center
             %span{class: order.received? ? "orange-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
-            %span{class: order.fullfilled? ? "green-status-active" : ""}
+            %span{class: order.bills.length > 0 ? "green-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.money
             = order.total_amount
           %td.text-left
-            - if order.draft?
+            - if order.draft? || order.cancelled?
               = link_to update_status_purchase_order_path(order, {save_action: 'approve'}), method: :post, :class => "btn btn-success btn-xs", title: 'Approve' do
                 %i.fa.fa-check
-              = link_to purchase_order_path(order), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
-                %i.fa.fa-times
-              = link_to print_purchase_order_path(order), method: :post, :class => "btn btn-primary btn-xs", title: 'Email', target: '_blank' do
-                %i.fa.fa-envelope
-              = link_to print_purchase_order_path(order), method: :post, :class => "btn btn-info btn-xs", title: 'Print', target: '_blank' do
-                %i.fa.fa-print
+            - unless order.cancelled?            
+              = link_to cancel_purchase_order_path(order), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
+                %i.fa.fa-times                
+            = link_to print_purchase_order_path(order), method: :post, :class => "btn btn-info btn-xs", title: 'Print', target: '_blank' do
+              %i.fa.fa-print
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @purchase_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}

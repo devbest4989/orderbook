@@ -61,7 +61,12 @@ class Product < ActiveRecord::Base
 
   def stock!
     #stock_level_adjustments.sum(:adjustment)
-    self.quantity = open_qty - sales_qty + purchase_qty
+    self.quantity = open_qty - sales_qty + purchase_qty - return_qty
+    if self.quantity.to_i > self.reorder_qty.to_i
+      self.stock_status = :instock
+    else
+      self.stock_status = :lowstock
+    end
     save!
   end
 
@@ -71,6 +76,10 @@ class Product < ActiveRecord::Base
 
   def purchase_qty
     PurchaseItemActivity.includes(:purchase_item).where(activity: 'receive').where("purchase_items.purchased_item_id = #{self.id}").sum(:quantity)
+  end
+
+  def return_qty
+    PurchaseItemActivity.includes(:purchase_item).where(activity: 'return').where("purchase_items.purchased_item_id = #{self.id}").sum(:quantity)
   end
 
   def status_label

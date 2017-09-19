@@ -16,8 +16,11 @@
           = link_to list_by_type_purchase_orders_path(:type => 'approved'), class: "no-border" do
             Approved
         %li
-          = link_to list_by_type_purchase_orders_path(:type => 'received'), class: "no-border" do
+          = link_to list_by_type_purchase_orders_path(:type => 'received') do
             Received
+        %li
+          = link_to list_by_type_purchase_orders_path(:type => 'cancelled'), class: "no-border" do
+            Cancelled
       %ul.nav.navbar-right.panel_toolbox
         %li
           %a.add-link{ :href => new_purchase_order_path }

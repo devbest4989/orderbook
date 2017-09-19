@@ -1,6 +1,6 @@
 class SalesItem < ActiveRecord::Base
-    before_save :update_product_qty
-    before_destroy :update_product_qty
+    after_save :update_product_qty
+    after_destroy :update_product_qty
 
     belongs_to :sales_order, class_name: 'SalesOrder', touch: true, inverse_of: :sales_items
     belongs_to :sold_item, class_name: 'Product'

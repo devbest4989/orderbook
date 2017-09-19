@@ -80,15 +80,14 @@ class Supplier < ActiveRecord::Base
   end
 
   def orders
-    #self.sales_orders.count()
-    0
+    self.purchase_orders.count()
   end
 
   def payable
-    total_amount = purchase_orders.where.not(status: 'draft').sum(:total_amount)
+    total_amount = purchase_orders.where.not(status: ['draft', 'cancelled']).sum(:total_amount)
 
     total_paid_amount = 0
-    purchase_orders.where.not(status: 'draft').each do |elem|
+    purchase_orders.where.not(status: ['draft', 'cancelled']).each do |elem|
       total_paid_amount += elem.total_paid_amount
     end    
 

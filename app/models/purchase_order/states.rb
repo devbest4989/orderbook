@@ -1,6 +1,6 @@
 class PurchaseOrder < ActiveRecord::Base
   # An array of all the available statuses for an order
-  STATUSES = %w(draft approved received partial_received fullfilled).freeze
+  STATUSES = %w(draft approved received partial_received fullfilled cancelled).freeze
 
   belongs_to :canceller, class_name: 'User', foreign_key: 'cancelled_by_id'
   belongs_to :booker, class_name: 'User', foreign_key: 'booked_by_id'
@@ -16,6 +16,7 @@ class PurchaseOrder < ActiveRecord::Base
   scope :received, -> { where(status: 'received') }
   scope :partial_received, -> { where(status: 'partial_received') }
   scope :bill, -> { where(status: 'fullfilled') }
+  scope :cancelled, -> { where(status: 'cancelled') }
 
   def draft?
     status == 'draft'
@@ -35,6 +36,10 @@ class PurchaseOrder < ActiveRecord::Base
 
   def fullfilled?
     status == 'fullfilled'
+  end
+
+  def cancelled?
+    status == 'cancelled'
   end
 
   def status_text
@@ -57,6 +62,8 @@ class PurchaseOrder < ActiveRecord::Base
       "label-primary"
     when "fullfilled"
       "label-success"
+    when "cancelled"
+      "label-danger"
     end
   end
 

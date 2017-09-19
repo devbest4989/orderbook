@@ -35,6 +35,7 @@
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
               Balance
+          %th
       %tbody
       - @bills.each do |bill|
         %tr{class: "status"}
@@ -57,18 +58,96 @@
           %td
             %a{:href => supplier_path(id: bill.purchase_order.supplier.id)}
               = bill.purchase_order.supplier_full_name.html_safe
-          %td
+          %td{id: "bill_status_#{bill.id}"}
             %span.label{class: bill.status_class}=bill.status_text.upcase
           %td
             = bill.payment_date
           %td
             = bill.total
-          %td
+          %td{id: "bill_balance_#{bill.id}"}
             = bill.total - bill.total_paid
+          %td{style: "position: relative;"}
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              Actions
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu", style: "right: 0; left: auto; top: 35px;"}
+              %li
+                =link_to bill_path(bill, type: 'edit'), class: 'bill-header-link' do
+                  Edit
+              - unless bill.preview_token.nil?
+                %li
+                  =link_to preview_bill_path(bill.preview_token), class: 'bill-header-link', :method=> :get, target: '_blank' do
+                    Preview
+                %li.divider
+              - if bill.draft?
+                %li{id: "bill_approve_#{bill.id}"}
+                  =link_to 'javascript:;', class: 'bill-header-link bill-approve', 'data-id' => bill.id, 'data-token' => bill.token  do
+                    Approve
+              %li
+                =link_to '#', class: 'bill-header-link' do
+                  Send
+              %li
+                =link_to '#', class: 'bill-header-link make-payment', 'data-target' => '#make_payment_modal', 'data-toggle' => 'modal', 'data-id' => bill.id, 'data-token' => bill.token, 'data-balance' => "#{bill.total - bill.total_paid}", id: "bill_payment_#{bill.id}", style: "#{(bill.paid? || bill.draft?) ? 'display: none;' : ''}" do
+                  Make Payment
+              %li.divider
+              - if bill.file_name.blank? || bill.is_updated_pdf
+                %li
+                  =link_to generate_pdf_bill_path(bill), class: 'bill-header-link', :method=> :post, target: '_blank' do
+                    Export As PDF
+                %li
+                  =link_to generate_pdf_bill_path(bill), class: 'bill-header-link', :method=> :post, target: '_blank' do
+                    Print
+              - else
+                %li
+                  =link_to bill.file_name_path, class: 'bill-header-link', target: '_blank' do
+                    Export As PDF
+                %li
+                  =link_to bill.file_name_path, class: 'bill-header-link', target: '_blank' do
+                    Print
+              %li.divider
+              %li
+                =link_to bill_path(bill), method: :delete, data: { confirm: 'Are you sure?' }, class: 'bill-header-link' do
+                  Delete
 
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @bills, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+
+  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "make_payment_modal"}
+    .modal-dialog.modal-md
+      .modal-content
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title 
+            Make Payment for Bill - 
+            %span{id: 'payment_bill_token'}
+        .modal-body
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{name:'payment_date', :placeholder => "Payment Date", id: 'payment_date'}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Amount
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'number', name:'amount', id: 'payment_amount', :placeholder => "$"}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Mode of Payment
+            .col-md-8.col-sm-8.col-xs-12
+              = select_tag :payment_mode, options_for_select(ApplicationHelper::PAYMENT_MODE.each_with_index.map {|name, index| [name,index]}), prompt: "Select Payment Mode", :class => "form-control"
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Reference #
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{name:'reference_no', id: 'reference_no'}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Note
+            .col-md-8.col-sm-8.col-xs-12
+              %textarea.form-control{name:'note', id: 'note', rows: 5}
+              %input{type:'hidden', id: 'payment_bill_id', :value => ""}
+        .modal-footer
+          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
+          %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
 :javascript
   jQuery(document).ready(function() {
     BillList.initBillList();

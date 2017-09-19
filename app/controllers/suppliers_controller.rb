@@ -42,6 +42,7 @@ class SuppliersController < ApplicationController
   # GET /suppliers/1.json
   def show
     @suppliers = Supplier.all
+    @purchase_orders = @supplier.purchase_orders.where.not(status: 'draft').ordered
   end
 
   # GET /suppliers/new

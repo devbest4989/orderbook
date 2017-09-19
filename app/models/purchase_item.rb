@@ -1,6 +1,6 @@
 class PurchaseItem < ActiveRecord::Base
-    before_save :update_product_qty
-    before_destroy :update_product_qty
+    after_save :update_product_qty
+    after_destroy :update_product_qty
 
     belongs_to :purchase_order, class_name: 'PurchaseOrder', touch: true, inverse_of: :purchase_items
     belongs_to :purchased_item, class_name: 'Product'
@@ -96,11 +96,8 @@ class PurchaseItem < ActiveRecord::Base
     end
 
     # Trigged when the associated order is cancelled..
-    def cancel!(amount, description, user)
-        if quantity_to_receive >= amount.to_i && amount.to_i > 0
-            self.purchased_item_activities.create!(purchase_item: self, quantity: amount, note: description, activity: 'cancel', updated_by: user)
-            cache_pricing!
-        end
+    def cancel!
+        self.purchased_item_activities.destroy_all
     end
 
     # Trigged when the associated order is shipped..
@@ -110,6 +107,20 @@ class PurchaseItem < ActiveRecord::Base
                                                 quantity: amount, 
                                                 note: description, 
                                                 activity: 'receive', 
+                                                updated_by: user, 
+                                                token: data,
+                                                purchase_order_id: self.purchase_order.id)
+            save!
+        end
+    end
+
+    # Trigged when the associated order is shipped..
+    def return!(amount, description, user, data)
+        if received_quantity - returned_quantity >= amount.to_i && amount.to_i > 0
+            self.purchased_item_activities.create!( purchase_item: self, 
+                                                quantity: amount, 
+                                                note: description, 
+                                                activity: 'return', 
                                                 updated_by: user, 
                                                 token: data,
                                                 purchase_order_id: self.purchase_order.id)
@@ -133,12 +144,16 @@ class PurchaseItem < ActiveRecord::Base
         purchased_item_activities.where(activity: 'receive').sum(:quantity)
     end
 
+    def returned_quantity
+        purchased_item_activities.where(activity: 'return').sum(:quantity)
+    end
+
     def real_quantity
         self.quantity
     end
 
     def quantity_to_receive
-        self.quantity - received_quantity
+        self.quantity - received_quantity + returned_quantity
     end
 
     # Validate the stock level against the product and update as appropriate. This method will be executed

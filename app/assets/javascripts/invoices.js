@@ -161,6 +161,10 @@ var InvoiceDetail = function () {
       $('#note').val('');
     });
 
+    $('a.record-payment').click(function(){
+      $('#payment_amount').val($('#change_cell').text().trim());
+    });
+
     function calculateInvoice(){
       var subTotal = 0, 
           discountTotal = 0, 

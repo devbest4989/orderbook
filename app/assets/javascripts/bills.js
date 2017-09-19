@@ -65,7 +65,114 @@ var BillList = function(){
       } else {
         return false;
       }
+    });
+  }
 
+  var handleBillAction = function() {
+    $('.bill-approve').click(function(){
+      var reqUrl = '/bills/' + $(this).data('id') + '/approve'
+      var bill_id = $(this).data('id');
+      var bill_token = $(this).data('token');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#bill_status_' + bill_id).html('<span class="label label-info">APPROVED</span>');
+            $('#bill_approve_' + bill_id).hide();
+            $('#bill_payment_' + bill_id).show();
+            new PNotify({
+              title: 'Success!',
+              text: 'Bill ' + bill_token + ' is approved.',
+              type: 'success',
+              delay: 3000
+            });
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });      
+    });
+
+    $('#payment_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'DD-MM-YYYY'
+      }, function(start, end, label) {
+    });
+
+    $('.make-payment').click(function(){
+      $('#payment_bill_token').text($(this).data('token'));
+      $('#payment_date').val('');
+      $('#payment_amount').val($(this).data('balance'));
+      $('#reference_no').val('');
+      $('#note').val('');
+      $('#payment_bill_id').val($(this).data('id'));
+      $('#payment_mode').val('');
+    });
+
+    $('#button_record_payment').click(function(){
+      var reqUrl = '/bills/' + $('#payment_bill_id').val() + '/add_payment'
+      var bill_id = $('#payment_bill_id').val();
+      var balance = $('#bill_balance_' + bill_id).text().trim();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          payment_date: $('#payment_date').val(),
+          payment_amount: $('#payment_amount').val(),
+          payment_mode: $('#payment_mode').val(),
+          reference_no: $('#reference_no').val(),
+          note: $('#note').val()          
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            var new_balance = data.Balance;
+            $('#bill_balance_' + bill_id).text(new_balance);
+            $('#bill_payment_' + bill_id).data('balance', new_balance);
+            if(new_balance <= 0){
+              $('#bill_status_' + bill_id).html('<span class="label label-success">PAID</span>');
+            } else {
+              $('#bill_status_' + bill_id).html('<span class="label label-warning">PARTIAL PAID</span>');
+            }
+            $('#cancel_record_payment').trigger('click');
+            new PNotify({
+              title: 'Success!',
+              text: $('#payment_amount').val() + ' Payment is made successfully.',
+              type: 'success',
+              delay: 3000
+            });            
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
     });
   }
 
@@ -74,6 +181,7 @@ var BillList = function(){
       initialHeader();
       handleOrderBy();
       handleGroupSelect();
+      handleBillAction();
     }
   };
 }();
@@ -161,6 +269,10 @@ var BillDetail = function () {
       $('#note').val('');
     });
 
+    $('a.record-payment').click(function(){
+      $('#payment_amount').val($('#change_cell').text().trim());
+    });
+
     function calculateBill(){
       var subTotal = 0, 
           discountTotal = 0, 
@@ -171,15 +283,13 @@ var BillDetail = function () {
         var row_amount = 0;
         var quantity = $(tr).find('td:eq(2)').text().trim();
         var price = $(tr).find('td:eq(3)').text().trim();
-        var discount = $(tr).find('td:eq(4)').text().trim();
-        var tax = $(tr).find('td:eq(5)').text().trim();
-        row_amount = quantity * price * (100 -discount) * 0.01;
-        $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
+        var tax = $(tr).find('td:eq(4)').text().trim();
+        row_amount = quantity * price;
+        $(tr).find('td:eq(5)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(6)').text().trim();
+        row_amount = $(tr).find('td:eq(5)').text().trim();
 
         subTotal += (row_amount * 1);
-        discountTotal += quantity * price * discount * 0.01;
         taxTotal += quantity * price * tax * 0.01;
         total += (row_amount * 1) + quantity * price * tax * 0.01;
       });
@@ -191,7 +301,6 @@ var BillDetail = function () {
 
       change = total - paid;
       $( '#sub_total_cell').text(subTotal.toFixed(2));
-      $( '#discount_total_cell').text(discountTotal.toFixed(2));
       $( '#tax_total_cell').text(taxTotal.toFixed(2));
       $( '#total_cell').text(total.toFixed(2));
       $( '#change_cell').text(change.toFixed(2));
@@ -211,11 +320,10 @@ var BillDetail = function () {
       $( '#product_list tbody tr').each(function(row, tr){
         billItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "tax" : $(tr).find('td:eq(4)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(5)').text().trim(),
+          "id" : $(tr).find('td:eq(6)').text().trim(),
+          "type" : $(tr).find('td:eq(7)').text().trim()
         });    
       }); 
       var reqUrl = $(this).data('url');

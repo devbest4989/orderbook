@@ -50,6 +50,7 @@ en:
           draft: "Draft Purchase Orders"
           approved: "Approved Purchase Orders"
           received: "Received Purchase Orders"
+          cancelled: "Cancelled Purchase Orders"
 
   invoice:
     container:

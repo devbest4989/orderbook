@@ -1,5 +1,5 @@
 class PurchaseOrdersController < ApplicationController
-  before_action :set_purchase_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :receive, :remove_activity, :bill, :update_status]
+  before_action :set_purchase_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :receive, :remove_activity, :bill, :update_status]
 
   before_filter do
     locale = params[:locale]
@@ -26,6 +26,11 @@ class PurchaseOrdersController < ApplicationController
                   .paginate(page: params[:page])
     when 'received'
       @purchase_orders = PurchaseOrder.where(status: ['received', 'partial_received'])
+                  .includes(:supplier)
+                  .order(order_key)
+                  .paginate(page: params[:page])
+    when 'cancelled'
+      @purchase_orders = PurchaseOrder.where(status: 'cancelled')
                   .includes(:supplier)
                   .order(order_key)
                   .paginate(page: params[:page])
@@ -65,7 +70,7 @@ class PurchaseOrdersController < ApplicationController
           else
             @purchase_order.approve!
             add_action_history('approve', 'create', @purchase_order.token)
-            make_order_bill
+            # make_order_bill
           end          
           
           result = {:Result => "OK", :Record => @purchase_order}
@@ -144,7 +149,7 @@ class PurchaseOrdersController < ApplicationController
         elsif params[:save_action] == 'approve'
           @purchase_order.approve!
           add_action_history('approve', 'update', @purchase_order.token)
-          make_order_bill
+          # make_order_bill
         else
           @purchase_order.draft!
         end        
@@ -164,7 +169,7 @@ class PurchaseOrdersController < ApplicationController
     else
       @purchase_order.approve!
       add_action_history('approve', 'update', @purchase_order.token)
-      make_order_bill
+      # make_order_bill
     end
     redirect_to purchase_order_url(@purchase_order)
   end
@@ -185,6 +190,22 @@ class PurchaseOrdersController < ApplicationController
     end
   end
 
+  def return
+    return_number = GlobalMap.return_number
+    params[:return_attributes].each do |elem|
+      purchase_item = PurchaseItem.find(elem[1][:id].to_i);
+      purchase_item.return!(elem[1][:quantity], elem[1][:note], current_user, return_number)
+    end
+
+    add_action_history('return', 'create', return_number)
+
+    @purchase_order.confirm_status!(current_user)
+    respond_to do |format|
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    end
+  end
+
   def remove_activity
     PurchaseItemActivity.where(token: params[:activity]).destroy_all
     case params[:type]
@@ -194,11 +215,22 @@ class PurchaseOrdersController < ApplicationController
     when 'bill'
       add_action_history('bill', 'delete', params[:activity])
       @purchase_order.bill!(current_user)
+    when 'return'
+      add_action_history('return', 'delete', params[:activity])
+      @purchase_order.confirm_status!(current_user)
     end
 
     respond_to do |format|
       result = {:Result => "OK" }
       format.json {render :json => result}
+    end
+  end
+
+  def cancel
+    @purchase_order.cancel!(current_user)
+    respond_to do |format|
+      format.html { redirect_to list_by_type_purchase_orders_path(type: 'all'), notice: 'Purchase Order cancelled successfully.' }
+      format.json { head :no_content }
     end
   end
 
