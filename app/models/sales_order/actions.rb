@@ -35,8 +35,12 @@ class SalesOrder < ActiveRecord::Base
     run_callbacks :cancellation do
       write_attribute :cancelled_at, Time.now
       write_attribute :total_amount, total_amount
+      self.status = 'cancelled'
       self.canceller = user if user
       save!
+
+      sales_items.each(&:cancel!)
+
       deliver_cancelled_order_email
     end
     true

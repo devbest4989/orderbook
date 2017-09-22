@@ -95,6 +95,9 @@ Rails.application.routes.draw do
       post :print, :defaults => { :format => 'pdf' }
       post :pack_pdf, :defaults => { :format => 'pdf' }
       post :ship_pdf, :defaults => { :format => 'pdf' }
+      post :package_detail_info
+      post :shipment_detail_info
+      post :invoice_detail_info
     end
 
     collection do
@@ -114,6 +117,8 @@ Rails.application.routes.draw do
       post :remove_activity
       post :print, :defaults => { :format => 'pdf' }
       post :pack_pdf, :defaults => { :format => 'pdf' }
+      post :receive_detail_info
+      post :bill_detail_info
     end
 
     collection do

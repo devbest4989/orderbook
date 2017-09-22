@@ -37,21 +37,33 @@ class InvoicesController < ApplicationController
     case params[:type]
     when 'all'
       @invoices = Invoice.where.not(sales_order_id: 0)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'draft'
       @invoices = Invoice.where.not(sales_order_id: 0).where(status: 0)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'confirmed'
       @invoices = Invoice.where.not(sales_order_id: 0).where(status: 1)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'sent'
       @invoices = Invoice.where.not(sales_order_id: 0).where(status: 2)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'partial'
       @invoices = Invoice.where.not(sales_order_id: 0).where(status: 3)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'paid'
       @invoices = Invoice.where.not(sales_order_id: 0).where(status: 4)
+                  .joins("LEFT JOIN sales_orders ON invoices.sales_order_id = sales_orders.id LEFT JOIN customers ON sales_orders.customer_id = customers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     end
 
@@ -198,7 +210,7 @@ class InvoicesController < ApplicationController
       result = {}
       if payment.save
         @invoice.add_payment!
-        result = {:Result => "OK" }
+        result = {:Result => "OK", :Balance => @invoice.total - @invoice.total_paid, :Status => @invoice.status_text.upcase, :StatusClass => @invoice.status_class }
       else
         result = {:Result => "Failed", :Message => payment.errors.full_messages }
       end
@@ -230,7 +242,7 @@ class InvoicesController < ApplicationController
     def get_order_key
       case params[:order]
       when 'date'
-        "invoices.order_date #{params[:sort]}"
+        "invoices.created_at #{params[:sort]}"
       when 'order_no'
         "invoices.token #{params[:sort]}"
       when 'company'

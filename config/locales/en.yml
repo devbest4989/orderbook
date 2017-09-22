@@ -41,6 +41,7 @@ en:
           shipped: "Shipped Sales Orders"
           drop_shipped: "Drop Shipped Sales Orders"
           invoice: "Ready to Invoice Sales Orders"
+          cancelled: "Cancelled Sales Orders"
 
   purchase_order:
     container:

@@ -1,6 +1,6 @@
 class SalesOrder < ActiveRecord::Base
   # An array of all the available statuses for an order
-  STATUSES = %w(quote confirmed packed shipped fullfilled partial_shipped).freeze
+  STATUSES = %w(quote confirmed packed shipped fullfilled partial_shipped cancelled).freeze
 
   belongs_to :canceller, class_name: 'User', foreign_key: 'cancelled_by_id'
   belongs_to :booker, class_name: 'User', foreign_key: 'booked_by_id'
@@ -18,6 +18,7 @@ class SalesOrder < ActiveRecord::Base
   scope :partial_shipped, -> { where(status: 'shipped') }
   scope :drop_shipped, -> { where(status: 'drop_shipped') }
   scope :invoice, -> { where(status: 'fullfilled') }
+  scope :cancelled, -> { where(status: 'cancelled') }
 
   def quote?
     status == 'quote'
@@ -43,6 +44,10 @@ class SalesOrder < ActiveRecord::Base
     status == 'fullfilled'
   end
 
+  def cancelled?
+    status == 'cancelled'
+  end
+
   def status_text
     if status == 'partial_shipped'
       'partial-shipped'
@@ -65,12 +70,16 @@ class SalesOrder < ActiveRecord::Base
       "label-primary"
     when "fullfilled"
       "label-success"
+    when "cancelled"
+      "label-danger"
     end
   end
 
   def status_label
     if status == 'fullfilled'
       "completed"
+    elsif status == 'partial_shipped'
+      'partial-shipped'
     else
       status
     end

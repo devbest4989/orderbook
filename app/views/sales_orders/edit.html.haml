@@ -8,7 +8,7 @@
           %h2
             ="Sales Order #{@sales_order.token}" 
         %span.label{class: @sales_order.status_class}
-          = "#{@sales_order.status_text.capitalize}"
+          = "#{@sales_order.status_text.upcase}"
         %ul.nav.navbar-right.panel_toolbox
           %li
             %a.collapse-link

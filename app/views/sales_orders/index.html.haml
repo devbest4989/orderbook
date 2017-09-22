@@ -98,7 +98,7 @@
                       =order.total_amount
                     %td
                       %span{:class => "label label-md #{order.status_class}"}
-                        =order.status_text.capitalize
+                        =order.status_text.upcase
                     %td
                       - if order.status == 'draft'
                         = link_to edit_sales_order_path(order), :class => "btn btn-primary btn-xs" do

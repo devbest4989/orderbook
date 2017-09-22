@@ -111,11 +111,12 @@ class SalesItem < ActiveRecord::Base
     end
 
     # Trigged when the associated order is cancelled..
-    def cancel!(amount, description, user)
-        if quantity_to_ship >= amount.to_i && amount.to_i > 0
-            self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'cancel', updated_by: user)
-            cache_pricing!
-        end
+    def cancel!
+        self.sales_item_activities.destroy_all
+        # if quantity_to_ship >= amount.to_i && amount.to_i > 0
+        #     self.sales_item_activities.create!(sales_item: self, quantity: amount, note: description, activity: 'cancel', updated_by: user)
+        #     cache_pricing!
+        # end
     end
 
     # Trigged when the associated order is returned..

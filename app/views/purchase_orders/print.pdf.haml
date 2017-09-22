@@ -1,0 +1,65 @@
+=content_for :title, "PurchaseOrder - #{@purchase_order.token}"
+%table.pack-order-box
+    %tr.main-info-box
+        %td{colspan: 2}
+            %table.order-main-info
+                %tr
+                    %td.company-title
+                        %h4= @purchase_order.supplier.company_title
+                        %p{style: 'color: #555;'}= @purchase_order.supplier.billing_address
+                    %td.order-info.text-right
+                        %h2 PURCHASE ORDER
+                        %p{style: 'color: #555;'}="Purchase Order: #{@purchase_order.token}"
+    %tr
+        %td{width: "50%"}
+        %td.text-right{width: "50%"}
+            %p="Order Date: #{@purchase_order.created_at.to_date}"
+    %tr.details-box
+        %td{height: 400, colspan: 2}
+            %table.order-product-info
+                %tr.product-header
+                    %td{style: 'width: 50%;'} ITEM & DESCRIPTION
+                    %td Quantity
+                    %td Unit Price
+                    %td{ width: '20%' } Amount
+                - @purchase_order.purchase_items.each do |item|
+                    %tr
+                        %td 
+                            =item.purchased_item.name    
+                        %td 
+                            =item.quantity
+                        %td 
+                            ="#{item.unit_price}"
+                        %td 
+                            ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+                - @purchase_order.purchase_custom_items.each do |item|
+                    %tr
+                        %td 
+                            =item.item_name    
+                        %td 
+                            =item.quantity
+                        %td 
+                            ="#{item.unit_price}"
+                        %td 
+                            ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+    %tr
+        %td{width: "50%"}
+        %td{width: "50%"}
+            %table.total-product-info{style: 'width: 100%;'}
+                %tr
+                    %td.text-right
+                        Sub Total
+                    %td.money.text-right=@purchase_order.sub_total
+                %tr
+                    %td.text-right
+                        Tax
+                    %td.money.text-right=@purchase_order.tax_amount            
+                %tr{style: 'background: #eee;'}
+                    %td.text-right
+                        Total
+                    %td.money.text-right=@purchase_order.total_amount
+
+:css
+    table td.money:before{    
+        content: '#{Setting.value_by('format.currency')} ' !important;
+    }

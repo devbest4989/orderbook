@@ -35,6 +35,7 @@
           %th
             = link_to 'javascript:;', class: 'link_order_by', data:{key: 'amount', sort: 'asc'} do
               Balance
+          %th
       %tbody
       - @invoices.each do |invoice|
         %tr{class: "status"}
@@ -57,18 +58,96 @@
           %td
             %a{:href => customer_path(id: invoice.sales_order.customer.id)}
               = invoice.sales_order.customer_full_name.html_safe
-          %td
+          %td{id: "invoice_status_#{invoice.id}"}
             %span.label{class: invoice.status_class}=invoice.status_text.upcase
           %td
             = invoice.payment_date
           %td
             = invoice.total
-          %td
+          %td{id: "invoice_balance_#{invoice.id}"}
             = invoice.total - invoice.total_paid
+          %td{style: "position: relative;"}
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              Actions
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu", style: "right: 0; left: auto; top: 35px;"}
+              %li
+                =link_to invoice_path(invoice, type: 'edit'), class: 'invoice-header-link' do
+                  Edit
+              - unless invoice.preview_token.nil?
+                %li
+                  =link_to preview_invoice_path(invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
+                    Preview
+                %li.divider
+              - if invoice.draft?
+                %li{id: "invoice_approve_#{invoice.id}"}
+                  =link_to 'javascript:;', class: 'invoice-header-link invoice-approve', 'data-id' => invoice.id, 'data-token' => invoice.token  do
+                    Approve
+              %li
+                =link_to '#', class: 'invoice-header-link' do
+                  Send
+              %li
+                =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-balance' => "#{invoice.total - invoice.total_paid}", id: "invoice_payment_#{invoice.id}", style: "#{(invoice.paid? || invoice.draft?) ? 'display: none;' : ''}" do
+                  Record Payment
+              %li.divider
+              - if invoice.file_name.blank? || invoice.is_updated_pdf
+                %li
+                  =link_to generate_pdf_invoice_path(invoice), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                    Export As PDF
+                %li
+                  =link_to generate_pdf_invoice_path(invoice), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                    Print
+              - else
+                %li
+                  =link_to invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                    Export As PDF
+                %li
+                  =link_to invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                    Print
+              %li.divider
+              %li
+                =link_to invoice_path(invoice), method: :delete, data: { confirm: 'Are you sure?' }, class: 'invoice-header-link' do
+                  Delete
 
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @invoices, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+
+  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}
+    .modal-dialog.modal-md
+      .modal-content
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title 
+            Record Payment for Bill - 
+            %span{id: 'payment_invoice_token'}
+        .modal-body
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{name:'payment_date', :placeholder => "Payment Date", id: 'payment_date'}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Amount
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'number', name:'amount', id: 'payment_amount', :placeholder => "$"}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Mode of Payment
+            .col-md-8.col-sm-8.col-xs-12
+              = select_tag :payment_mode, options_for_select(ApplicationHelper::PAYMENT_MODE.each_with_index.map {|name, index| [name,index]}), prompt: "Select Payment Mode", :class => "form-control"
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Reference #
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{name:'reference_no', id: 'reference_no'}
+          .row{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Note
+            .col-md-8.col-sm-8.col-xs-12
+              %textarea.form-control{name:'note', id: 'note', rows: 5}
+              %input{type:'hidden', id: 'payment_invoice_id', :value => ""}
+        .modal-footer
+          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
+          %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
 :javascript
   jQuery(document).ready(function() {
     InvoiceList.initInvoiceList();

@@ -22,8 +22,11 @@
           = link_to list_by_type_sales_orders_path(:type => 'drop_shipped'), class: "no-border" do
             Drop Shipped
         %li
-          = link_to list_by_type_sales_orders_path(:type => 'invoice'), class: "no-border" do
+          = link_to list_by_type_sales_orders_path(:type => 'invoice') do
             Ready to Invoice
+        %li
+          = link_to list_by_type_sales_orders_path(:type => 'cancelled'), class: "no-border" do
+            Cancelled
       %ul.nav.navbar-right.panel_toolbox
         %li
           %a.add-link{ :href => new_sales_order_path }

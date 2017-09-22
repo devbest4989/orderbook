@@ -41,10 +41,11 @@ var InvoiceList = function(){
 
   var handleGroupSelect = function() {
     $('.group-checkable').click(function(){
+      var parent_table = $(this).parents('table');
       if($(this).is(':checked') == true){
-        $(".bulk_action input[name='table_records']").prop("checked",true);
+        parent_table.find(".bulk_action input[name='table_records']").prop("checked",true);
       } else {
-        $(".bulk_action input[name='table_records']").prop("checked",false);
+        parent_table.find(".bulk_action input[name='table_records']").prop("checked",false);
       }
       $.uniform.update();
       //updateSelectedRecordLabel();
@@ -69,11 +70,120 @@ var InvoiceList = function(){
     });
   }
 
+  var handleInvoiceAction = function() {
+    $('.invoice-approve').click(function(){
+      var reqUrl = '/invoices/' + $(this).data('id') + '/approve'
+      var invoice_id = $(this).data('id');
+      var invoice_token = $(this).data('token');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#invoice_status_' + invoice_id).html('<span class="label label-info">APPROVED</span>');
+            $('#invoice_approve_' + invoice_id).hide();
+            $('#invoice_payment_' + invoice_id).show();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is approved.',
+              type: 'success',
+              delay: 3000
+            });
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });      
+    });
+
+    $('#payment_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'DD-MM-YYYY'
+      }, function(start, end, label) {
+    });
+
+    $('.record-payment').click(function(){
+      $('#payment_invoice_token').text($(this).data('token'));
+      $('#payment_date').val('');
+      $('#payment_amount').val($(this).data('balance'));
+      $('#reference_no').val('');
+      $('#note').val('');
+      $('#payment_invoice_id').val($(this).data('id'));
+      $('#payment_mode').val('');
+    });
+
+    $('#button_record_payment').click(function(){
+      var reqUrl = '/invoices/' + $('#payment_invoice_id').val() + '/add_payment'
+      var invoice_id = $('#payment_invoice_id').val();
+      var balance = $('#invoice_balance_' + invoice_id).text().trim();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          payment_date: $('#payment_date').val(),
+          payment_amount: $('#payment_amount').val(),
+          payment_mode: $('#payment_mode').val(),
+          reference_no: $('#reference_no').val(),
+          note: $('#note').val()          
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            var new_balance = data.Balance;
+            $('#invoice_balance_' + invoice_id).text(new_balance);
+            $('#invoice_payment_' + invoice_id).data('balance', new_balance);
+            if(new_balance <= 0){
+              $('#invoice_status_' + invoice_id).html('<span class="label label-success">PAID</span>');
+            } else {
+              $('#invoice_status_' + invoice_id).html('<span class="label label-warning">PARTIAL PAID</span>');
+            }
+            $('#cancel_record_payment').trigger('click');
+            new PNotify({
+              title: 'Success!',
+              text: $('#payment_amount').val() + ' Payment is made successfully.',
+              type: 'success',
+              delay: 3000
+            });            
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
+    });
+  }
+
   return {
     initInvoiceList: function () {
       initialHeader();
       handleOrderBy();
       handleGroupSelect();
+      handleInvoiceAction();
     }
   };
 }();

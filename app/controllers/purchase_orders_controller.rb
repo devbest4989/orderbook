@@ -1,5 +1,8 @@
 class PurchaseOrdersController < ApplicationController
-  before_action :set_purchase_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :receive, :remove_activity, :bill, :update_status]
+  before_action :set_purchase_order, only: [
+      :show, :edit, :update, :destroy, 
+      :book, :cancel, :return, :receive, :remove_activity, 
+      :bill, :update_status, :receive_detail_info, :bill_detail_info]
 
   before_filter do
     locale = params[:locale]
@@ -171,7 +174,15 @@ class PurchaseOrdersController < ApplicationController
       add_action_history('approve', 'update', @purchase_order.token)
       # make_order_bill
     end
-    redirect_to purchase_order_url(@purchase_order)
+
+    respond_to do |format|
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        redirect_to purchase_order_url(@purchase_order)
+      end
+    end
   end
 
   def receive
@@ -185,7 +196,13 @@ class PurchaseOrdersController < ApplicationController
 
     @purchase_order.confirm_status!(current_user)
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @purchase_order.status_class, 
+        :status_label => @purchase_order.status_label.upcase,
+        :active_receive => @purchase_order.received?,
+        :active_bill => (@purchase_order.bills.length > 0),
+        :id => @purchase_order.id }
       format.json {render :json => result}
     end
   end
@@ -201,7 +218,13 @@ class PurchaseOrdersController < ApplicationController
 
     @purchase_order.confirm_status!(current_user)
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @purchase_order.status_class, 
+        :status_label => @purchase_order.status_label.upcase,
+        :active_receive => @purchase_order.received?,
+        :active_bill => (@purchase_order.bills.length > 0),
+        :id => @purchase_order.id }
       format.json {render :json => result}
     end
   end
@@ -229,8 +252,12 @@ class PurchaseOrdersController < ApplicationController
   def cancel
     @purchase_order.cancel!(current_user)
     respond_to do |format|
-      format.html { redirect_to list_by_type_purchase_orders_path(type: 'all'), notice: 'Purchase Order cancelled successfully.' }
-      format.json { head :no_content }
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        format.html { redirect_to list_by_type_purchase_orders_path(type: 'all'), notice: 'Purchase Order cancelled successfully.' }
+      end
     end
   end
 
@@ -265,9 +292,111 @@ class PurchaseOrdersController < ApplicationController
     @purchase_order.bill!(current_user)
 
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @purchase_order.status_class, 
+        :status_label => @purchase_order.status_label.upcase,
+        :active_receive => @purchase_order.received?,
+        :active_bill => (@purchase_order.bills.length > 0),
+        :id => @purchase_order.id }
       format.json {render :json => result}
     end
+  end
+
+  def receive_detail_info
+    receive_items = []
+    @purchase_order.purchase_items.each do |item|
+      elem = {
+        sku: item.purchased_item.sku,
+        name: item.purchased_item.name,
+        stock: item.purchased_item.stock,
+        qty_to_receive: item.quantity_to_receive,
+        id: item.id
+      }
+      receive_items << elem
+    end
+    result = {:result => "OK",
+              :supplier => @purchase_order.supplier.name,
+              :token => @purchase_order.token,
+              :total_qty_to_receive => @purchase_order.total_quantity_to_receive,
+              :total_received_qty => @purchase_order.total_received_quantity,
+              :receive_req_url => receive_purchase_order_path(@purchase_order),
+              :return_req_url => return_purchase_order_path(@purchase_order),              
+              :receive_items => receive_items
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
+
+  def bill_detail_info
+    bill_items = []
+    @purchase_order.purchase_items.each do |item|
+      elem = {
+        sku: item.purchased_item.sku,
+        name: item.purchased_item.name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        tax_rate: item.tax_rate,
+        sub_total: item.quantity * item.unit_price - item.discount_amount,
+        type: 'product',
+        id: item.id
+      }
+      bill_items << elem
+    end
+
+    @purchase_order.purchase_custom_items.each do |item|
+      elem = {
+        sku: '',
+        name: item.item_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        tax_rate: item.tax_rate,
+        sub_total: item.quantity * item.unit_price - item.discount_amount,
+        type: 'custom_product',
+        id: item.id
+      }
+      bill_items << elem
+    end
+
+    result = {:result => "OK",
+              :supplier => @purchase_order.supplier.company_title,
+              :billing_address => @purchase_order.supplier.billing_address,
+              :bill_date => DateTime.now.strftime('%m/%d/%Y'),
+              :bill_phone => @purchase_order.supplier.phone,
+              :bill_fax => @purchase_order.supplier.fax,
+              :token => @purchase_order.token,
+              :booker => @purchase_order.booker.full_name,              
+              :bill_req_url => bill_purchase_order_path(@purchase_order),
+              :bill_items => bill_items,
+              :sub_total => @purchase_order.sub_total,
+              :total_tax => @purchase_order.tax_amount,
+              :total_amount => @purchase_order.total_amount,
+              :status => @purchase_order.status
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
+
+  def print
+    set_purchase_order
+    # get_first_invoice
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end    
+
+    respond_to do |format|
+      format.pdf do
+        render pdf: "bill", layout: '/layouts/sales_order.pdf.haml'
+      end
+    end    
   end
 
   private

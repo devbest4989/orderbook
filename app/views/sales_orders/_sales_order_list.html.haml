@@ -41,7 +41,7 @@
           %th
       %tbody
       - @sales_orders.each do |order|
-        %tr{class: "status"}
+        %tr{class: "status", id: "sales_order_row_#{order.id}"}
           %td.bulk_action  
             %input{type: 'checkbox', value: "#{order.id}", name: "table_records"}
           %td
@@ -52,10 +52,11 @@
           %td
             %a{:href => customer_path(id: order.customer.id)}
               = order.customer_full_name.html_safe
-          %td
-            = order.status_label.capitalize
+          %td{id: "sales_order_status_#{order.id}"}
+            %span.label{class: order.status_class}
+              = order.status_label.upcase
           %td.text-center
-            %span{class: order.packed? || order.shipped? || order.fullfilled? ? "orange-status-active" : ""}
+            %span{class: !(order.total_quantity_to_pack > 0) ? "orange-status-active" : ""}
               %i.fa.fa-icon.fa-circle
           %td.text-center
             %span{class: order.shipped? || order.fullfilled? ? "blue-status-active" : ""}
@@ -68,19 +69,223 @@
               %i.fa.fa-icon.fa-circle
           %td.money
             = order.total_amount
-          %td.text-left
-            - if order.quote?
-              = link_to update_status_sales_order_path(order, {save_action: 'confirm'}), method: :post, :class => "btn btn-success btn-xs", title: 'Confirm' do
-                %i.fa.fa-check
-              = link_to sales_order_path(order), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
-                %i.fa.fa-times
-              = link_to print_sales_order_path(order), method: :post, :class => "btn btn-primary btn-xs", title: 'Email', target: '_blank' do
-                %i.fa.fa-envelope
-              = link_to print_sales_order_path(order), method: :post, :class => "btn btn-info btn-xs", title: 'Print', target: '_blank' do
-                %i.fa.fa-print
+          %td{style: "position: relative;"}
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              Actions
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu", style: "right: 0; left: auto; top: 35px;"}
+              %li
+                =link_to edit_sales_order_path(order), class: 'sales-order-header-link' do
+                  Edit
+              %li
+                =link_to sales_order_path(order), class: 'sales-order-header-link' do
+                  View
+              %li.divider
+              %li{id: "sales_order_confirm_#{order.id}", class: "order_confirm_section_#{order.id}", style: "#{!(order.quote? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to 'javascript:;', class: 'sales-order-header-link sales-order-confirm', 'data-id' => order.id, 'data-token' => order.token  do
+                  Confirm
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.quote? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'sales-order-header-link package-sales-order', 'data-target' => '#package_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
+                  Package
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.quote? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'sales-order-header-link shipment-sales-order', 'data-target' => '#shipment_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
+                  Shipment
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.quote? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'sales-order-header-link invoice-sales-order', 'data-target' => '#invoice_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
+                  Invoice
+              %li.divider
+              %li
+                =link_to print_sales_order_path(order), class: 'sales-order-header-link', :method=> :post, target: '_blank' do
+                  Print
+              %li
+                =link_to print_sales_order_path(order), class: 'sales-order-header-link', :method=> :post, target: '_blank' do
+                  Email
+              %li.divider{class: "order_cancel_section_#{order.id}", style: "#{(order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "sales_order_cancel_#{order.id}", class: "order_cancel_section_#{order.id}", style: "#{(order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to 'javascript:;', class: 'sales-order-header-link sales-order-cancel', 'data-id' => order.id, 'data-token' => order.token  do
+                  Cancel
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @sales_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+
+#package_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Package
+      .modal-body
+        .row.no-margin
+          .col-md-6.col-sm-6.col-xs-12
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
+              %span#package_customer_name.col-md-8.col-sm-8.col-xs-12.field-value          
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Order #
+              %span#package_order_token.col-md-8.col-sm-8.col-xs-12.field-value          
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %input#package_req_url{type: 'hidden', value: ""}
+            %input#package_order_id{type: 'hidden', value: ""}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 30%"} Product Name
+                    %th{:style => "width: 15%"} Qty on Hand
+                    %th{:style => "width: 15%"} Qty on Ordered
+                    %th{:style => "width: 10%"} Qty on Pack
+                    %th{:style => "width: 10%"} Note
+                %tbody#product_list_body
+                / - @sales_order.sales_items.each do |item|
+                /   %tr
+                /     %td 
+                /       =item.sold_item.sku    
+                /     %td 
+                /       =item.sold_item.name
+                /     %td 
+                /       =item.sold_item.stock + item.quantity unless @sales_order.quote? || @sales_order.shipped?
+                /       =item.sold_item.stock if @sales_order.quote? || @sales_order.shipped?
+                /     %td 
+                /       =item.quantity_to_pack
+                /     %td.editable{"contentEditable" => "true"}
+                /       =item.quantity_to_pack
+                /     %td.editable{"contentEditable" => "true"} 
+                /     %td{:style => "display: none;"} 
+                /       =item.id
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        %button#btn_create_package.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#shipment_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Shipment
+      .modal-body
+        .row.no-margin.form-horizontal
+          .col-md-9.col-sm-12.col-xs-12
+            .form-group
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Customer Name
+              %span#shipment_customer_name.col-md-8.col-sm-8.col-xs-12.field-value          
+            .form-group
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Order #
+              %span#shipment_order_token.col-md-8.col-sm-8.col-xs-12.field-value          
+            .form-group
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method
+              %span#shipment_method.col-md-8.col-sm-8.col-xs-12.field-value          
+            .form-group
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimated Ship Date
+              %span#shipment_est_date.col-md-8.col-sm-8.col-xs-12.field-value          
+            .form-group
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Tracking Number
+              .col-md-8.col-sm-8.col-xs-12
+                %input#modal_tracking_number.form-control{type:'text'}
+          .col-md-3.col-sm-12.col-xs-12.text-right
+            %input#shipment_req_url{type: 'hidden', value: ""}
+            %input#shipment_order_id{type: 'hidden', value: ""}
+            / %input#ship_invoice_url{type: 'hidden', value: "#{invoice_sales_order_path(@sales_order)}"}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th 
+                      %input.group-checkable{type: 'checkbox'}
+                    %th Packaging Number
+                    %th SKU
+                    %th Product Name
+                    %th Packaging Date
+                    %th Packaging Qty
+                    %th Note
+                    %th Updated By
+                %tbody#shipment_product_list_body
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        %button#btn_create_shipment.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#invoice_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Create Sales Order Invoice
+      .modal-body
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h1#invoice_customer_name
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %h4.invoice_number            
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h4#invoice_customer_address
+          .col-md-6.col-sm-6.col-xs-12
+            %h4#invoice_date.invoice_date
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h5#invoice_customer_phone
+            %h5#invoice_customer_fax
+          .col-md-6.col-sm-6.col-xs-12
+            %h5#invoice_sales_order_token
+            %h5#invoice_sales_order_booker
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h4 
+            %h5#invoice_company_name
+            %h5#invoice_company_address
+          .col-md-6.col-sm-6.col-xs-12
+            %h4 Deliver To
+            %h5#invoice_customer_name
+            %h5#invoice_shipping_address
+            %input#invoice_req_url{type: 'hidden', value: ""}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 25%"} Product Name
+                    %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                    %th{:style => "width: 10%"} Discount (%)
+                    %th{:style => "width: 10%"} Tax (%)
+                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                %tbody#invoice_product_list_body
+              %table.table.projects
+                %tbody
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b SubTotal:
+                    %td#invoice_sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Total Discount:
+                    %td#invoice_discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Shipping Cost:
+                    %td#invoice_shipping_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Tax:
+                    %td#invoice_tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Total:
+                    %td#invoice_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        %button#btn_create_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Create
+
+
 :javascript
   jQuery(document).ready(function() {
     SalesOrderList.initSalesOrderList();

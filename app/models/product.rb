@@ -71,7 +71,7 @@ class Product < ActiveRecord::Base
   end
 
   def sales_qty
-    SalesItem.includes(:sales_order).where(sold_item: self.id).where("sales_orders.status != 'quote'").sum(:quantity)
+    SalesItem.includes(:sales_order).where(sold_item: self.id).where.not("sales_orders.status NOT IN ('quote', 'cancelled')").sum(:quantity)
   end
 
   def purchase_qty

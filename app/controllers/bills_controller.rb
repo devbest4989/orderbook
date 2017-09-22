@@ -37,21 +37,33 @@ class BillsController < ApplicationController
     case params[:type]
     when 'all'
       @bills = Bill.where.not(purchase_order_id: 0)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'draft'
       @bills = Bill.where.not(purchase_order_id: 0).where(status: 0)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'confirmed'
       @bills = Bill.where.not(purchase_order_id: 0).where(status: 1)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'sent'
       @bills = Bill.where.not(purchase_order_id: 0).where(status: 2)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'partial'
       @bills = Bill.where.not(purchase_order_id: 0).where(status: 3)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     when 'paid'
       @bills = Bill.where.not(purchase_order_id: 0).where(status: 4)
+                  .joins("LEFT JOIN purchase_orders ON bills.purchase_order_id = purchase_orders.id LEFT JOIN suppliers ON purchase_orders.supplier_id = suppliers.id")
+                  .order(order_key)
                   .paginate(page: params[:page])
     end
 
@@ -237,11 +249,11 @@ class BillsController < ApplicationController
     def get_order_key
       case params[:order]
       when 'date'
-        "bills.order_date #{params[:sort]}"
+        "bills.created_at #{params[:sort]}"
       when 'order_no'
         "bills.token #{params[:sort]}"
       when 'company'
-        "customers.company_name #{params[:sort]}, customers.first_name #{params[:sort]}"
+        "suppliers.company_name #{params[:sort]}, suppliers.first_name #{params[:sort]}"
       when 'amount'
         "bills.total_amount #{params[:sort]}"
       when 'status'

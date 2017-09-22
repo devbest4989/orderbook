@@ -145,10 +145,11 @@ var SalesOrderDetail = function () {
 
   var handleShipTab = function(){
     $('.group-checkable').click(function(){
+      var parent_table = $(this).parents('table');
       if($(this).is(':checked') == true){
-        $(".bulk_action input[name='table_records']").prop("checked",true);
+        parent_table.find(".bulk_action input[name='table_records']").prop("checked",true);
       } else {
-        $(".bulk_action input[name='table_records']").prop("checked",false);
+        parent_table.find(".bulk_action input[name='table_records']").prop("checked",false);
       }
       $.uniform.update();
     });    

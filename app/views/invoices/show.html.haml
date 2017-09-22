@@ -7,7 +7,7 @@
         %h2           
           ="Invoice #{@invoice.token}" 
         %span.label{class: @invoice.status_class}
-          = "#{@invoice.status_text.capitalize}"
+          = "#{@invoice.status_text.upcase}"
         %ul.nav.navbar-right.panel_toolbox
           %li
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}

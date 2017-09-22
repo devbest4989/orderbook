@@ -92,7 +92,7 @@ class PurchaseOrder < ActiveRecord::Base
     #
     # @return [String]
     def supplier_full_name
-      "#{supplier.company_name} (<small>#{supplier.full_name}</small>)"
+      "#{supplier.company_name} <br/> (<small>#{supplier.full_name}</small>)"
     end
 
     # Is this order empty? (i.e. doesn't have any items associated with it)

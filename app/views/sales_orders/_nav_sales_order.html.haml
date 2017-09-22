@@ -23,6 +23,9 @@
       %li
         = link_to list_by_type_sales_orders_path(:type => 'invoice'), class: "no-border" do
           Ready to Invoice
+      %li
+        = link_to list_by_type_sales_orders_path(:type => 'cancelled') do
+          Cancelled
     %ul.nav.navbar-right.panel_toolbox
       %li
         %a.add-link{ :href => add_url }
@@ -47,7 +50,7 @@
                     = "Ref: #{elem.ref_no}"
                   %td.text-right
                     %span.label{class: "#{elem.status_class}"}
-                      = elem.status_text.capitalize
+                      = elem.status_text.upcase
       %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
 :javascript
   jQuery(document).ready(function() {

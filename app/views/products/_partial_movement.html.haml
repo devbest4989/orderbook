@@ -24,4 +24,4 @@
         %td=item['quantity']
         %td
           %span{:class => "label label-md #{movement_status(item['status'])}"}
-            =item['status'].capitalize
+            =item['status'].upcase

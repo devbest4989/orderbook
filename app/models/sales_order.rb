@@ -93,7 +93,7 @@ class SalesOrder < ActiveRecord::Base
     #
     # @return [String]
     def customer_full_name
-      "#{customer.company_name} (<small>#{customer.full_name}</small>)"
+      "#{customer.company_name} <br/> (<small>#{customer.full_name}</small>)"
     end
 
     # Is this order empty? (i.e. doesn't have any items associated with it)

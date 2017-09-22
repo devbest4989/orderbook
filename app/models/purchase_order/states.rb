@@ -45,6 +45,8 @@ class PurchaseOrder < ActiveRecord::Base
   def status_text
     if status == 'partial_received'
       'partial Received'
+    elsif status == 'fullfilled'
+      "completed"
     else
       status
     end

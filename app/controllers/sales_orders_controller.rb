@@ -1,5 +1,8 @@
 class SalesOrdersController < ApplicationController  
-  before_action :set_sales_order, only: [:show, :edit, :update, :destroy, :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status]
+  before_action :set_sales_order, only: [
+      :show, :edit, :update, :destroy, 
+      :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status,
+      :package_detail_info, :shipment_detail_info, :invoice_detail_info]
 
   before_filter do
     locale = params[:locale]
@@ -145,7 +148,15 @@ class SalesOrdersController < ApplicationController
       add_action_history('confirm', 'update', @sales_order.token)
       make_order_invoice
     end
-    redirect_to sales_order_url(@sales_order)
+
+    respond_to do |format|
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        redirect_to sales_order_url(@sales_order)
+      end
+    end
   end
 
   def book
@@ -171,16 +182,29 @@ class SalesOrdersController < ApplicationController
   end
 
   def cancel
-    params[:cancel_attributes].each do |elem|
-      sales_item = SalesItem.find(elem[1][:id].to_i);
-      sales_item.cancel!(elem[1][:quantity], elem[1][:note], current_user)
-    end
     @sales_order.cancel!(current_user)
+
     respond_to do |format|
-      result = {:Result => "OK" }
-      format.json {render :json => result}
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        format.html { redirect_to list_by_type_sales_orders_path(type: 'all'), notice: 'Sales Order cancelled successfully.' }
+      end
     end
   end
+
+  # def cancel
+  #   params[:cancel_attributes].each do |elem|
+  #     sales_item = SalesItem.find(elem[1][:id].to_i);
+  #     sales_item.cancel!(elem[1][:quantity], elem[1][:note], current_user)
+  #   end
+  #   @sales_order.cancel!(current_user)
+  #   respond_to do |format|
+  #     result = {:Result => "OK" }
+  #     format.json {render :json => result}
+  #   end
+  # end
 
   def return
     params[:return_attributes].each do |elem|
@@ -268,7 +292,15 @@ class SalesOrdersController < ApplicationController
     @sales_order.invoice!(current_user)
 
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @sales_order.status_class, 
+        :status_label => @sales_order.status_label.upcase,
+        :active_packed => !(@sales_order.total_quantity_to_pack > 0),
+        :active_delivered => (@sales_order.shipped? || @sales_order.fullfilled?),
+        :active_invoiced => (@sales_order.invoices.length > 0),
+        :active_fullfill => @sales_order.fullfilled?,
+        :id => @sales_order.id }
       format.json {render :json => result}
     end
   end
@@ -299,7 +331,15 @@ class SalesOrdersController < ApplicationController
 
     @sales_order.confirm_status!(current_user)
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @sales_order.status_class, 
+        :status_label => @sales_order.status_label.upcase,
+        :active_packed => !(@sales_order.total_quantity_to_pack > 0),
+        :active_delivered => (@sales_order.shipped? || @sales_order.fullfilled?),
+        :active_invoiced => (@sales_order.invoices.length > 0),
+        :active_fullfill => @sales_order.fullfilled?,
+        :id => @sales_order.id }
       format.json {render :json => result}
     end
   end
@@ -342,7 +382,15 @@ class SalesOrdersController < ApplicationController
 
     @sales_order.confirm_status!(current_user)
     respond_to do |format|
-      result = {:Result => "OK" }
+      result = {
+        :Result => "OK", 
+        :status_class => @sales_order.status_class, 
+        :status_label => @sales_order.status_label.upcase,
+        :active_packed => (@sales_order.packed? || @sales_order.shipped? || @sales_order.fullfilled?),
+        :active_delivered => (@sales_order.shipped? || @sales_order.fullfilled?),
+        :active_invoiced => (@sales_order.invoices.length > 0),
+        :active_fullfill => @sales_order.fullfilled?,
+        :id => @sales_order.id }
       format.json {render :json => result}
     end
   end
@@ -424,6 +472,11 @@ class SalesOrdersController < ApplicationController
                   .includes(:customer)
                   .order(order_key)
                   .paginate(page: params[:page])
+    when 'cancelled'
+      @sales_orders = SalesOrder.where(status: 'cancelled')
+                  .includes(:customer)
+                  .order(order_key)
+                  .paginate(page: params[:page])
     else
       @sales_orders = SalesOrder.all.includes(:customer)
                   .order(order_key)
@@ -434,6 +487,132 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       format.html { render "list" }
     end
+  end
+
+  def package_detail_info
+    package_items = []
+    @sales_order.sales_items.each do |item|
+      stock = item.sold_item.stock + item.quantity unless @sales_order.quote? || @sales_order.shipped?
+      stock = item.sold_item.stock if @sales_order.quote? || @sales_order.shipped?
+      elem = {
+        sku: item.sold_item.sku,
+        name: item.sold_item.name,
+        stock: stock,
+        qty_to_package: item.quantity_to_pack,
+        id: item.id
+      }
+      package_items << elem
+    end
+    result = {:result => "OK",
+              :customer => @sales_order.customer.name,
+              :token => @sales_order.token,
+              :total_qty_to_package => @sales_order.total_quantity_to_pack,
+              :package_req_url => pack_sales_order_path(@sales_order),
+              :package_items => package_items
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
+
+  def shipment_detail_info
+    shipment_items = []
+    elem_num = @sales_order.pack_activities_elems
+    pack_token = @sales_order.ship_activities_datas
+    @sales_order.pack_activities.each do |item| 
+      unless pack_token.include? item.token
+        elem = {
+          rowspan: elem_num[item.token].to_i,
+          token: item.token,
+          sku: item.sales_item.sold_item.sku,
+          name: item.sales_item.sold_item.name,
+          created_date: item.created_at.to_date,
+          quantity: item.quantity,
+          note: item.note,
+          updater: item.updated_by.email          
+        }
+        shipment_items << elem
+      end
+    end
+    result = {:result => "OK",
+              :customer => @sales_order.customer.name,
+              :token => @sales_order.token,
+              :shipment_method => @sales_order.shipping_method.name,
+              :shipment_est_date => @sales_order.estimate_ship_date,
+              :shipment_req_url => ship_sales_order_path(@sales_order),
+              :shipment_items => shipment_items,
+              :active_shipment => (@sales_order.packed? || @sales_order.partial_shipped?)          
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
+
+  def invoice_detail_info
+    invoice_items = []
+    @sales_order.sales_items.each do |item|
+      elem = {
+        sku: item.sold_item.sku,
+        name: item.sold_item.name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        discount_rate: item.discount_rate,
+        tax_rate: item.tax_rate,
+        sub_total: item.quantity * item.unit_price - item.discount_amount,
+        type: 'product',
+        id: item.id
+      }
+      invoice_items << elem
+    end
+
+    @sales_order.sales_custom_items.each do |item|
+      elem = {
+        sku: '',
+        name: item.item_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        discount_rate: item.discount_rate,
+        tax_rate: item.tax_rate,
+        sub_total: item.quantity * item.unit_price - item.discount_amount,
+        type: 'custom_product',
+        id: item.id
+      }
+      invoice_items << elem
+    end
+
+    # Self Company Profile
+    profile_info = Setting.company_profile
+    @company_profiles = {}
+    profile_info.each do |info|
+      @company_profiles[info.key] = info.value
+    end        
+
+    result = {:result => "OK",
+              :customer => @sales_order.customer.company_title,
+              :billing_address => @sales_order.customer.billing_address,
+              :invoice_date => DateTime.now.strftime('%m/%d/%Y'),
+              :invoice_phone => @sales_order.customer.phone,
+              :invoice_fax => @sales_order.customer.fax,
+              :token => @sales_order.token,
+              :booker => @sales_order.booker.full_name,
+              :company_name => @company_profiles['company.name'],
+              :company_address => @company_profiles['company.address'],
+              :invoice_req_url => invoice_sales_order_path(@sales_order),
+              :shipping_address => @sales_order.shipping_address,
+              :invoice_items => invoice_items,
+              :sub_total => @sales_order.sub_total,
+              :total_discount => @sales_order.discount_amount,
+              :total_tax => @sales_order.tax_amount,
+              :total_amount => @sales_order.total_amount,
+              :status => @sales_order.status
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+
   end
 
   private

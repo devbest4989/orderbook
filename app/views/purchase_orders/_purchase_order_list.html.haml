@@ -35,7 +35,7 @@
           %th
       %tbody
       - @purchase_orders.each do |order|
-        %tr{class: "status"}
+        %tr{class: "status", id: "purchase_order_row_#{order.id}"}
           %td.bulk_action  
             %input{type: 'checkbox', value: "#{order.id}", name: "table_records"}
           %td
@@ -46,9 +46,9 @@
           %td
             %a{:href => supplier_path(id: order.supplier.id)}
               = order.supplier_full_name.html_safe
-          %td
+          %td{id: "purchase_order_status_#{order.id}"}
             %span.label{class: order.status_class}
-              = order.status_label.capitalize
+              = order.status_label.upcase
           %td.text-center
             %span{class: order.received? ? "orange-status-active" : ""}
               %i.fa.fa-icon.fa-circle
@@ -57,18 +57,144 @@
               %i.fa.fa-icon.fa-circle
           %td.money
             = order.total_amount
-          %td.text-left
-            - if order.draft? || order.cancelled?
-              = link_to update_status_purchase_order_path(order, {save_action: 'approve'}), method: :post, :class => "btn btn-success btn-xs", title: 'Approve' do
-                %i.fa.fa-check
-            - unless order.cancelled?            
-              = link_to cancel_purchase_order_path(order), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-xs", title: 'Cancel' do
-                %i.fa.fa-times                
-            = link_to print_purchase_order_path(order), method: :post, :class => "btn btn-info btn-xs", title: 'Print', target: '_blank' do
-              %i.fa.fa-print
+          %td{style: "position: relative;"}
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              Actions
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu", style: "right: 0; left: auto; top: 35px;"}
+              %li
+                =link_to edit_purchase_order_path(order), class: 'purchase-order-header-link' do
+                  Edit
+              %li
+                =link_to purchase_order_path(order), class: 'purchase-order-header-link' do
+                  View
+              %li.divider
+              %li{id: "purchase_order_approve_#{order.id}", class: "order_approve_section_#{order.id}", style: "#{!(order.draft? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to 'javascript:;', class: 'purchase-order-header-link purchase-order-approve', 'data-id' => order.id, 'data-token' => order.token  do
+                  Approve
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.draft? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'purchase-order-header-link receive-purchase-order', 'data-target' => '#receive_modal', 'data-toggle' => 'modal', 'data-id' => order.id, 'data-type' => 'receive' do
+                  Receive
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.draft? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'purchase-order-header-link receive-purchase-order', 'data-target' => '#receive_modal', 'data-toggle' => 'modal', 'data-id' => order.id, 'data-type' => 'return' do
+                  Return
+              %li{class: "order_cancel_section_#{order.id}", style: "#{(order.draft? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'purchase-order-header-link bill-purchase-order', 'data-target' => '#bill_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
+                  Create Bill
+              %li.divider
+              %li
+                =link_to print_purchase_order_path(order), class: 'purchase-order-header-link', :method=> :post, target: '_blank' do
+                  Print
+              %li
+                =link_to print_purchase_order_path(order), class: 'purchase-order-header-link', :method=> :post, target: '_blank' do
+                  Email
+              %li.divider{class: "order_cancel_section_#{order.id}", style: "#{(order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "purchase_order_cancel_#{order.id}", class: "order_cancel_section_#{order.id}", style: "#{(order.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to 'javascript:;', class: 'purchase-order-header-link purchase-order-cancel', 'data-id' => order.id, 'data-token' => order.token  do
+                  Cancel
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @purchase_orders, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+
+#receive_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4#receive_modal_title.modal-title Purchase Order Receive
+      .modal-body
+        .row.no-margin
+          .col-md-6.col-sm-6.col-xs-12
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Supplier Name
+              %span#receive_supplier_name.col-md-8.col-sm-8.col-xs-12.field-value
+            .form-group.row
+              %label.control-label.col-md-4.col-sm-4.col-xs-12 Purchase Order #
+              %span#receive_order_token.col-md-8.col-sm-8.col-xs-12.field-value          
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %input#receive_req_url{type: 'hidden', value: ""}
+            %input#return_req_url{type: 'hidden', value: ""}
+            %input#receive_modal_type{type: 'hidden', value: ""}
+            %input#receive_order_id{type: 'hidden', value: ""}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 30%"} Product Name
+                    %th{:style => "width: 15%"} Qty on Hand
+                    %th{:style => "width: 15%"} Qty on Ordered
+                    %th{:style => "width: 10%"} Qty on Action
+                    %th{:style => "width: 10%"} Note
+                %tbody#product_list_body
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        %button#btn_create_receive.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
+
+#bill_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Create Purchase Order Bill
+      .modal-body
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h1#bill_supplier_name
+          .col-md-6.col-sm-6.col-xs-12.text-right
+            %h4.invoice_number            
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h4#bill_supplier_address
+          .col-md-6.col-sm-6.col-xs-12
+            %h4#bill_date.invoice_date
+        .row.no-margin  
+          .col-md-6.col-sm-6.col-xs-12
+            %h5#bill_supplier_phone
+            %h5#bill_supplier_fax
+          .col-md-6.col-sm-6.col-xs-12
+            %h5#bill_purchase_order_token
+            %h5#bill_purchase_order_booker
+        .row.no-margin  
+          %input#bill_req_url{type: 'hidden', value: ""}
+          %input#bill_order_id{type: 'hidden', value: ""}
+          .col-md-12{:style => "overflow:auto;"}
+            / start project list
+            %div
+              %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th{:style => "width: 15%"} SKU
+                    %th{:style => "width: 25%"} Product Name
+                    %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                    %th{:style => "width: 10%"} Tax (%)
+                    %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                %tbody#bill_product_list_body
+
+              %table.table.projects
+                %tbody
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b SubTotal:
+                    %td#bill_sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Tax:
+                    %td#bill_tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                  %tr
+                    %td{:style => 'border:none; background: white; text-align: right;'} 
+                      %b Total:
+                    %td#bill_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+        %button#btn_create_bill.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Create
+
 :javascript
   jQuery(document).ready(function() {
     PurchaseOrderList.initPurchaseOrderList();
