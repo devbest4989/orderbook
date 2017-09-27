@@ -17,12 +17,12 @@
               %li
                 =link_to edit_sales_order_path(@sales_order), class: 'order-header-link' do
                   Edit
-              - if @sales_order.quote?
+              - if @sales_order.quote? || @sales_order.cancelled?
                 %li
                   = link_to update_status_sales_order_path(@sales_order, {save_action: 'confirm'}), method: :post, :class => "order-header-link" do
                     Confirm
               %li.divider
-              - if @sales_order.quote?
+              - if @sales_order.quote? || @sales_order.cancelled?
                 %li
                   = link_to '#', method: :post, :class => "order-header-link", title: 'Email', target: '_blank' do
                     Email
