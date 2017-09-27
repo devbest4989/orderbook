@@ -79,15 +79,14 @@
                   =link_to preview_invoice_path(invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
                     Preview
                 %li.divider
-              - if invoice.draft?
-                %li{id: "invoice_approve_#{invoice.id}"}
-                  =link_to 'javascript:;', class: 'invoice-header-link invoice-approve', 'data-id' => invoice.id, 'data-token' => invoice.token  do
-                    Approve
+              %li{id: "invoice_approve_#{invoice.id}" , class: "invoice_approve_section_#{invoice.id}", style: "#{(invoice.draft? || invoice.cancelled?) ? 'display: block;' : 'display: none;'}"}
+                =link_to 'javascript:;', class: 'invoice-header-link invoice-approve', 'data-id' => invoice.id, 'data-token' => invoice.token  do
+                  Approve
               %li
                 =link_to '#', class: 'invoice-header-link' do
                   Send
-              %li
-                =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-balance' => "#{invoice.total - invoice.total_paid}", id: "invoice_payment_#{invoice.id}", style: "#{(invoice.paid? || invoice.draft?) ? 'display: none;' : ''}" do
+              %li{id: "invoice_payment_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-balance' => "#{invoice.total - invoice.total_paid}", style: "#{(invoice.paid? || invoice.draft?) ? 'display: none;' : ''}" do
                   Record Payment
               %li.divider
               - if invoice.file_name.blank? || invoice.is_updated_pdf
@@ -104,10 +103,10 @@
                 %li
                   =link_to invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
                     Print
-              %li.divider
-              %li
-                =link_to invoice_path(invoice), method: :delete, data: { confirm: 'Are you sure?' }, class: 'invoice-header-link' do
-                  Delete
+              %li.divider{class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "invoice_cancel_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'invoice-header-link invoice-cancel', 'data-target' => '#cancel_reason_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token  do
+                  Cancel
 
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @invoices, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
@@ -120,7 +119,7 @@
           %button.close{"data-dismiss" => "modal", :type => "button"}
             %span{"aria-hidden" => "true"} ×
           %h4.modal-title 
-            Record Payment for Bill - 
+            Record Payment for Invoice - 
             %span{id: 'payment_invoice_token'}
         .modal-body
           .row{style:'margin-bottom: 10px;'}
@@ -147,6 +146,25 @@
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
+  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "cancel_reason_modal"}
+    .modal-dialog.modal-md
+      .modal-content
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title 
+            Cancel Reason for Invoice - 
+            %span{id: 'cancel_invoice_token'}
+        .modal-body
+          .row{style:'margin-bottom: 10px;'}
+            .col-md-12
+              %label Reason
+              %textarea.form-control{name:'note', id: 'cancel_reason', rows: 5}
+              %input{type:'hidden', id: 'cancel_invoice_id', :value => ""}
+        .modal-footer
+          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
+          %button.btn.btn-danger{:type => "button", id: "button_cancel_invoice", "data-type" => "modal"} Cancel
 
 :javascript
   jQuery(document).ready(function() {

@@ -51,6 +51,13 @@
       %span.col-md-8.col-sm-8.col-xs-12.field-value          
         = @sales_order.shipping_address
 
+- if @sales_order.cancelled?
+  .ln_solid
+  .row.no-margin
+    .col-md-12
+      %h4 Reason
+      %p=@sales_order.reason
+
 .ln_solid
 
 .form-horizontal.form-label-left{:style => "overflow:auto;"}

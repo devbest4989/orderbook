@@ -6,7 +6,7 @@ class Bill < ActiveRecord::Base
     
     enum status: [:draft, :confirmed, :sent, :partial, :paid]
 
-    scope :ordered, -> { order(:token) }
+    scope :ordered, -> { order({token: :desc}) }
     scope :draft, -> { where(:status => "draft") }
     scope :confirmed, -> { where(:status => "confirmed") }
     scope :sent, -> { where(:status => "sent") }

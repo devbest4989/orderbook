@@ -22,14 +22,14 @@
                   =link_to preview_invoice_path(@invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
                     Preview
                 %li.divider
-              - if @invoice.draft?
+              - if @invoice.draft? || @invoice.cancelled?
                 %li
                   =link_to approve_invoice_path(@invoice, type: params[:type]), class: 'invoice-header-link', method: :post do
                     Approve
               %li
                 =link_to '#', class: 'invoice-header-link' do
                   Send
-              - unless @invoice.paid?
+              - unless @invoice.paid? || @invoice.cancelled?
                 %li
                   =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal' do
                     Record Payment
@@ -48,10 +48,11 @@
                 %li
                   =link_to @invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
                     Print
-              %li.divider
-              %li
-                =link_to invoice_path(@invoice), method: :delete, data: { confirm: 'Are you sure?' }, class: 'invoice-header-link' do
-                  Delete
+              - unless @invoice.cancelled?
+                %li.divider
+                %li
+                  =link_to '#', class: 'invoice-header-link invoice-cancel', 'data-target' => '#cancel_reason_modal', 'data-toggle' => 'modal', 'data-id' => @invoice.id, 'data-token' => @invoice.token  do
+                    Cancel
           %li
             %a.collapse-link
               %i.fa.fa-chevron-up
@@ -186,6 +187,12 @@
                       %b Amount Due:
                     %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
                       =@invoice.total - @invoice.total_paid
+        - if @invoice.cancelled?
+          .ln_solid
+          .row.no-margin
+            .col-md-12
+              %h4 Reason
+              %p=@invoice.reason
         .ln_solid
         .row.no-margin
           .col-md-12{:style => "overflow:auto;"}
@@ -241,6 +248,25 @@
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
+  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "cancel_reason_modal"}
+    .modal-dialog.modal-md
+      .modal-content
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title 
+            Cancel Reason for Invoice - 
+            %span{id: 'cancel_invoice_token'}
+        .modal-body
+          .row{style:'margin-bottom: 10px;'}
+            .col-md-12
+              %label Reason
+              %textarea.form-control{name:'note', id: 'cancel_reason', rows: 5}
+              %input{type:'hidden', id: 'cancel_invoice_id', :value => ""}
+        .modal-footer
+          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
+          %button.btn.btn-danger{:type => "button", id: "button_cancel_invoice", "data-type" => "page"} Cancel
 
 :javascript
   jQuery(document).ready(function() {

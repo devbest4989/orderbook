@@ -247,6 +247,7 @@ class BillsController < ApplicationController
     end
 
     def get_order_key
+      params[:sort] = params[:sort].blank? ? 'desc' : params[:sort]
       case params[:order]
       when 'date'
         "bills.created_at #{params[:sort]}"

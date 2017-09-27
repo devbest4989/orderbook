@@ -84,6 +84,8 @@ var InvoiceList = function(){
             $('#invoice_status_' + invoice_id).html('<span class="label label-info">APPROVED</span>');
             $('#invoice_approve_' + invoice_id).hide();
             $('#invoice_payment_' + invoice_id).show();
+            $('.invoice_approve_section_' + invoice_id).hide();
+            $('.invoice_cancel_section_' + invoice_id).show();
             new PNotify({
               title: 'Success!',
               text: 'Invoice ' + invoice_token + ' is approved.',
@@ -176,6 +178,60 @@ var InvoiceList = function(){
         }   
       });      
     });
+
+    /*************** Cancel Action *******************************/
+    $('.invoice-cancel').click(function(){
+      $('#cancel_invoice_token').text($(this).data('token'));
+      $('#cancel_reason').val('');
+      $('#cancel_invoice_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_invoice').click(function(){      
+      var invoice_id = $('#cancel_invoice_id').val();
+      var reqUrl = '/invoices/' + invoice_id + '/cancel'
+      var invoice_token = $('#cancel_invoice_token').val();
+      var mode = $(this).data('type');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            if(mode == 'page'){
+              window.location.reload();
+              return;
+            } 
+            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
+            $('.invoice_approve_section_' + invoice_id).show();
+            $('.invoice_cancel_section_' + invoice_id).hide();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is cancelled.',
+              type: 'success',
+              delay: 3000
+            });
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
+    });
+
   }
 
   return {
@@ -365,6 +421,61 @@ var InvoiceDetail = function () {
         break;
       }
     });
+
+
+    /*************** Cancel Action *******************************/
+    $('.invoice-cancel').click(function(){
+      $('#cancel_invoice_token').text($(this).data('token'));
+      $('#cancel_reason').val('');
+      $('#cancel_invoice_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_invoice').click(function(){      
+      var invoice_id = $('#cancel_invoice_id').val();
+      var reqUrl = '/invoices/' + invoice_id + '/cancel'
+      var invoice_token = $('#cancel_invoice_token').val();
+      var mode = $(this).data('type');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            if(mode == 'page'){
+              window.location.reload();
+              return;
+            } 
+            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
+            $('.invoice_approve_section_' + invoice_id).show();
+            $('.invoice_cancel_section_' + invoice_id).hide();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is cancelled.',
+              type: 'success',
+              delay: 3000
+            });
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
+    });
+    
   }
 
   var do_activity = function(reqUrl, data, page, method = 'post'){

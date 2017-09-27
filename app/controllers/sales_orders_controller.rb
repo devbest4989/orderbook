@@ -2,7 +2,7 @@ class SalesOrdersController < ApplicationController
   before_action :set_sales_order, only: [
       :show, :edit, :update, :destroy, 
       :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status,
-      :package_detail_info, :shipment_detail_info, :invoice_detail_info]
+      :package_detail_info, :shipment_detail_info, :invoice_detail_info, :invoice_list]
 
   before_filter do
     locale = params[:locale]
@@ -149,13 +149,11 @@ class SalesOrdersController < ApplicationController
       make_order_invoice
     end
 
-    respond_to do |format|
-      if request.xhr?
-        result = {:Result => "OK" }
-        format.json {render :json => result}
-      else
-        redirect_to sales_order_url(@sales_order)
-      end
+    if request.xhr?
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    else
+      redirect_to sales_order_url(@sales_order)
     end
   end
 
@@ -182,7 +180,10 @@ class SalesOrdersController < ApplicationController
   end
 
   def cancel
+    @sales_order.reason = params[:reason]
+    @sales_order.save    
     @sales_order.cancel!(current_user)
+    add_action_history('cancel', 'create', @sales_order.token)    
 
     respond_to do |format|
       if request.xhr?
@@ -612,9 +613,36 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       format.json {render :json => result}
     end
-
   end
 
+
+  def invoice_list
+    invoices = []
+    @sales_order.invoices.each do |item|
+      elem = {
+        id: item.id,
+        token: item.token,
+        invoice_date: item.created_at.to_date,
+        sales_order_token: item.sales_order.token,
+        customer_name: item.sales_order.customer_full_name.html_safe,
+        status_class: item.status_class,
+        status_text: item.status_text.upcase,
+        payment_date: item.payment_date,
+        total: item.total,
+        balance: (item.total - item.total_paid),
+        preview_token: item.preview_token
+      }
+      invoices << elem
+    end
+
+    result = {:result => "OK",
+              :invoices => invoices
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
   private
     # Use callbacks to share common setup or constraints between actions.
     def add_action_history(action_name, action_type, action_number)
@@ -694,6 +722,7 @@ class SalesOrdersController < ApplicationController
     end
 
     def get_order_key
+      params[:sort] = params[:sort].blank? ? 'desc' : params[:sort]
       case params[:order]
       when 'date'
         "sales_orders.order_date #{params[:sort]}"

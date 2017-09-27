@@ -39,11 +39,11 @@
                 %li
                   =link_to '#', class: 'order-header-link create-invoice-link', data: {toggle: 'modal', target: '#invoice_modal'} do
                     Create Invoice
-              - if @sales_order.quote?
+              - unless @sales_order.cancelled?
                 %li.divider
                 %li
-                  =link_to sales_order_path(@sales_order), method: :delete, data: { confirm: 'Are you sure?' }, class: 'order-header-link' do
-                    Delete
+                  =link_to '#', class: 'order-header-link sales-order-cancel', 'data-target' => '#cancel_order_reason_modal', 'data-toggle' => 'modal', 'data-id' => @sales_order.id, 'data-token' => @sales_order.token  do
+                    Cancel
           - unless @sales_order.quote?
             %li
               %button.btn.btn-default.btn-sm.dropdown-toggle.order-header-link{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
@@ -520,6 +520,25 @@
 
       .modal-footer
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+
+#cancel_order_reason_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-md
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title 
+          Cancel Reason for Sales Order - 
+          %span{id: 'cancel_sales_order_token'}
+      .modal-body
+        .row{style:'margin-bottom: 10px;'}
+          .col-md-12
+            %label Reason
+            %textarea.form-control{name:'note', id: 'cancel_order_reason', rows: 5}
+            %input{type:'hidden', id: 'cancel_sales_order_id', :value => ""}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
+        %button.btn.btn-danger{:type => "button", id: "button_cancel_sales_order", "data-type" => "page"} Cancel
 
 :javascript
   jQuery(document).ready(function() {

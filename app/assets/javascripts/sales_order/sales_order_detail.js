@@ -143,6 +143,51 @@ var SalesOrderDetail = function () {
     $.cookie("order_detail_last", '');
   }
 
+  var handleSalesOrderAction = function(){
+    /*************** Cancel Action *******************************/
+    $('.sales-order-cancel').click(function(){
+      $('#cancel_sales_order_token').text($(this).data('token'));
+      $('#cancel_order_reason').val('');
+      $('#cancel_sales_order_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_sales_order').click(function(){      
+      var sales_order_id = $('#cancel_sales_order_id').val();
+      var reqUrl = '/sales_orders/' + sales_order_id + '/cancel'
+      var sales_order_token = $('#cancel_sales_order_token').val();
+      var mode = $(this).data('type');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_order_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            window.location.reload();
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
+    });
+
+  }
+
+
   var handleShipTab = function(){
     $('.group-checkable').click(function(){
       var parent_table = $(this).parents('table');
@@ -416,11 +461,170 @@ var SalesOrderDetail = function () {
 
   }
 
+  var handleInvoiceAction = function() {
+    $('.invoice-approve').click(function(){
+      var reqUrl = '/invoices/' + $(this).data('id') + '/approve'
+      var invoice_id = $(this).data('id');
+      var invoice_token = $(this).data('token');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#invoice_status_' + invoice_id).html('<span class="label label-info">APPROVED</span>');
+            $('#invoice_approve_' + invoice_id).hide();
+            $('#invoice_payment_' + invoice_id).show();
+            $('.invoice_approve_section_' + invoice_id).hide();
+            $('.invoice_cancel_section_' + invoice_id).show();            
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is approved.',
+              type: 'success',
+              delay: 3000
+            });
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });      
+    });
+
+    $('#payment_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'DD-MM-YYYY'
+      }, function(start, end, label) {
+    });
+
+    $('.record-payment').click(function(){
+      $('#payment_invoice_token').text($(this).data('token'));
+      $('#payment_date').val('');
+      $('#payment_amount').val($(this).data('balance'));
+      $('#reference_no').val('');
+      $('#note').val('');
+      $('#payment_invoice_id').val($(this).data('id'));
+      $('#payment_mode').val('');
+    });
+
+    $('#button_record_payment').click(function(){
+      var reqUrl = '/invoices/' + $('#payment_invoice_id').val() + '/add_payment'
+      var invoice_id = $('#payment_invoice_id').val();
+      var balance = $('#invoice_balance_' + invoice_id).text().trim();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          payment_date: $('#payment_date').val(),
+          payment_amount: $('#payment_amount').val(),
+          payment_mode: $('#payment_mode').val(),
+          reference_no: $('#reference_no').val(),
+          note: $('#note').val()          
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            var new_balance = data.Balance;
+            $('#invoice_paid_' + invoice_id).text(data.Paid);
+            $('#invoice_payment_' + invoice_id).data('balance', new_balance);
+            if(new_balance <= 0){
+              $('#invoice_status_' + invoice_id).html('<span class="label label-success">PAID</span>');
+            } else {
+              $('#invoice_status_' + invoice_id).html('<span class="label label-warning">PARTIAL PAID</span>');
+            }
+            $('#cancel_record_payment').trigger('click');
+            new PNotify({
+              title: 'Success!',
+              text: $('#payment_amount').val() + ' Payment is made successfully.',
+              type: 'success',
+              delay: 3000
+            });            
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
+    });
+
+    $('.invoice-cancel').click(function(){
+      $('#cancel_invoice_token').text($(this).data('token'));
+      $('#cancel_reason').val('');
+      $('#cancel_invoice_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_invoice').click(function(){      
+      var invoice_id = $('#cancel_invoice_id').val();
+      var reqUrl = '/invoices/' + invoice_id + '/cancel'
+      var invoice_token = $('#cancel_invoice_token').val();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
+            $('.invoice_approve_section_' + invoice_id).show();
+            $('.invoice_cancel_section_' + invoice_id).hide();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is cancelled.',
+              type: 'success',
+              delay: 3000
+            });
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
+    });
+    
+  }
+
   return {
     //main function to initiate the module
     initSalesOrderNavList: function () {
       initialNavigatorList();
       rollbackLastAction();
+      handleSalesOrderAction();
     },
 
     handleOrderPackageTab: function() {
@@ -434,6 +638,7 @@ var SalesOrderDetail = function () {
     handleOrderInvoiceTab: function(){
       handleInvoiceTab();
       handleInvoiceModal();
+      handleInvoiceAction();
     }
   };
 }();  

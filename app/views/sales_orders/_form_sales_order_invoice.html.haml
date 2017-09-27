@@ -1,4 +1,4 @@
-.form-horizontal.form-label-left{:style => "overflow:auto;"}
+.form-horizontal.form-label-left
   .row.no-margin
     .col-md-6.col-sm-6.col-xs-12
       %h4 Order Main Information
@@ -26,7 +26,7 @@
           = "#{Setting.value_by('format.currency')}"
           = @sales_order.total_paid_amount
   .row.no-margin
-    .col-md-12{:style => "overflow:auto;"}
+    .col-md-12
       %h4 Invoice List
       %div
         %table#invoice_activity_list.activity_list.table.table-bordered.projects.margin-bottom-5
@@ -37,8 +37,7 @@
               %th= "Total (#{Setting.value_by('format.currency')})"
               %th= "Paid (#{Setting.value_by('format.currency')})"
               %th Status
-              %th 
-              %th 
+              %th{width: '10%'} 
 
           %tbody
             - @sales_order.invoices.each do |item| 
@@ -50,29 +49,124 @@
                   = item.created_at.to_date
                 %td
                   = item.total
-                %td
+                %td{id: "invoice_paid_#{item.id}"}
                   = item.total_paid
-                %td
+                %td{id: "invoice_status_#{item.id}"}
                   %span.label{class: item.status_class}=item.status_text.upcase
-                %td
-                  =link_to invoice_path(item.id, type: :all), style: 'font-size: 20px; margin-right: 10px;', :method=> :get do
-                    %i.fa.fa-pencil-square-o
-                  =link_to preview_invoice_path(item.preview_token), style: 'font-size: 20px; margin-right: 10px;', :method=> :get, target: '_blank' do
-                    %i.fa.fa-eye
-                  - if item.file_name.blank? || item.is_updated_pdf
-                    =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
-                      %i.fa.fa-file-pdf-o                  
-                  - else
-                    =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', target: '_blank' do
-                      %i.fa.fa-file-pdf-o                  
+                %td.text-right{style: "position: relative;"}
+                  %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                    Actions
+                    %span.caret
+                  %ul.dropdown-menu.more-action{:role => "menu", style: "right: 0; left: auto; top: 35px;"}
+                    %li
+                      =link_to invoice_path(item, type: 'edit'), class: 'invoice-header-link' do
+                        Edit
+                    - unless item.preview_token.nil?
+                      %li
+                        =link_to preview_invoice_path(item.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
+                          Preview
+                      %li.divider
+                    %li{id: "invoice_approve_#{item.id}" , class: "invoice_approve_section_#{item.id}", style: "#{(item.draft? || item.cancelled?) ? 'display: block;' : 'display: none;'}"}
+                      =link_to 'javascript:;', class: 'invoice-header-link invoice-approve', 'data-id' => item.id, 'data-token' => item.token  do
+                        Approve
+                    %li
+                      =link_to '#', class: 'invoice-header-link' do
+                        Send
+                    %li{class: "invoice_cancel_section_#{item.id}", style: "#{(item.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                      =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal', 'data-id' => item.id, 'data-token' => item.token, 'data-balance' => "#{item.total - item.total_paid}", id: "invoice_payment_#{item.id}", style: "#{(item.paid? || item.draft?) ? 'display: none;' : ''}" do
+                        Record Payment
+                    %li.divider
+                    - if item.file_name.blank? || item.is_updated_pdf
+                      %li
+                        =link_to generate_pdf_invoice_path(item), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                          Export As PDF
+                      %li
+                        =link_to generate_pdf_invoice_path(item), class: 'invoice-header-link', :method=> :post, target: '_blank' do
+                          Print
+                    - else
+                      %li
+                        =link_to item.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                          Export As PDF
+                      %li
+                        =link_to item.file_name_path, class: 'invoice-header-link', target: '_blank' do
+                          Print
+                    %li.divider{class: "invoice_cancel_section_#{item.id}", style: "#{(item.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                    %li{id: "invoice_cancel_#{item.id}", class: "invoice_cancel_section_#{item.id}", style: "#{(item.cancelled?) ? 'display: none;' : 'display: block;'}"}
+                      =link_to '#', class: 'invoice-header-link invoice-cancel', 'data-target' => '#cancel_reason_modal', 'data-toggle' => 'modal', 'data-id' => item.id, 'data-token' => item.token  do
+                        Cancel              
 
-                  =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
-                    %i.fa.fa-print
-                  =link_to mail_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;' do
-                    %i.fa.fa-envelope-o
-                %td
-                  %a.remove_invoice_link{href: 'javascript:;', data:{activity: invoice_path(item)}}
-                    %i.fa.fa-icon.fa-minus-circle
+                  / =link_to invoice_path(item.id, type: :all), style: 'font-size: 20px; margin-right: 10px;', :method=> :get do
+                  /   %i.fa.fa-pencil-square-o
+                  / =link_to preview_invoice_path(item.preview_token), style: 'font-size: 20px; margin-right: 10px;', :method=> :get, target: '_blank' do
+                  /   %i.fa.fa-eye
+                  / - if item.file_name.blank? || item.is_updated_pdf
+                  /   =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                  /     %i.fa.fa-file-pdf-o                  
+                  / - else
+                  /   =link_to item.file_name_path, style: 'font-size: 20px; margin-right: 10px;', target: '_blank' do
+                  /     %i.fa.fa-file-pdf-o                  
+
+                  / =link_to generate_pdf_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;', :method=> :post, target: '_blank' do
+                  /   %i.fa.fa-print
+                  / =link_to mail_invoice_path(item), style: 'font-size: 20px; margin-right: 10px;' do
+                  /   %i.fa.fa-envelope-o
+                / %td
+                /   %a.remove_invoice_link{href: 'javascript:;', data:{activity: invoice_path(item)}}
+                /     %i.fa.fa-icon.fa-minus-circle
+
+.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}
+  .modal-dialog.modal-md
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title 
+          Record Payment for Bill - 
+          %span{id: 'payment_invoice_token'}
+      .modal-body
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{name:'payment_date', :placeholder => "Payment Date", id: 'payment_date'}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Amount
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{type: 'number', name:'amount', id: 'payment_amount', :placeholder => "$"}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Mode of Payment
+          .col-md-8.col-sm-8.col-xs-12
+            = select_tag :payment_mode, options_for_select(ApplicationHelper::PAYMENT_MODE.each_with_index.map {|name, index| [name,index]}), prompt: "Select Payment Mode", :class => "form-control"
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Reference #
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{name:'reference_no', id: 'reference_no'}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Note
+          .col-md-8.col-sm-8.col-xs-12
+            %textarea.form-control{name:'note', id: 'note', rows: 5}
+            %input{type:'hidden', id: 'payment_invoice_id', :value => ""}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
+        %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
+.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "cancel_reason_modal"}
+  .modal-dialog.modal-md
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title 
+          Cancel Reason for Invoice - 
+          %span{id: 'cancel_invoice_token'}
+      .modal-body
+        .row{style:'margin-bottom: 10px;'}
+          .col-md-12
+            %label Reason
+            %textarea.form-control{name:'note', id: 'cancel_reason', rows: 5}
+            %input{type:'hidden', id: 'cancel_invoice_id', :value => ""}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
+        %button.btn.btn-danger{:type => "button", id: "button_cancel_invoice", "data-type" => "modal"} Cancel
 
 - @sales_order.invoices.each do |item| 
   .invoice_detail_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "inovice_detail_modal_#{item.id}"}

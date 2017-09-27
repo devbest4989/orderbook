@@ -413,3 +413,25 @@ table.projects td.edit-focus{
 .nav-md .container.body .right_col{
   padding: 10px 5px 0 !important;
 }  
+
+.dropdown-submenu {
+  position: relative;
+
+  .dropdown-menu {
+    top: 0;
+    right: 100%;
+    margin-top: -1px;
+  }
+
+  &:hover{
+    .dropdown-menu{
+      display: block;
+    }
+  }
+
+  & > a > i {
+    float: right;
+    line-height: 18px;
+    vertical-align: middle;    
+  }
+}

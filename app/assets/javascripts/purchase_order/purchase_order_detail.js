@@ -177,9 +177,7 @@ var PurchaseOrderDetail = function () {
         var data = {};
         do_activity(reqUrl, data, 'bill', 'delete');        
       }
-    });    
-
-
+    });
   }
 
   var handleBillModal = function(){
@@ -333,11 +331,56 @@ var PurchaseOrderDetail = function () {
 
   }
 
+  var handlePurchaseOrderAction = function(){
+    /*************** Cancel Action *******************************/
+    $('.purchase-order-cancel').click(function(){
+      $('#cancel_purchase_order_token').text($(this).data('token'));
+      $('#cancel_reason').val('');
+      $('#cancel_purchase_order_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_purchase_order').click(function(){      
+      var purchase_order_id = $('#cancel_purchase_order_id').val();
+      var reqUrl = '/purchase_orders/' + purchase_order_id + '/cancel'
+      var purchase_order_token = $('#cancel_purchase_order_token').val();
+      var mode = $(this).data('type');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            window.location.reload();
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
+    });
+
+  }
+
   return {
     //main function to initiate the module
     initPurchaseOrderNavList: function () {
       initialNavigatorList();
       rollbackLastAction();
+      handlePurchaseOrderAction();
     },
 
     handleOrderReceiveTab: function() {

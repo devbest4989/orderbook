@@ -229,7 +229,7 @@ var SalesOrderList = function(){
        event.preventDefault();
         break;
       }
-    });    
+    });
 
     /*******************Shipment Action*****************************/
     $('.shipment-sales-order').click(function(){
@@ -308,6 +308,265 @@ var SalesOrderList = function(){
       var reqUrl = $('#shipment_req_url').val();
       var data = {pack_tokens: pack_tokens, id: $('#shipment_order_id').val(), track_number: $('#modal_tracking_number').val()};
       do_activity(reqUrl, data);
+    });
+
+    /********************Invoice List*****************************************/
+    $('.invoice-list-sales-order').click(function(){
+      var reqUrl = '/sales_orders/' + $(this).data('id') + '/invoice_list';
+      $('#invoice_list_modal .invoice-sales-order').data('id', $(this).data('id'));
+
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.result == "OK"){
+            var template = '';
+            var prev_data = '';
+            $.each( data.invoices, function( key, value ) {
+              template += '<tr>';
+              template += '<td>'+value.invoice_date+'</td>';
+              template += '<td>'+value.token+'</td>';
+              template += '<td>'+value.sales_order_token+'</td>';
+              template += '<td>'+value.customer_name+'</td>';
+              template += '<td id="invoice_status_' + value.id + '"><span class="label '+value.status_class+'">'+value.status_text+'</span></td>';
+              template += '<td>'+value.payment_date+'</td>';
+              template += '<td>'+value.total+'</td>';
+              template += '<td id="invoice_balance_' + value.id + '">'+value.balance+'</td>';
+
+              template += '<td style="position: relative; text-align: right;">\
+                            <button aria-expanded="true" class="btn btn-default btn-sm dropdown-toggle btn-more" data-toggle="dropdown" type="button">\
+                              Actions\
+                              <span class="caret"></span>\
+                            </button>\
+                            <ul class="dropdown-menu more-action" role="menu" style="right: 0; left: auto; top: 35px;">\
+                              <li>\
+                                <a class="invoice-header-link" href="/invoices/'+value.id+'?type=edit">Edit\
+                                </a>\
+                              </li>\
+                              <li>\
+                                <a class="invoice-header-link" target="_blank" data-method="get" href="/preview_invoice/'+value.preview_token+'">Preview\
+                                </a>\
+                              </li>\
+                              <li class="divider"></li>\
+                              <li id="invoice_approve_'+value.id+'">\
+                                <a class="invoice-header-link invoice-approve" data-id="'+value.id+'" data-token="'+value.token+'" href="javascript:;">Approve\
+                                </a>\
+                              </li>\
+                              <li>\
+                                <a class="invoice-header-link" href="#">Send\
+                                </a>\
+                              </li>\
+                              <li>\
+                                <a class="invoice-header-link record-payment" data-target="#record_payment_modal" data-toggle="modal" data-id="'+value.id+'" data-token="'+value.token+'" data-balance="'+value.balance+'" id="invoice_payment_'+value.id+'" href="#">Record Payment\
+                                </a>\
+                              </li>\
+                              <li class="divider"></li>\
+                              <li>\
+                                <a class="invoice-header-link" target="_blank" rel="nofollow" data-method="post" href="/invoices/'+value.id+'/generate_pdf">Export As PDF\
+                                </a>\
+                              </li>\
+                              <li>\
+                                <a class="invoice-header-link" target="_blank" rel="nofollow" data-method="post" href="/invoices/'+value.id+'/generate_pdf">Print\
+                                </a>\
+                              </li>\
+                              <li class="divider invoice_cancel_section_'+value.id+'"></li>\
+                              <li class="invoice_cancel_section_'+value.id+'">\
+                                <a class="invoice-header-link  invoice-cancel" data-target="#cancel_reason_modal" data-toggle ="modal" rel="nofollow" data-id="'+value.id+'" data-token="'+value.token+'" href="#">Cancel\
+                                </a>\
+                              </li>\
+                            </ul>\
+                          </td>';
+
+              template += '</tr>';
+            });
+            $('#invoice_list_body').html(template);
+
+            $.each( data.invoices, function( key, value ) {
+              if(value.status_text == 'DRAFT' || value.status_text == 'CANCELLED'){
+                $('#invoice_approve_' + value.id).show();
+                $('#invoice_payment_' + value.id).hide();
+                $('.invoice_cancel_section_'+ value.id).hide();
+              } else {
+                $('#invoice_approve_' + value.id).hide();
+                $('#invoice_payment_' + value.id).show();
+                $('.invoice_cancel_section_'+ value.id).show();
+              }
+            });
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });      
+
+    });
+
+    $('#payment_date').daterangepicker({
+      singleDatePicker: true,
+      calender_style: "picker_4",
+      format: 'DD-MM-YYYY'
+      }, function(start, end, label) {
+    });
+
+    $(document).on('click', '.record-payment', function(){
+      $('#payment_invoice_token').text($(this).data('token'));
+      $('#payment_date').val('');
+      $('#payment_amount').val($(this).data('balance'));
+      $('#reference_no').val('');
+      $('#note').val('');
+      $('#payment_invoice_id').val($(this).data('id'));
+      $('#payment_mode').val('');
+    });
+
+    $(document).on('click', '.invoice-approve', function(){
+      var reqUrl = '/invoices/' + $(this).data('id') + '/approve'
+      var invoice_id = $(this).data('id');
+      var invoice_token = $(this).data('token');
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#invoice_status_' + invoice_id).html('<span class="label label-info">APPROVED</span>');
+            $('#invoice_approve_' + invoice_id).hide();
+            $('#invoice_payment_' + invoice_id).show();
+            $('.invoice_cancel_section_'+ invoice_id).show();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is approved.',
+              type: 'success',
+              delay: 3000
+            });
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });      
+    });
+
+    $(document).on('click', '#button_record_payment', function(){
+      var reqUrl = '/invoices/' + $('#payment_invoice_id').val() + '/add_payment'
+      var invoice_id = $('#payment_invoice_id').val();
+      var balance = $('#invoice_balance_' + invoice_id).text().trim();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          payment_date: $('#payment_date').val(),
+          payment_amount: $('#payment_amount').val(),
+          payment_mode: $('#payment_mode').val(),
+          reference_no: $('#reference_no').val(),
+          note: $('#note').val()          
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            var new_balance = data.Balance;
+            $('#invoice_balance_' + invoice_id).text(new_balance);
+            $('#invoice_payment_' + invoice_id).data('balance', new_balance);
+            if(new_balance <= 0){
+              $('#invoice_status_' + invoice_id).html('<span class="label label-success">PAID</span>');
+            } else {
+              $('#invoice_status_' + invoice_id).html('<span class="label label-warning">PARTIAL PAID</span>');
+            }
+            $('#cancel_record_payment').trigger('click');
+            new PNotify({
+              title: 'Success!',
+              text: $('#payment_amount').val() + ' Payment is made successfully.',
+              type: 'success',
+              delay: 3000
+            });            
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
+    });
+
+    $(document).on('click', '.invoice-cancel', function(){
+      $('#cancel_invoice_token').text($(this).data('token'));
+      $('#cancel_reason').val('');
+      $('#cancel_invoice_id').val($(this).data('id'));
+    });
+
+    $('#button_cancel_invoice').click(function(){      
+      var invoice_id = $('#cancel_invoice_id').val();
+      var reqUrl = '/invoices/' + invoice_id + '/cancel'
+      var invoice_token = $('#cancel_invoice_token').val();
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: { reason: $('#cancel_reason').val() },
+        success: function(data){
+          if(data.Result == "OK"){
+            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
+            $('#invoice_approve_' + invoice_id).show();
+            $('#invoice_payment_' + invoice_id).hide();
+            $('.invoice_cancel_section_' + invoice_id).hide();
+            new PNotify({
+              title: 'Success!',
+              text: 'Invoice ' + invoice_token + ' is cancelled.',
+              type: 'success',
+              delay: 3000
+            });
+            $('#button_close_cancel').trigger('click');
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });            
     });
 
     /********************Invoice Action*******************************************/

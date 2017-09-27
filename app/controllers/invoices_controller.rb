@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :destroy]
+  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :cancel]
 
   # GET /invoices
   # GET /invoices.json
@@ -210,7 +210,11 @@ class InvoicesController < ApplicationController
       result = {}
       if payment.save
         @invoice.add_payment!
-        result = {:Result => "OK", :Balance => @invoice.total - @invoice.total_paid, :Status => @invoice.status_text.upcase, :StatusClass => @invoice.status_class }
+        result = {:Result => "OK", 
+                  :Paid => @invoice.total_paid, 
+                  :Balance => @invoice.total - @invoice.total_paid, 
+                  :Status => @invoice.status_text.upcase, 
+                  :StatusClass => @invoice.status_class }
       else
         result = {:Result => "Failed", :Message => payment.errors.full_messages }
       end
@@ -220,11 +224,37 @@ class InvoicesController < ApplicationController
 
   def approve
     set_invoice
-    if @invoice.draft?
+    if @invoice.draft? || @invoice.cancelled?
       @invoice.status = 'confirmed'
       @invoice.save
+      add_action_history('invoice', 'update', @invoice.token)
     end
-    redirect_to invoice_path(@invoice, type: params[:type])
+    if request.xhr?
+      respond_to do |format|
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      end      
+    else    
+      redirect_to invoice_path(@invoice, type: params[:type])
+    end
+  end
+
+  def cancel
+    @invoice.status = 'cancelled'
+    @invoice.reason = params[:reason]
+    @invoice.save
+
+    @invoice.sales_order.invoice!(current_user)
+    add_action_history('invoice', 'cancel', @invoice.token)
+
+    respond_to do |format|
+      if request.xhr?
+        result = {:Result => "OK" }
+        format.json {render :json => result}
+      else
+        format.html { redirect_to list_by_type_invoice_path(type: 'all'), notice: 'Invoice cancelled successfully.' }
+      end
+    end
   end
 
   private
@@ -240,6 +270,7 @@ class InvoicesController < ApplicationController
     end
 
     def get_order_key
+      params[:sort] = params[:sort].blank? ? 'desc' : params[:sort]
       case params[:order]
       when 'date'
         "invoices.created_at #{params[:sort]}"

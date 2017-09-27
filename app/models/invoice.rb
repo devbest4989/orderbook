@@ -4,14 +4,15 @@ class Invoice < ActiveRecord::Base
 
     belongs_to :sales_order, class_name: 'SalesOrder'
     
-    enum status: [:draft, :confirmed, :sent, :partial, :paid]
+    enum status: [:draft, :confirmed, :sent, :partial, :paid, :cancelled]
 
-    scope :ordered, -> { order(:token) }
+    scope :ordered, -> { order({token: :desc}) }
     scope :draft, -> { where(:status => "draft") }
     scope :confirmed, -> { where(:status => "confirmed") }
     scope :sent, -> { where(:status => "sent") }
     scope :partial, -> { where(:status => "partial") }
     scope :paid, -> { where(:status => "paid") }
+    scope :cancelled, -> { where(status: 'cancelled') }
 
     def file_name_path
         '/invoices/' + file_name
@@ -36,6 +37,8 @@ class Invoice < ActiveRecord::Base
           "label-warning"
         when "paid"
           "label-success"
+        when "cancelled"
+          "label-danger"
         end
     end
 
@@ -51,6 +54,8 @@ class Invoice < ActiveRecord::Base
           "Partial Paid"
         when "paid"
           "Paid"
+        when "cancelled"
+          "Cancelled"
         end
     end
 
@@ -65,7 +70,7 @@ class Invoice < ActiveRecord::Base
     end
 
     def total_paid
-        payments.sum(:amount)
+        self.cancelled? ? 0 : payments.sum(:amount)
     end
 
     def add_payment!

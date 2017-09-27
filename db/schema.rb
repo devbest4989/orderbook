@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170914194541) do
+ActiveRecord::Schema.define(version: 20170927000904) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -183,6 +183,7 @@ ActiveRecord::Schema.define(version: 20170914194541) do
     t.datetime "updated_at",                                           null: false
     t.string   "file_name"
     t.string   "preview_token"
+    t.string   "reason"
   end
 
   create_table "payment_terms", force: :cascade do |t|
@@ -338,6 +339,7 @@ ActiveRecord::Schema.define(version: 20170914194541) do
     t.integer  "supplier_id"
     t.integer  "booked_by_id"
     t.integer  "cancelled_by_id"
+    t.string   "reason"
   end
 
   add_index "purchase_orders", ["supplier_id"], name: "index_purchase_orders_on_supplier_id", using: :btree
@@ -429,6 +431,7 @@ ActiveRecord::Schema.define(version: 20170914194541) do
     t.string   "contact_phone"
     t.string   "ref_no"
     t.integer  "condition_term_id"
+    t.string   "reason"
   end
 
   add_index "sales_orders", ["customer_id"], name: "index_sales_orders_on_customer_id", using: :btree

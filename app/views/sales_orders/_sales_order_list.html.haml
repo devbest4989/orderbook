@@ -91,8 +91,8 @@
                 =link_to '#', class: 'sales-order-header-link shipment-sales-order', 'data-target' => '#shipment_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
                   Shipment
               %li{class: "order_cancel_section_#{order.id}", style: "#{(order.quote? || order.cancelled?) ? 'display: none;' : 'display: block;'}"}
-                =link_to '#', class: 'sales-order-header-link invoice-sales-order', 'data-target' => '#invoice_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
-                  Invoice
+                =link_to '#', class: 'sales-order-header-link invoice-list-sales-order', 'data-target' => '#invoice_list_modal', 'data-toggle' => 'modal', 'data-id' => order.id do
+                  Invoices
               %li.divider
               %li
                 =link_to print_sales_order_path(order), class: 'sales-order-header-link', :method=> :post, target: '_blank' do
@@ -210,6 +210,92 @@
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         %button#btn_create_shipment.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
 
+#invoice_list_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title Sales Order Invoice List
+      .modal-body
+        .row.no-margin
+          .col-md-12.text-right
+            =link_to '#', class: 'sales-order-header-link invoice-sales-order', 'data-target' => '#invoice_modal', 'data-toggle' => 'modal', 'data-id' => '' do
+              %i.fa.fa-icon.fa-file-text
+              New Invoice
+          .col-md-12
+            %div
+              %table#invoice_list.activity_list.table.table-bordered.projects.margin-bottom-5
+                %thead
+                  %tr
+                    %th Date
+                    %th Invoice#
+                    %th Sales Order#
+                    %th{width: '20%'} Customer Name
+                    %th Status
+                    %th Payment Due
+                    %th Amount
+                    %th Balance
+                    %th
+                %tbody#invoice_list_body
+
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+
+#record_payment_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-md
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title 
+          Record Payment for Bill - 
+          %span{id: 'payment_invoice_token'}
+      .modal-body
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Payment Date
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{name:'payment_date', :placeholder => "Payment Date", id: 'payment_date'}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Amount
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{type: 'number', name:'amount', id: 'payment_amount', :placeholder => "$"}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Mode of Payment
+          .col-md-8.col-sm-8.col-xs-12
+            = select_tag :payment_mode, options_for_select(ApplicationHelper::PAYMENT_MODE.each_with_index.map {|name, index| [name,index]}), prompt: "Select Payment Mode", :class => "form-control"
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Reference #
+          .col-md-8.col-sm-8.col-xs-12
+            %input.form-control{name:'reference_no', id: 'reference_no'}
+        .row{style:'margin-bottom: 10px;'}
+          %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Note
+          .col-md-8.col-sm-8.col-xs-12
+            %textarea.form-control{name:'note', id: 'note', rows: 5}
+            %input{type:'hidden', id: 'payment_invoice_id', :value => ""}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
+        %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
+
+#cancel_reason_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
+  .modal-dialog.modal-md
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"}
+          %span{"aria-hidden" => "true"} ×
+        %h4.modal-title 
+          Cancel Reason for Invoice - 
+          %span{id: 'cancel_invoice_token'}
+      .modal-body
+        .row{style:'margin-bottom: 10px;'}
+          .col-md-12
+            %label Reason
+            %textarea.form-control{name:'note', id: 'cancel_reason', rows: 5}
+            %input{type:'hidden', id: 'cancel_invoice_id', :value => ""}
+      .modal-footer
+        %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
+        %button.btn.btn-danger{:type => "button", id: "button_cancel_invoice", "data-type" => "modal"} Cancel
+
 #invoice_modal.modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1"}
   .modal-dialog.modal-lg
     .modal-content
@@ -284,7 +370,6 @@
       .modal-footer
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         %button#btn_create_invoice.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Create
-
 
 :javascript
   jQuery(document).ready(function() {

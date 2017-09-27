@@ -175,13 +175,11 @@ class PurchaseOrdersController < ApplicationController
       # make_order_bill
     end
 
-    respond_to do |format|
-      if request.xhr?
-        result = {:Result => "OK" }
-        format.json {render :json => result}
-      else
-        redirect_to purchase_order_url(@purchase_order)
-      end
+    if request.xhr?
+      result = {:Result => "OK" }
+      format.json {render :json => result}
+    else
+      redirect_to purchase_order_url(@purchase_order)
     end
   end
 
@@ -250,7 +248,11 @@ class PurchaseOrdersController < ApplicationController
   end
 
   def cancel
+    @purchase_order.reason = params[:reason]
+    @purchase_order.save
+    
     @purchase_order.cancel!(current_user)
+    add_action_history('cancel', 'create', @purchase_order.token)
     respond_to do |format|
       if request.xhr?
         result = {:Result => "OK" }
@@ -413,6 +415,7 @@ class PurchaseOrdersController < ApplicationController
     end  
 
     def get_order_key
+      params[:sort] = params[:sort].blank? ? 'desc' : params[:sort]
       case params[:order]
       when 'date'
         "purchase_orders.order_date #{params[:sort]}"

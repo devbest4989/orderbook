@@ -98,6 +98,7 @@ Rails.application.routes.draw do
       post :package_detail_info
       post :shipment_detail_info
       post :invoice_detail_info
+      post :invoice_list
     end
 
     collection do
@@ -229,6 +230,7 @@ Rails.application.routes.draw do
       post :mail
       post :add_payment, :defaults => { :format => 'json' }
       post :approve
+      post :cancel
       delete :remove_payment
     end
 
