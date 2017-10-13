@@ -4,6 +4,7 @@ class Customer < ActiveRecord::Base
   has_many :documents, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
   has_many :sales_orders, :dependent => :restrict_with_exception
+  has_many :invoices, through: :sales_orders, class_name: 'Invoice'
 
   belongs_to :payment_term
 
@@ -88,14 +89,22 @@ class Customer < ActiveRecord::Base
   end
 
   def receivable
-    total_amount = sales_orders.where.not(status: ['quote', 'cancelled']).sum(:total_amount)
-
+    total_amount = 0
     total_paid_amount = 0
-    sales_orders.where.not(status: 'quote').each do |elem|
-      total_paid_amount += elem.total_paid_amount
-    end    
-
-    total_amount - total_paid_amount
+    total_credit_amount = 0
+    
+    if Setting.value_by('format.customer_balance').blank?
+      total_amount = invoices.where.not(status: ['draft']).sum(:total)
+      invoices.where.not(status: ['draft']).each do |elem|
+        total_paid_amount += elem.total_paid
+      end
+    else
+      total_amount = sales_orders.where.not(status: ['quote', 'cancelled']).sum(:total_amount)
+      sales_orders.where.not(status: 'quote').each do |elem|
+        total_paid_amount += elem.total_paid_amount
+      end    
+    end
+    total_amount - total_paid_amount - total_credit_amount
   end
 
   def billing_street_short

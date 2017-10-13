@@ -43,7 +43,11 @@ class CustomersController < ApplicationController
   # GET /customers/1.json
   def show    
     @customers = Customer.all
-    @sales_orders = @customer.sales_orders.where.not(status: 'quote').ordered
+    if Setting.value_by('format.customer_balance').blank?
+      @invoices = @customer.invoices.where.not(status: 'draft').ordered
+    else
+      @sales_orders = @customer.sales_orders.where.not(status: 'quote').ordered
+    end
   end
 
   # GET /customers/new

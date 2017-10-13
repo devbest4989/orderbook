@@ -26,3 +26,9 @@
               %label.col-md-4.col-sm-4.col-xs-12.control-label Default Currency
               .col-md-8.col-sm-8.col-xs-12.form-group
                 = text_field_tag 'format.currency', @standard_setting['format.currency'], class: 'form-control', :placeholder => "Default Currency"
+            .row
+              %label.col-md-4.col-sm-4.col-xs-12.control-label Customer Balance Mode
+              .col-md-8.col-sm-8.col-xs-12.form-group{ style: 'padding-top: 8px;'}
+                Invoice Mode
+                = check_box_tag 'format.customer_balance', 'true', @standard_setting['format.customer_balance'], class: 'js-switch'
+                Sales Order Mode

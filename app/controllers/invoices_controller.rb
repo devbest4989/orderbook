@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :cancel]
+  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :cancel, :invoice_detail_info, :credit_note]
 
   # GET /invoices
   # GET /invoices.json
@@ -209,12 +209,20 @@ class InvoicesController < ApplicationController
     respond_to do |format|
       result = {}
       if payment.save
-        @invoice.add_payment!
-        result = {:Result => "OK", 
-                  :Paid => @invoice.total_paid, 
-                  :Balance => @invoice.total - @invoice.total_paid, 
-                  :Status => @invoice.status_text.upcase, 
-                  :StatusClass => @invoice.status_class }
+        if params[:type] == 'credit'
+          result = {:Result => "OK", 
+                    :Paid => @invoice.total_paid, 
+                    :Balance => @invoice.total_credit_note, 
+                    :Status => @invoice.status_text.upcase, 
+                    :StatusClass => @invoice.status_class }
+        else
+          @invoice.add_payment!
+          result = {:Result => "OK", 
+                    :Paid => @invoice.total_paid, 
+                    :Balance => @invoice.total - @invoice.total_paid, 
+                    :Status => @invoice.status_text.upcase, 
+                    :StatusClass => @invoice.status_class }
+        end
       else
         result = {:Result => "Failed", :Message => payment.errors.full_messages }
       end
@@ -245,7 +253,7 @@ class InvoicesController < ApplicationController
     @invoice.save
 
     @invoice.sales_order.invoice!(current_user)
-    add_action_history('invoice', 'cancel', @invoice.token)
+    add_action_history('invoice', 'cancelled', @invoice.token)
 
     respond_to do |format|
       if request.xhr?
@@ -255,6 +263,83 @@ class InvoicesController < ApplicationController
         format.html { redirect_to list_by_type_invoice_path(type: 'all'), notice: 'Invoice cancelled successfully.' }
       end
     end
+  end
+
+  def invoice_detail_info
+    invoice_item = []
+    @invoice.invoice_items.each do |item|
+      if item.sales_item
+        elem = {
+          sku: item.sales_item.sold_item.sku,
+          name: item.sales_item.sold_item.name,
+          quantity: item.available_quantity,
+          unit_price: item.sales_item.unit_price,
+          discount_rate: item.sales_item.discount_rate,
+          tax_rate: item.sales_item.tax_rate,        
+          id: item.sales_item.id
+        }
+        invoice_item << elem
+      end
+    end
+    result = {:result => "OK",
+              :customer => @invoice.sales_order.customer.company_title,
+              :token => @invoice.token,
+              :credit_note_url => credit_note_invoice_path(@invoice),
+              :bill_address => @invoice.sales_order.customer.billing_address,
+              :invoice_date => @invoice.created_at.to_date, 
+              :invoice_items => invoice_item
+              }
+
+    respond_to do |format|
+      format.json {render :json => result}
+    end
+  end
+
+  def credit_note
+    params[:items].each do |index, item|
+      if item[:quantity].to_i > 0
+        invoice_extra_item = InvoiceExtraItem.new
+        invoice_extra_item.quantity = item[:quantity]
+        invoice_extra_item.invoice_id = @invoice.id
+        invoice_extra_item.sales_item_id = item[:id].to_i
+        invoice_extra_item.discount = item[:discount]
+        invoice_extra_item.tax = item[:tax]
+        invoice_extra_item.sub_total = item[:sub_total]
+        invoice_extra_item.note = item[:note]
+        invoice_extra_item.extra_type = (params[:type] == 'write_off') ? 0 : 1
+        invoice_extra_item.total = item[:total]
+        invoice_extra_item.save
+
+        sales_item = SalesItem.find(item[:id])
+        sales_item.confirm!
+      end
+    end
+
+    @invoice.status = params[:type]
+    @invoice.save
+
+    @invoice.sales_order.invoice!(current_user)
+    add_action_history('invoice', params[:type], @invoice.token)
+
+    respond_to do |format|
+      result = {:Result => "OK", 
+                :Paid => @invoice.total_paid, 
+                :Balance => @invoice.total - @invoice.total_paid - @invoice.total_credit_note,
+                :CreditBalance => @invoice.total_credit_note, 
+                :Status => @invoice.status_text.upcase, 
+                :StatusClass => @invoice.status_class }
+      format.json {render :json => result}
+    end    
+  end
+
+  def remove_extra_item
+    extra_item = InvoiceExtraItem.find(params[:extra_item])
+    extra_item.delete
+
+    invoice = Invoice.find(params[:id])
+    invoice.remove_extra_item!
+
+    redirect_to invoice_path(params[:id], type: params[:type])
   end
 
   private

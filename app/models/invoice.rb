@@ -1,10 +1,12 @@
 class Invoice < ActiveRecord::Base
     has_many :invoice_items, class_name: 'InvoiceItem'
+    has_many :invoice_extra_items, class_name: 'InvoiceExtraItem'
+
     has_many :payments, class_name: 'Payment'
 
     belongs_to :sales_order, class_name: 'SalesOrder'
     
-    enum status: [:draft, :confirmed, :sent, :partial, :paid, :cancelled]
+    enum status: [:draft, :confirmed, :sent, :partial, :paid, :cancelled, :write_off, :credit_note]
 
     scope :ordered, -> { order({token: :desc}) }
     scope :draft, -> { where(:status => "draft") }
@@ -13,6 +15,8 @@ class Invoice < ActiveRecord::Base
     scope :partial, -> { where(:status => "partial") }
     scope :paid, -> { where(:status => "paid") }
     scope :cancelled, -> { where(status: 'cancelled') }
+    scope :write_off, -> { where(status: 'write_off') }
+    scope :credit_note, -> { where(status: 'credit_note') }
 
     def file_name_path
         '/invoices/' + file_name
@@ -25,6 +29,14 @@ class Invoice < ActiveRecord::Base
         return updated_at == pdf_updated_at
     end    
 
+    def write_off_items
+        invoice_extra_items.where(extra_type: 0)
+    end
+
+    def credit_note_items
+        invoice_extra_items.where(extra_type: 1)
+    end
+
     def status_class
         case status
         when "draft"
@@ -32,12 +44,16 @@ class Invoice < ActiveRecord::Base
         when "confirmed"
           "label-info"
         when "sent"
-          "label-danger"
+          "label-primary"
         when "partial"
           "label-warning"
         when "paid"
           "label-success"
         when "cancelled"
+          "label-danger"
+        when "write_off"
+          "label-danger"
+        when "credit_note"
           "label-danger"
         end
     end
@@ -56,6 +72,10 @@ class Invoice < ActiveRecord::Base
           "Paid"
         when "cancelled"
           "Cancelled"
+        when "write_off"
+          "Write Off"
+        when "credit_note"
+          "Credit Note"
         end
     end
 
@@ -70,7 +90,7 @@ class Invoice < ActiveRecord::Base
     end
 
     def total_paid
-        self.cancelled? ? 0 : payments.sum(:amount)
+        payments.sum(:amount)
     end
 
     def add_payment!
@@ -94,6 +114,34 @@ class Invoice < ActiveRecord::Base
         end
         save!
         self.sales_order.invoice!
+    end
+
+    def remove_extra_item!
+        if self.is_write_off?
+            self.status = 'write_off'
+        elsif self.is_credit_note?
+            self.status = 'credit_note'
+        elsif self.total_paid >= self.total
+            self.status = 'paid'
+        elsif self.total_paid == 0
+            self.status = 'sent'
+        else
+            self.status = 'partial'
+        end
+        save!
+        self.sales_order.invoice!
+    end
+
+    def total_credit_note
+       invoice_extra_items.where(extra_type: 1).sum(:total)
+    end
+
+    def is_credit_note?
+        invoice_extra_items.where(extra_type: 1).count() != 0
+    end
+
+    def is_write_off?
+        invoice_extra_items.where(extra_type: 0).count() != 0
     end
 
 end

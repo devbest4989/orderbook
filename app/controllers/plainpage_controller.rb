@@ -55,6 +55,7 @@ class PlainpageController < ApplicationController
 
   def edit_config_format
     set_global_config 'format.currency', 2 # 2: Default Currency
+    set_global_config 'format.customer_balance', 2 # 2: Default Currency    
     redirect_to config_format_path    
   end
 

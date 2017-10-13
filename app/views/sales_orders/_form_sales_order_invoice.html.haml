@@ -93,7 +93,7 @@
                     %li.divider{class: "invoice_cancel_section_#{item.id}", style: "#{(item.cancelled?) ? 'display: none;' : 'display: block;'}"}
                     %li{id: "invoice_cancel_#{item.id}", class: "invoice_cancel_section_#{item.id}", style: "#{(item.cancelled?) ? 'display: none;' : 'display: block;'}"}
                       =link_to '#', class: 'invoice-header-link invoice-cancel', 'data-target' => '#cancel_reason_modal', 'data-toggle' => 'modal', 'data-id' => item.id, 'data-token' => item.token  do
-                        Cancel              
+                        Write-Off              
 
                   / =link_to invoice_path(item.id, type: :all), style: 'font-size: 20px; margin-right: 10px;', :method=> :get do
                   /   %i.fa.fa-pencil-square-o

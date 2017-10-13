@@ -231,7 +231,10 @@ Rails.application.routes.draw do
       post :add_payment, :defaults => { :format => 'json' }
       post :approve
       post :cancel
+      post :invoice_detail_info
+      post :credit_note
       delete :remove_payment
+      delete :remove_extra_item
     end
 
     collection do

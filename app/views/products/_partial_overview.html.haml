@@ -79,6 +79,9 @@
       %td Product Location:
       %td= @product.warehouse.name unless @product.warehouse.nil?
     %tr
+      %td Stock:
+      %td= @product.stock
+    %tr
       %td Opening Stock:
       %td= @product.open_qty
     %tr

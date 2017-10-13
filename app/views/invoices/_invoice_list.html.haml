@@ -65,7 +65,11 @@
           %td
             = invoice.total
           %td{id: "invoice_balance_#{invoice.id}"}
-            = invoice.total - invoice.total_paid
+            = invoice.total - invoice.total_paid - invoice.total_credit_note
+            - if invoice.is_credit_note?
+              %br
+              = invoice.total_credit_note
+              CR
           %td{style: "position: relative;"}
             %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
               Actions
@@ -79,13 +83,13 @@
                   =link_to preview_invoice_path(invoice.preview_token), class: 'invoice-header-link', :method=> :get, target: '_blank' do
                     Preview
                 %li.divider
-              %li{id: "invoice_approve_#{invoice.id}" , class: "invoice_approve_section_#{invoice.id}", style: "#{(invoice.draft? || invoice.cancelled?) ? 'display: block;' : 'display: none;'}"}
+              %li{id: "invoice_approve_#{invoice.id}" , class: "invoice_approve_section_#{invoice.id}", style: "#{(invoice.draft?) ? 'display: block;' : 'display: none;'}"}
                 =link_to 'javascript:;', class: 'invoice-header-link invoice-approve', 'data-id' => invoice.id, 'data-token' => invoice.token  do
                   Approve
               %li
                 =link_to '#', class: 'invoice-header-link' do
                   Send
-              %li{id: "invoice_payment_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "invoice_payment_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}"}
                 =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-balance' => "#{invoice.total - invoice.total_paid}", style: "#{(invoice.paid? || invoice.draft?) ? 'display: none;' : ''}" do
                   Record Payment
               %li.divider
@@ -103,14 +107,79 @@
                 %li
                   =link_to invoice.file_name_path, class: 'invoice-header-link', target: '_blank' do
                     Print
-              %li.divider{class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
-              %li{id: "invoice_cancel_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.cancelled?) ? 'display: none;' : 'display: block;'}"}
-                =link_to '#', class: 'invoice-header-link invoice-cancel', 'data-target' => '#cancel_reason_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token  do
-                  Cancel
+              %li.divider{class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.draft?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "invoice_cancel_#{invoice.id}", class: "invoice_cancel_section_#{invoice.id}", style: "#{(invoice.draft?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-type' => "write_off"  do
+                  Write-Off
+              %li{id: "invoice_credit_note_#{invoice.id}", class: "", style: "#{(invoice.draft?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => invoice.id, 'data-token' => invoice.token, 'data-type' => "credit_note" do
+                  Credit Note
 
   .col-md-12{:style => "text-align: center;"}  
     = will_paginate @invoices, renderer: BootstrapPagination::Rails, :previous_label => '&lsaquo;', :next_label => '&rsaquo;'
     %input{type: 'hidden', id: 'params', data: { order: "#{params[:order]}", sort: "#{params[:sort]}", key: "#{params[:key]}", type: "#{params[:type]}"}}
+
+  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "credit_note_modal"}
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4#credit_note_modal_title.modal-title Sales Order Invoice
+        .modal-body
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h1#credit_note_customer_name
+            .col-md-6.col-sm-6.col-xs-12.text-right
+              %h4.invoice_number#credit_note_invoice_token
+          .row.no-margin  
+            .col-md-6.col-sm-6.col-xs-12
+              %h4#credit_note_customer_bill_address
+            .col-md-6.col-sm-6.col-xs-12
+              %h4.invoice_date
+                Date: 
+                %span#credit_note_invoice_date
+              %input{type:'hidden', id: 'credit_note_invoice_id', :value => ""}
+              %input{type:'hidden', id: 'credit_note_modal_type', :value => ""}
+              %input{type:'hidden', id: 'credit_note_todo_url', :value => ""}
+            .col-md-12{:style => "overflow:auto;"}
+              / start project list
+              %div
+                %table#product_list.table.table-bordered.projects.margin-bottom-5
+                  %thead
+                    %tr
+                      %th{:style => "width: 10%"} SKU
+                      %th{:style => "width: 25%"} Product Name
+                      %th{:style => "width: 10%"} Available Quantity
+                      %th{:style => "width: 10%"} Quantity To Action
+                      %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                      %th{:style => "width: 5%"} Discount (%)
+                      %th{:style => "width: 5%"} Tax (%)
+                      %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                      %th{:style => "width: 25%"} Note
+                  %tbody#credit_note_body
+                %table.table.projects
+                  %tbody
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b SubTotal:
+                      %td#sub_total_cell.money{:style => 'border:none; background: white; width:12%;'}                        
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Total Discount:
+                      %td#discount_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Tax:
+                      %td#tax_total_cell.money{:style => 'border:none; background: white; width:12%;'}
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Total:
+                      %td#total_cell.money{:style => 'border:none; background: white; width:12%;'}
+
+        .modal-footer
+          %button#btn_credit_note_cancel.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
+          %button#btn_credit_note_invoice.btn.btn-primary{:type => "button"} Credit Note
 
   .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}
     .modal-dialog.modal-md
@@ -147,26 +216,12 @@
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit
 
-  .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "cancel_reason_modal"}
-    .modal-dialog.modal-md
-      .modal-content
-        .modal-header
-          %button.close{"data-dismiss" => "modal", :type => "button"}
-            %span{"aria-hidden" => "true"} ×
-          %h4.modal-title 
-            Cancel Reason for Invoice - 
-            %span{id: 'cancel_invoice_token'}
-        .modal-body
-          .row{style:'margin-bottom: 10px;'}
-            .col-md-12
-              %label Reason
-              %textarea.form-control{name:'note', id: 'cancel_reason', rows: 5}
-              %input{type:'hidden', id: 'cancel_invoice_id', :value => ""}
-        .modal-footer
-          %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "button_close_cancel"} Close
-          %button.btn.btn-danger{:type => "button", id: "button_cancel_invoice", "data-type" => "modal"} Cancel
-
 :javascript
   jQuery(document).ready(function() {
     InvoiceList.initInvoiceList();
   });
+
+:css
+  table td.money:before{    
+    content: '#{Setting.value_by('format.currency')} ' !important;
+  }

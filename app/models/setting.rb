@@ -13,7 +13,9 @@ class Setting < ActiveRecord::Base
     company.fax 
     company.email 
     company.url
+
     format.currency
+    format.customer_balance
 
     invoice.template
     invoice.color

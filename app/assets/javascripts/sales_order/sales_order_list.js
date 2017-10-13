@@ -372,7 +372,7 @@ var SalesOrderList = function(){
                               </li>\
                               <li class="divider invoice_cancel_section_'+value.id+'"></li>\
                               <li class="invoice_cancel_section_'+value.id+'">\
-                                <a class="invoice-header-link  invoice-cancel" data-target="#cancel_reason_modal" data-toggle ="modal" rel="nofollow" data-id="'+value.id+'" data-token="'+value.token+'" href="#">Cancel\
+                                <a class="invoice-header-link  invoice-cancel" data-target="#cancel_reason_modal" data-toggle ="modal" rel="nofollow" data-id="'+value.id+'" data-token="'+value.token+'" href="#">Write-Off\
                                 </a>\
                               </li>\
                             </ul>\

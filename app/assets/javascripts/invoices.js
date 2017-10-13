@@ -179,39 +179,64 @@ var InvoiceList = function(){
       });      
     });
 
-    /*************** Cancel Action *******************************/
-    $('.invoice-cancel').click(function(){
-      $('#cancel_invoice_token').text($(this).data('token'));
-      $('#cancel_reason').val('');
-      $('#cancel_invoice_id').val($(this).data('id'));
-    });
+    /*********************Credit Note*****************************/
+    $('.invoice-action').click(function(){      
+      $('#credit_note_invoice_token').text($(this).data('token'));
+      $('#credit_note_invoice_id').val($(this).data('id'));
+      var reqUrl = '/invoices/' + $(this).data('id') + '/invoice_detail_info';
+      var type = $(this).data('type');
 
-    $('#button_cancel_invoice').click(function(){      
-      var invoice_id = $('#cancel_invoice_id').val();
-      var reqUrl = '/invoices/' + invoice_id + '/cancel'
-      var invoice_token = $('#cancel_invoice_token').val();
-      var mode = $(this).data('type');
+      if(type == 'write_off'){
+        $('#credit_note_modal_title').text('Sales Order Invoice - Write Off');
+        $('#btn_credit_note_invoice').text('Write Off');
+        $('#credit_note_modal_type').val(type);
+      } else {
+        $('#credit_note_modal_title').text('Sales Order Invoice - Credit Note');
+        $('#btn_credit_note_invoice').text('Credit Note');
+        $('#credit_note_modal_type').val(type);
+      }
+      
       $.ajax({
         url: reqUrl,
         type: 'post',
         datatype: 'json',
-        data: { reason: $('#cancel_reason').val() },
         success: function(data){
-          if(data.Result == "OK"){
-            if(mode == 'page'){
-              window.location.reload();
-              return;
-            } 
-            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
-            $('.invoice_approve_section_' + invoice_id).show();
-            $('.invoice_cancel_section_' + invoice_id).hide();
-            new PNotify({
-              title: 'Success!',
-              text: 'Invoice ' + invoice_token + ' is cancelled.',
-              type: 'success',
-              delay: 3000
+          if(data.result == "OK"){
+            $('#credit_note_customer_name').text(data.customer);
+            $('#credit_note_invoice_token').text(data.token);
+            $('#credit_note_todo_url').val(data.credit_note_url);
+            $('#credit_note_customer_bill_address').text(data.bill_address);
+            $('#credit_note_invoice_date').text(data.invoice_date);
+                        
+            var template = '';
+            var total_available = 0;
+            $.each( data.invoice_items, function( key, value ) {
+              template += '<tr><td>'+value.sku+'</td>';
+              template += '<td>'+value.name+'</td>';
+              template += '<td>'+value.quantity+'</td>';
+              template += '<td class="editable" contentEditable="true">0</td>';
+              template += '<td>'+value.unit_price+'</td>';
+              template += '<td>'+value.discount_rate+'</td>';
+              template += '<td>'+value.tax_rate+'</td>';
+              template += '<td></td>';
+              template += '<td class="editable" contentEditable="true"></td>';
+              template += '<td style="display:none; ">'+value.id+'</td>';
+              template += '<td style="display:none; "></td></tr>';
+              total_available += value.quantity;
             });
-            $('#button_close_cancel').trigger('click');
+            $('#credit_note_body').html(template);
+
+            if(total_available > 0){
+              $('#btn_credit_note_invoice').show();
+            } else {
+              $('#btn_credit_note_invoice').hide();
+            }
+
+            $('#sub_total_cell').html('');
+            $('#discount_total_cell').html('');
+            $('#tax_total_cell').html('');
+            $('#total_cell').html('');
+
           } else {
             new PNotify({
               title: 'Error!',
@@ -229,9 +254,121 @@ var InvoiceList = function(){
             delay: 3000
           });              
         }   
-      });            
+      });      
     });
 
+    $('#btn_credit_note_invoice').click(function(){
+      var reqUrl = $('#credit_note_todo_url').val();
+      var invoice_id = $('#credit_note_invoice_id').val();
+      var balance = $('#total_cell').text().trim();
+
+      var invoiceItemData = new Array();
+      $( '#product_list tbody tr').each(function(row, tr){
+        invoiceItemData.push({
+          "quantity" : $(tr).find('td:eq(3)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "note" : $(tr).find('td:eq(8)').text().trim(),
+          "id" : $(tr).find('td:eq(9)').text().trim(),
+          "total" : $(tr).find('td:eq(10)').text().trim()
+        });    
+      }); 
+
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          items: invoiceItemData,
+          type: $('#credit_note_modal_type').val()
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            var new_balance = data.Balance;
+            var total_credit_note = data.CreditBalance;
+            if(total_credit_note)
+              $('#invoice_balance_' + invoice_id).html(new_balance + '<br/>' + total_credit_note + 'CR');
+            else
+              $('#invoice_balance_' + invoice_id).text(new_balance);
+
+            $('#invoice_payment_' + invoice_id).data('balance', new_balance);
+            $('#invoice_status_' + invoice_id).html('<span class="label '+data.StatusClass+'">'+data.Status+'</span>');
+            $('#btn_credit_note_cancel').trigger('click');
+            new PNotify({
+              title: 'Success!',
+              text: 'Action has done successfully.',
+              type: 'success',
+              delay: 3000
+            });            
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
+    });
+
+    $(document).on('focusout', '#product_list td.editable', function(){
+      $(this).removeClass("edit-focus");
+      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+      calculateInvoice(modalId);
+    });
+
+    $(document).on('keydown', '#product_list td.editable', function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+        calculateInvoice();
+        event.preventDefault();
+        break;
+      }
+    });
+
+    function calculateInvoice(){
+      var subTotal = 0, 
+          discountTotal = 0, 
+          taxTotal = 0, 
+          total = 0, 
+          change = 0;        
+      $( '#product_list tbody tr').each(function(row, tr){
+        var row_amount = 0;
+        var quantity = $(tr).find('td:eq(3)').text().trim();
+        var price = $(tr).find('td:eq(4)').text().trim();
+        var discount = $(tr).find('td:eq(5)').text().trim();
+        var tax = $(tr).find('td:eq(6)').text().trim();
+        row_amount = quantity * price * (100 -discount) * 0.01;
+        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
+
+        row_amount = $(tr).find('td:eq(7)').text().trim();
+
+        subTotal += (row_amount * 1);
+        discountTotal += quantity * price * discount * 0.01;
+        taxTotal += quantity * price * tax * 0.01;
+        total += (row_amount * 1) + quantity * price * tax * 0.01;
+        $(tr).find('td:eq(10)').text(total.toFixed(2));
+      });
+
+      var paid = 0;//$( '#paid_amount').val();
+      $('.payment-record').each(function(index, item){
+        paid += parseFloat($(item).text());
+      });
+
+      $( '#sub_total_cell').text(subTotal.toFixed(2));
+      $( '#discount_total_cell').text(discountTotal.toFixed(2));
+      $( '#tax_total_cell').text(taxTotal.toFixed(2));
+      $( '#total_cell').text(total.toFixed(2));
+    }
   }
 
   return {
@@ -421,41 +558,66 @@ var InvoiceDetail = function () {
         break;
       }
     });
+  }
 
+  var modalHandler = function(){
+    $('.invoice-action').click(function(){      
+      $('#credit_note_invoice_token').text($(this).data('token'));
+      $('#credit_note_invoice_id').val($(this).data('id'));
+      var reqUrl = '/invoices/' + $(this).data('id') + '/invoice_detail_info';
+      var type = $(this).data('type');
 
-    /*************** Cancel Action *******************************/
-    $('.invoice-cancel').click(function(){
-      $('#cancel_invoice_token').text($(this).data('token'));
-      $('#cancel_reason').val('');
-      $('#cancel_invoice_id').val($(this).data('id'));
-    });
-
-    $('#button_cancel_invoice').click(function(){      
-      var invoice_id = $('#cancel_invoice_id').val();
-      var reqUrl = '/invoices/' + invoice_id + '/cancel'
-      var invoice_token = $('#cancel_invoice_token').val();
-      var mode = $(this).data('type');
+      if(type == 'write_off'){
+        $('#credit_note_modal_title').text('Sales Order Invoice - Write Off');
+        $('#btn_credit_note_invoice').text('Write Off');
+        $('#credit_note_modal_type').val(type);
+      } else {
+        $('#credit_note_modal_title').text('Sales Order Invoice - Credit Note');
+        $('#btn_credit_note_invoice').text('Credit Note');
+        $('#credit_note_modal_type').val(type);
+      }
+      
       $.ajax({
         url: reqUrl,
         type: 'post',
         datatype: 'json',
-        data: { reason: $('#cancel_reason').val() },
         success: function(data){
-          if(data.Result == "OK"){
-            if(mode == 'page'){
-              window.location.reload();
-              return;
-            } 
-            $('#invoice_status_' + invoice_id).html('<span class="label label-danger">CANCELLED</span>');
-            $('.invoice_approve_section_' + invoice_id).show();
-            $('.invoice_cancel_section_' + invoice_id).hide();
-            new PNotify({
-              title: 'Success!',
-              text: 'Invoice ' + invoice_token + ' is cancelled.',
-              type: 'success',
-              delay: 3000
+          if(data.result == "OK"){
+            $('#credit_note_customer_name').text(data.customer);
+            $('#credit_note_invoice_token').text(data.token);
+            $('#credit_note_todo_url').val(data.credit_note_url);
+            $('#credit_note_customer_bill_address').text(data.bill_address);
+            $('#credit_note_invoice_date').text(data.invoice_date);
+                        
+            var template = '';
+            var total_available = 0;
+            $.each( data.invoice_items, function( key, value ) {
+              template += '<tr><td>'+value.sku+'</td>';
+              template += '<td>'+value.name+'</td>';
+              template += '<td>'+value.quantity+'</td>';
+              template += '<td class="editable" contentEditable="true">0</td>';
+              template += '<td>'+value.unit_price+'</td>';
+              template += '<td>'+value.discount_rate+'</td>';
+              template += '<td>'+value.tax_rate+'</td>';
+              template += '<td></td>';
+              template += '<td class="editable" contentEditable="true"></td>';
+              template += '<td style="display:none; ">'+value.id+'</td>';
+              template += '<td style="display:none; "></td></tr>';
+              total_available += value.quantity;
             });
-            $('#button_close_cancel').trigger('click');
+            $('#credit_note_body').html(template);
+
+            if(total_available > 0){
+              $('#btn_credit_note_invoice').show();
+            } else {
+              $('#btn_credit_note_invoice').hide();
+            }
+
+            $('#sub_total_cell').html('');
+            $('#discount_total_cell').html('');
+            $('#tax_total_cell').html('');
+            $('#total_cell').html('');
+
           } else {
             new PNotify({
               title: 'Error!',
@@ -473,9 +635,106 @@ var InvoiceDetail = function () {
             delay: 3000
           });              
         }   
-      });            
+      });      
     });
-    
+
+    $('#btn_credit_note_invoice').click(function(){
+      var reqUrl = $('#credit_note_todo_url').val();
+      var invoice_id = $('#credit_note_invoice_id').val();
+      var balance = $('#total_cell').text().trim();
+
+      var invoiceItemData = new Array();
+      $( '#product_list_modal tbody tr').each(function(row, tr){
+        invoiceItemData.push({
+          "quantity" : $(tr).find('td:eq(3)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "note" : $(tr).find('td:eq(8)').text().trim(),
+          "id" : $(tr).find('td:eq(9)').text().trim(),
+          "total" : $(tr).find('td:eq(10)').text().trim()
+        });    
+      }); 
+
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        data: {
+          items: invoiceItemData,
+          type: $('#credit_note_modal_type').val()
+        },
+        success: function(data){
+          if(data.Result == "OK"){
+            window.location.reload();
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error'
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error'
+          });              
+        }   
+      });      
+    });
+
+    $(document).on('focusout', '#product_list_modal td.editable', function(){
+      $(this).removeClass("edit-focus");
+      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+      calculateModalInvoice(modalId);
+    });
+
+    $(document).on('keydown', '#product_list_modal td.editable', function(event){
+      code = (event.keyCode ? event.keyCode : event.which);
+      switch(code) {
+      case 13:
+        calculateModalInvoice();
+        event.preventDefault();
+        break;
+      }
+    });
+
+    function calculateModalInvoice(){
+      var subTotal = 0, 
+          discountTotal = 0, 
+          taxTotal = 0, 
+          total = 0, 
+          change = 0;        
+      $( '#product_list_modal tbody tr').each(function(row, tr){
+        var row_amount = 0;
+        var quantity = $(tr).find('td:eq(3)').text().trim();
+        var price = $(tr).find('td:eq(4)').text().trim();
+        var discount = $(tr).find('td:eq(5)').text().trim();
+        var tax = $(tr).find('td:eq(6)').text().trim();
+        row_amount = quantity * price * (100 -discount) * 0.01;
+        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
+
+        row_amount = $(tr).find('td:eq(7)').text().trim();
+
+        subTotal += (row_amount * 1);
+        discountTotal += quantity * price * discount * 0.01;
+        taxTotal += quantity * price * tax * 0.01;
+        total += (row_amount * 1) + quantity * price * tax * 0.01;
+        $(tr).find('td:eq(10)').text(total.toFixed(2));
+      });
+
+      var paid = 0;//$( '#paid_amount').val();
+      $('.payment-record').each(function(index, item){
+        paid += parseFloat($(item).text());
+      });
+
+      $( '#modal_sub_total_cell').text(subTotal.toFixed(2));
+      $( '#modal_discount_total_cell').text(discountTotal.toFixed(2));
+      $( '#modal_tax_total_cell').text(taxTotal.toFixed(2));
+      $( '#modal_total_cell').text(total.toFixed(2));
+    }    
   }
 
   var do_activity = function(reqUrl, data, page, method = 'post'){
@@ -518,6 +777,7 @@ var InvoiceDetail = function () {
 
     initActionHandler: function(){
       actionHandler();
+      modalHandler();
     }
   };
 }();  
