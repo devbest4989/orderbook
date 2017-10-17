@@ -205,6 +205,14 @@ class InvoicesController < ApplicationController
     payment.payment_mode = params[:payment_mode]
     payment.reference_no = params[:reference_no]
     payment.note = params[:note]
+    
+    params[:extra_items].each do |item|
+      extra_item = InvoiceExtraItem.find(item)
+      extra_item.is_paid = 1
+      extra_item.paid_invoice_id = @invoice.id
+      extra_item.paid_invoice_type = @invoice.class
+      extra_item.save
+    end
 
     respond_to do |format|
       result = {}
@@ -281,13 +289,28 @@ class InvoicesController < ApplicationController
         invoice_item << elem
       end
     end
+
+    pending_items = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id)
+    pending_credit_notes = []
+    pending_items.each do |item|
+      if item.sales_item
+        elem = {
+          name: "#{item.invoice.token}-#{item.sales_item.sold_item.sku}: #{Setting.value_by('format.currency')} #{item.total}",
+          id: item.id
+        }
+        pending_credit_notes << elem
+      end
+    end
+
     result = {:result => "OK",
               :customer => @invoice.sales_order.customer.company_title,
               :token => @invoice.token,
               :credit_note_url => credit_note_invoice_path(@invoice),
               :bill_address => @invoice.sales_order.customer.billing_address,
               :invoice_date => @invoice.created_at.to_date, 
-              :invoice_items => invoice_item
+              :invoice_items => invoice_item,
+              :pending_credit_notes => pending_credit_notes,
+              :currency => Setting.value_by('format.currency')
               }
 
     respond_to do |format|
@@ -324,7 +347,7 @@ class InvoicesController < ApplicationController
     respond_to do |format|
       result = {:Result => "OK", 
                 :Paid => @invoice.total_paid, 
-                :Balance => @invoice.total - @invoice.total_paid - @invoice.total_credit_note,
+                :Balance => @invoice.total - @invoice.total_paid,
                 :CreditBalance => @invoice.total_credit_note, 
                 :Status => @invoice.status_text.upcase, 
                 :StatusClass => @invoice.status_class }
@@ -334,10 +357,17 @@ class InvoicesController < ApplicationController
 
   def remove_extra_item
     extra_item = InvoiceExtraItem.find(params[:extra_item])
+    sales_item_id = extra_item.sales_item.id
     extra_item.delete
+
 
     invoice = Invoice.find(params[:id])
     invoice.remove_extra_item!
+
+    invoice.sales_order.invoice!(current_user)
+    
+    sales_item = SalesItem.find(sales_item_id)
+    sales_item.confirm!
 
     redirect_to invoice_path(params[:id], type: params[:type])
   end

@@ -68,6 +68,10 @@ var InvoiceList = function(){
       }
 
     });
+
+    $(".credit-note-record").select2({
+    });
+
   }
 
   var handleInvoiceAction = function() {
@@ -123,10 +127,52 @@ var InvoiceList = function(){
       $('#payment_invoice_token').text($(this).data('token'));
       $('#payment_date').val('');
       $('#payment_amount').val($(this).data('balance'));
+      $('#payment_original_balance').val($(this).data('balance'));
       $('#reference_no').val('');
       $('#note').val('');
       $('#payment_invoice_id').val($(this).data('id'));
       $('#payment_mode').val('');
+      $('.credit-note-record').html('');
+
+      var reqUrl = '/invoices/' + $(this).data('id') + '/invoice_detail_info';
+      $.ajax({
+        url: reqUrl,
+        type: 'post',
+        datatype: 'json',
+        success: function(data){
+          if(data.result == "OK"){
+            for(var i = 0; i < data.pending_credit_notes.length; i++){
+              var newOption = new Option(data.pending_credit_notes[i].name, data.pending_credit_notes[i].id, false, false);
+              $('.credit-note-record').append(newOption).trigger('change');
+              $('#payment_currency').val(data.currency);
+            }
+          } else {
+            new PNotify({
+              title: 'Error!',
+              text: data.Message,
+              type: 'error',
+              delay: 3000
+            });              
+          }
+        },
+        error:function(){
+          new PNotify({
+            title: 'Error!',
+            text: 'Request is not processed.',
+            type: 'error',
+            delay: 3000
+          });              
+        }   
+      });         
+    });
+
+    $(".credit-note-record").on('change', function (e) {
+      var total = 0;
+      $('.credit-note-record').find(':selected').each(function(index, item){        
+        total += Number(item.text.substring(item.text.lastIndexOf($('#payment_currency').val()) + $('#payment_currency').val().length + 1));
+      });
+      var balance = $('#payment_original_balance').val() - total;
+      $('#payment_amount').val(balance.toFixed(2));
     });
 
     $('#button_record_payment').click(function(){
@@ -142,7 +188,8 @@ var InvoiceList = function(){
           payment_amount: $('#payment_amount').val(),
           payment_mode: $('#payment_mode').val(),
           reference_no: $('#reference_no').val(),
-          note: $('#note').val()          
+          note: $('#note').val(),
+          extra_items: $(".credit-note-record").val()
         },
         success: function(data){
           if(data.Result == "OK"){
@@ -295,6 +342,12 @@ var InvoiceList = function(){
             $('#invoice_payment_' + invoice_id).data('balance', new_balance);
             $('#invoice_status_' + invoice_id).html('<span class="label '+data.StatusClass+'">'+data.Status+'</span>');
             $('#btn_credit_note_cancel').trigger('click');
+            if($('#credit_note_modal_type').val() == 'write_off'){
+              $('#invoice_credit_note_'+invoice_id).hide();
+            } else {
+              $('#invoice_cancel_'+invoice_id).hide();
+            }
+
             new PNotify({
               title: 'Success!',
               text: 'Action has done successfully.',

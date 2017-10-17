@@ -32,7 +32,7 @@
               - unless @invoice.paid? || @invoice.cancelled?
                 %li
                   =link_to '#', class: 'invoice-header-link record-payment', 'data-target' => '#record_payment_modal', 'data-toggle' => 'modal' do
-                    Record Payment
+                    Make Payment
               %li.divider
               - if @invoice.file_name.blank? || @invoice.is_updated_pdf
                 %li
@@ -50,12 +50,14 @@
                     Print
               - unless @invoice.draft?
                 %li.divider
-                %li
-                  =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => @invoice.id, 'data-token' => @invoice.token, 'data-type' => "write_off"  do
-                    Write-Off
-                %li
-                  =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => @invoice.id, 'data-token' => @invoice.token, 'data-type' => "credit_note"  do
-                    Credit Note
+                - unless @invoice.credit_note?
+                  %li
+                    =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => @invoice.id, 'data-token' => @invoice.token, 'data-type' => "write_off"  do
+                      Write-Off
+                - unless @invoice.write_off?
+                  %li
+                    =link_to '#', class: 'invoice-header-link invoice-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => @invoice.id, 'data-token' => @invoice.token, 'data-type' => "credit_note"  do
+                      Credit Note
           %li
             %a.collapse-link
               %i.fa.fa-chevron-up
@@ -186,17 +188,17 @@
                         ="Payment on #{payment.payment_date}:"
                       %td.payment-record.money{:style => 'border:none; background: white; width:12%;'}
                         =payment.amount
-                  - if @invoice.is_credit_note?
+                  - if @invoice.paid_extra_items.length > 0
                     %tr
                       %td{:style => 'border:none; background: white; text-align: right;'} 
-                        Credit Note Total:
+                        Paid Back Total:
                       %td.payment-record.money{:style => 'border:none; background: white; width:12%;'}
-                        =@invoice.total_credit_note                    
+                        =@invoice.total_paid_back                    
                   %tr
                     %td{:style => 'border:none; background: white; text-align: right;'} 
                       %b Amount Due:
                     %td#change_cell.money{:style => 'border:none; background: white; width:12%;'}
-                      =@invoice.total - @invoice.total_paid - @invoice.total_credit_note
+                      =@invoice.total - @invoice.total_paid
 
         .ln_solid
         .row.no-margin
@@ -220,8 +222,53 @@
                       %td
                         =link_to remove_payment_invoice_path(@invoice, payment: item.id, type: params[:type]), class: 'remove_payment_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                           %i.fa.fa-icon.fa-minus-circle
+        - if @invoice.paid_extra_items.length > 0
+          .row.no-margin
+            .col-md-12{:style => "overflow:auto;"}
+              %h4 Payback Records for Credit Notes
+              %div
+                %table.activity_list.table.table-bordered.projects.margin-bottom-5
+                  %thead
+                    %tr
+                      %th{:style => "width: 15%"} SKU
+                      %th{:style => "width: 25%"} Product Name
+                      %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
+                      %th{:style => "width: 10%"} Discount (%)
+                      %th{:style => "width: 10%"} Tax (%)
+                      %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
+                      %th
+                  %tbody
+                    - @invoice.paid_extra_items.each do |item|
+                      %tr
+                        %td
+                          =item.sales_item.sold_item.sku
+                        %td 
+                          %a{:href => product_path(item.sales_item.sold_item.id, type: 'all')} 
+                            =item.sales_item.sold_item.name                      
+                        %td
+                          =item.quantity
+                        %td 
+                          =item.sales_item.unit_price
+                        %td 
+                          =item.sales_item.discount_rate
+                        %td 
+                          =item.sales_item.tax_rate
+                        %td
+                          =item.total
+                        %td
+                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                            %i.fa.fa-icon.fa-minus-circle
+                %table.table.projects
+                  %tbody
+                    %tr
+                      %td{:style => 'border:none; background: white; text-align: right;'} 
+                        %b Paid Back Total:
+                      %td.money{:style => 'border:none; background: white; width:12%;'}
+                        =@invoice.total_paid_back
 
-        - if @invoice.write_off? || @invoice.credit_note?
+
+        - if @invoice.credit_note?
           .ln_solid
           .row.no-margin
             .col-md-12{:style => "overflow:auto;"}
@@ -265,7 +312,8 @@
                       %td{:style => 'border:none; background: white; text-align: right;'} 
                         %b Credit Note Total:
                       %td.money{:style => 'border:none; background: white; width:12%;'}
-                        =@invoice.total_credit_note                        
+                        =@invoice.total_credit_note
+        - if @invoice.write_off?
           .ln_solid
           .row.no-margin
             .col-md-12{:style => "overflow:auto;"}

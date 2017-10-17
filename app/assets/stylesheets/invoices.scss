@@ -164,7 +164,25 @@
         }
       }
     }
-  }   
+  }
+
+}
+
+#record_payment_modal{
+  .select2-container--default .select2-selection--multiple .select2-selection__rendered{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-size: 14px;    
+  }
+  .select2-container--default .select2-selection--multiple{
+    border-color: #ccc;
+    border-radius: 0px;
+    padding: 3px 15px;
+  }
+  .select2-container--default .select2-search--inline .select2-search__field{
+    width: 100% !important;
+  }
 }
 
 .daterangepicker{

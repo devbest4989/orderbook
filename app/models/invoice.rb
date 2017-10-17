@@ -1,6 +1,7 @@
 class Invoice < ActiveRecord::Base
     has_many :invoice_items, class_name: 'InvoiceItem'
     has_many :invoice_extra_items, class_name: 'InvoiceExtraItem'
+    has_many :paid_extra_items, as: 'paid_invoice', class_name: 'InvoiceExtraItem'
 
     has_many :payments, class_name: 'Payment'
 
@@ -90,7 +91,11 @@ class Invoice < ActiveRecord::Base
     end
 
     def total_paid
-        payments.sum(:amount)
+        payments.sum(:amount) + total_paid_back
+    end
+
+    def total_paid_back
+        paid_extra_items.sum(:total)
     end
 
     def add_payment!
@@ -128,7 +133,7 @@ class Invoice < ActiveRecord::Base
         else
             self.status = 'partial'
         end
-        save!
+        save!        
         self.sales_order.invoice!
     end
 
