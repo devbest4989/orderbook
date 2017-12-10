@@ -12,6 +12,8 @@ class InvoicesController < ApplicationController
     get_sub_invoices
     set_sales_order
 
+    @pending_credit_notes = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id).where(customer_id: @invoice.sales_order.customer.id).sum(:total)
+
     profile_info = Setting.company_profile
     @company_profiles = {}
     profile_info.each do |info|
@@ -201,22 +203,28 @@ class InvoicesController < ApplicationController
     payment = Payment.new
     payment.invoice_id = @invoice.id
     payment.payment_date = Date.strptime(params[:payment_date],  "%d-%m-%Y")
-    payment.amount = params[:payment_amount]
     payment.payment_mode = params[:payment_mode]
     payment.reference_no = params[:reference_no]
     payment.note = params[:note]
+    payment.amount = params[:payment_amount]
     
-    params[:extra_items].each do |item|
-      extra_item = InvoiceExtraItem.find(item)
-      extra_item.is_paid = 1
-      extra_item.paid_invoice_id = @invoice.id
-      extra_item.paid_invoice_type = @invoice.class
-      extra_item.save
+    pending_credit_notes = 0
+    if params[:is_include_credit_note]
+      pending_credit_notes = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id).where(customer_id: @invoice.sales_order.customer.id).sum(:total)
+  
+      extra_items = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id).where(customer_id: @invoice.sales_order.customer.id)
+      extra_items.each do |item|
+        item.is_paid = 1
+        item.paid_invoice_id = @invoice.id
+        item.paid_invoice_type = @invoice.class
+        item.save
+      end
     end
+
 
     respond_to do |format|
       result = {}
-      if payment.save
+      if params[:payment_amount].to_f == 0 || payment.save
         if params[:type] == 'credit'
           result = {:Result => "OK", 
                     :Paid => @invoice.total_paid, 
@@ -290,17 +298,7 @@ class InvoicesController < ApplicationController
       end
     end
 
-    pending_items = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id)
-    pending_credit_notes = []
-    pending_items.each do |item|
-      if item.sales_item
-        elem = {
-          name: "#{item.invoice.token}-#{item.sales_item.sold_item.sku}: #{Setting.value_by('format.currency')} #{item.total}",
-          id: item.id
-        }
-        pending_credit_notes << elem
-      end
-    end
+    pending_credit_notes = InvoiceExtraItem.where(is_paid: 0).where.not(invoice_id: @invoice.id).where(customer_id: @invoice.sales_order.customer.id).sum(:total)    
 
     result = {:result => "OK",
               :customer => @invoice.sales_order.customer.company_title,
@@ -331,6 +329,7 @@ class InvoicesController < ApplicationController
         invoice_extra_item.note = item[:note]
         invoice_extra_item.extra_type = (params[:type] == 'write_off') ? 0 : 1
         invoice_extra_item.total = item[:total]
+        invoice_extra_item.customer_id = @invoice.sales_order.customer.id
         invoice_extra_item.save
 
         sales_item = SalesItem.find(item[:id])
@@ -356,18 +355,24 @@ class InvoicesController < ApplicationController
   end
 
   def remove_extra_item
-    extra_item = InvoiceExtraItem.find(params[:extra_item])
-    sales_item_id = extra_item.sales_item.id
-    extra_item.delete
-
-
     invoice = Invoice.find(params[:id])
+
+    extra_items = invoice.paid_extra_items
+    extra_items.each do |item|
+      sales_item_id = item.sales_item.id
+
+      item.is_paid = 0
+      item.paid_invoice_id = 0
+      item.paid_invoice_type = invoice.class
+      item.save
+
+      sales_item = SalesItem.find(sales_item_id)
+      sales_item.confirm!
+    end
+
     invoice.remove_extra_item!
 
-    invoice.sales_order.invoice!(current_user)
-    
-    sales_item = SalesItem.find(sales_item_id)
-    sales_item.confirm!
+    invoice.sales_order.invoice!(current_user)   
 
     redirect_to invoice_path(params[:id], type: params[:type])
   end

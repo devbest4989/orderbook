@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171015233815) do
+ActiveRecord::Schema.define(version: 20171027082404) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,21 @@ ActiveRecord::Schema.define(version: 20171015233815) do
     t.integer  "user_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "bill_extra_items", force: :cascade do |t|
+    t.integer  "bill_id"
+    t.integer  "purchase_item_id"
+    t.integer  "quantify"
+    t.decimal  "sub_total",        precision: 8, scale: 2, default: 0.0
+    t.decimal  "total",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "discount",         precision: 8, scale: 2, default: 0.0
+    t.decimal  "tax",              precision: 8, scale: 2, default: 0.0
+    t.string   "note"
+    t.integer  "is_paid",                                  default: 0
+    t.integer  "supplier_id",                              default: 0
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
   end
 
   create_table "bill_items", force: :cascade do |t|
@@ -171,6 +186,7 @@ ActiveRecord::Schema.define(version: 20171015233815) do
     t.integer  "is_paid",                                   default: 0
     t.integer  "paid_invoice_id",                           default: 0
     t.string   "paid_invoice_type"
+    t.integer  "customer_id",                               default: 0
   end
 
   create_table "invoice_items", force: :cascade do |t|

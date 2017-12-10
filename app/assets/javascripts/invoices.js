@@ -68,10 +68,6 @@ var InvoiceList = function(){
       }
 
     });
-
-    $(".credit-note-record").select2({
-    });
-
   }
 
   var handleInvoiceAction = function() {
@@ -131,8 +127,11 @@ var InvoiceList = function(){
       $('#reference_no').val('');
       $('#note').val('');
       $('#payment_invoice_id').val($(this).data('id'));
-      $('#payment_mode').val('');
-      $('.credit-note-record').html('');
+      $('#payment_mode').val('');      
+
+      $('#pay_credit_note').prop("checked",false);
+      $('.credit-note-section').show();      
+      $.uniform.update();
 
       var reqUrl = '/invoices/' + $(this).data('id') + '/invoice_detail_info';
       $.ajax({
@@ -141,10 +140,9 @@ var InvoiceList = function(){
         datatype: 'json',
         success: function(data){
           if(data.result == "OK"){
-            for(var i = 0; i < data.pending_credit_notes.length; i++){
-              var newOption = new Option(data.pending_credit_notes[i].name, data.pending_credit_notes[i].id, false, false);
-              $('.credit-note-record').append(newOption).trigger('change');
-              $('#payment_currency').val(data.currency);
+            $('#total_credit_note').val(data.pending_credit_notes);
+            if(data.pending_credit_notes == 0){
+              $('.credit-note-section').hide();
             }
           } else {
             new PNotify({
@@ -166,11 +164,8 @@ var InvoiceList = function(){
       });         
     });
 
-    $(".credit-note-record").on('change', function (e) {
-      var total = 0;
-      $('.credit-note-record').find(':selected').each(function(index, item){        
-        total += Number(item.text.substring(item.text.lastIndexOf($('#payment_currency').val()) + $('#payment_currency').val().length + 1));
-      });
+    $("#pay_credit_note").on('change', function (e) {
+      var total = $(this).prop("checked") ? $('#total_credit_note').val() : 0;
       var balance = $('#payment_original_balance').val() - total;
       $('#payment_amount').val(balance.toFixed(2));
     });
@@ -189,7 +184,7 @@ var InvoiceList = function(){
           payment_mode: $('#payment_mode').val(),
           reference_no: $('#reference_no').val(),
           note: $('#note').val(),
-          extra_items: $(".credit-note-record").val()
+          is_include_credit_note: $("#pay_credit_note").prop("checked")
         },
         success: function(data){
           if(data.Result == "OK"){
@@ -468,6 +463,13 @@ var InvoiceDetail = function () {
   }
 
   var actionHandler = function(){
+
+    $("#pay_credit_note").on('change', function (e) {
+      var total = $(this).prop("checked") ? $('#total_credit_note').val() : 0;
+      var balance = $('#change_cell').text().trim() - total;
+      $('#payment_amount').val(balance.toFixed(2));
+    });
+
     $('#payment_date').daterangepicker({
       singleDatePicker: true,
       calender_style: "picker_4",
@@ -486,7 +488,8 @@ var InvoiceDetail = function () {
           payment_amount: $('#payment_amount').val(),
           payment_mode: $('#payment_mode').val(),
           reference_no: $('#reference_no').val(),
-          note: $('#note').val()          
+          note: $('#note').val(),
+          is_include_credit_note: $("#pay_credit_note").prop("checked")
         },
         success: function(data){
           if(data.Result == "OK"){
@@ -518,7 +521,7 @@ var InvoiceDetail = function () {
     });
 
     $('a.record-payment').click(function(){
-      $('#payment_amount').val($('#change_cell').text().trim());
+      $('#payment_amount').val($('#change_cell').text().trim());      
     });
 
     function calculateInvoice(){

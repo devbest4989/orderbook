@@ -104,6 +104,10 @@
                 %li
                   =link_to bill.file_name_path, class: 'bill-header-link', target: '_blank' do
                     Print
+              %li.divider{style: "#{(bill.draft?) ? 'display: none;' : 'display: block;'}"}
+              %li{id: "bill_credit_note_#{bill.id}", class: "", style: "#{(bill.draft?) ? 'display: none;' : 'display: block;'}"}
+                =link_to '#', class: 'bill-header-link bill-action', 'data-target' => '#credit_note_modal', 'data-toggle' => 'modal', 'data-id' => bill.id, 'data-token' => bill.token, 'data-type' => "credit_note" do
+                  Credit Note
               %li.divider
               %li
                 =link_to bill_path(bill), method: :delete, data: { confirm: 'Are you sure?' }, class: 'bill-header-link' do

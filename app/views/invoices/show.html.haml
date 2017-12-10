@@ -225,19 +225,21 @@
         - if @invoice.paid_extra_items.length > 0
           .row.no-margin
             .col-md-12{:style => "overflow:auto;"}
-              %h4 Payback Records for Credit Notes
+              %h4 
+                Payback Records for Credit Notes
+                =link_to remove_extra_item_invoice_path(@invoice, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                  %i.fa.fa-icon.fa-minus-circle
               %div
                 %table.activity_list.table.table-bordered.projects.margin-bottom-5
                   %thead
                     %tr
-                      %th{:style => "width: 15%"} SKU
-                      %th{:style => "width: 25%"} Product Name
+                      %th SKU
+                      %th Product Name
                       %th{:style => "width: 10%"} Quantity
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
                       %th{:style => "width: 10%"}= "Amount (#{Setting.value_by('format.currency')})"
-                      %th
                   %tbody
                     - @invoice.paid_extra_items.each do |item|
                       %tr
@@ -256,9 +258,6 @@
                           =item.sales_item.tax_rate
                         %td
                           =item.total
-                        %td
-                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
-                            %i.fa.fa-icon.fa-minus-circle
                 %table.table.projects
                   %tbody
                     %tr
@@ -375,6 +374,14 @@
             .col-md-8.col-sm-8.col-xs-12
               %textarea.form-control{name:'note', id: 'note', rows: 5}
               %input{type:'hidden', id: 'invoice_id', :value => "#{@invoice.id}"}
+          .row.credit-note-section{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Total Credit Note
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'number', id: 'total_credit_note', :value => @pending_credit_notes, :readonly => true, style: 'background-color: #fff; color: #bd3636;'}
+          .row.credit-note-section{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Process Credit Note
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'checkbox', id: 'pay_credit_note'}
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit

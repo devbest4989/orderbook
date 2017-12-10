@@ -109,10 +109,13 @@
           padding: 5px;
           
           a.add-sell-price,
-          a.remove-sell-price{
+          a.remove-sell-price,
+          a.add-attribute,
+          a.remove-attribute{
             padding: 0;
+            font-size: 14px;
             i{
-              font-size: 20px;
+              font-size: 18px;
             }
           }
 

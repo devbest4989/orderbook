@@ -204,10 +204,6 @@
             .col-md-8.col-sm-8.col-xs-12
               = select_tag :payment_mode, options_for_select(ApplicationHelper::PAYMENT_MODE.each_with_index.map {|name, index| [name,index]}), prompt: "Select Payment Mode", :class => "form-control"
           .row{style:'margin-bottom: 10px;'}
-            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Credit Note Records
-            .col-md-8.col-sm-8.col-xs-12
-              = select_tag :credit_notes, options_for_select({}), prompt: "Select Credit Note Record", :class => "form-control credit-note-record", multiple: true, style: 'width: 100%;'
-          .row{style:'margin-bottom: 10px;'}
             %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Reference #
             .col-md-8.col-sm-8.col-xs-12
               %input.form-control{name:'reference_no', id: 'reference_no'}
@@ -218,6 +214,14 @@
               %input{type:'hidden', id: 'payment_invoice_id', :value => ""}
               %input{type:'hidden', id: 'payment_currency', :value => ""}
               %input{type:'hidden', id: 'payment_original_balance', :value => ""}
+          .row.credit-note-section{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Total Credit Note
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'number', id: 'total_credit_note', :placeholder => "$", :readonly => true, style: 'background-color: #fff; color: #bd3636;'}
+          .row.credit-note-section{style:'margin-bottom: 10px;'}
+            %label.control-label.col-md-4.col-sm-4.col-xs-12.text-right Process Credit Note
+            .col-md-8.col-sm-8.col-xs-12
+              %input.form-control{type: 'checkbox', id: 'pay_credit_note'}
         .modal-footer
           %button.btn.btn-default{"data-dismiss" => "modal", :type => "button", id: "cancel_record_payment"} Close
           %button.btn.btn-primary{:type => "button", id: "button_record_payment"} Submit

@@ -4,7 +4,7 @@ class Bill < ActiveRecord::Base
 
     belongs_to :purchase_order, class_name: 'PurchaseOrder'
     
-    enum status: [:draft, :confirmed, :sent, :partial, :paid]
+    enum status: [:draft, :confirmed, :sent, :partial, :paid, :credit_note]
 
     scope :ordered, -> { order({token: :desc}) }
     scope :draft, -> { where(:status => "draft") }
@@ -31,11 +31,13 @@ class Bill < ActiveRecord::Base
         when "confirmed"
           "label-info"
         when "sent"
-          "label-danger"
+          "label-primary"
         when "partial"
           "label-warning"
         when "paid"
           "label-success"
+        when "credit_note"
+          "label-danger"
         end
     end
 
@@ -51,6 +53,8 @@ class Bill < ActiveRecord::Base
           "Partial Paid"
         when "paid"
           "Paid"
+        when "credit_note"
+          "Credit Note"
         end
     end
 
