@@ -40,19 +40,24 @@
       .x_content
         / Nav tabs
         %ul.nav.nav-tabs.bar_tabs
-          %li.active
+          %li{class: "#{params[:tab].blank? ? 'active' : ''}"}
             %a{"data-toggle" => "tab", :href => "#tab_overview", "aria-expanded" => "true"} 
               Overview                                    
-          %li
+          %li{class: "#{params[:tab]=='warehouse' ? 'active' : ''}"}
             %a{"data-toggle" => "tab", :href => "#tab_stock_location", "aria-expanded" => "false"} 
               Stock Location
-          %li
+          %li{class: "#{params[:tab]=='movement' ? 'active' : ''}"}
             %a{"data-toggle" => "tab", :href => "#tab_movement", "aria-expanded" => "false"} 
               Movement
+          %li{class: "#{params[:tab]=='variant' ? 'active' : ''}"}
+            %a{"data-toggle" => "tab", :href => "#tab_variant", "aria-expanded" => "false"} 
+              Variants
         .tab-content
-          #tab_overview{:class => "tab-pane active"}
+          #tab_overview{:class => "tab-pane #{params[:tab].blank? ? 'active' : ''}"}
             = render 'partial_overview'
-          #tab_stock_location{:class => "tab-pane"}
+          #tab_stock_location{:class => "tab-pane #{params[:tab]=='warehouse' ? 'active' : ''}"}
             = render 'partial_warehouse'
-          #tab_movement{:class => "tab-pane"}
+          #tab_movement{:class => "tab-pane #{params[:tab]=='movement' ? 'active' : ''}"}
             = render 'partial_movement'
+          #tab_variant{:class => "tab-pane #{params[:tab]=='variant' ? 'active' : ''}"}
+            = render 'partial_variant'

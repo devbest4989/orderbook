@@ -252,10 +252,17 @@ class ProductsController < ApplicationController
     @product.brand = Brand.find_or_create_by(name: params[:brand_name].capitalize)    
     @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name].capitalize)    
 
+    similar_count = Product.find_by(slug: @product.name.parameterize)
+
+    @product.slug = (similar_count.nil?) ? @product.name.parameterize : @product.name.parameterize + "-" + Time.now.to_i.to_s
+
     respond_to do |format|
       if @product.save
-        generate_product_sku @product
-        save_product_prices
+        save_product_variant unless params[:variants].nil? 
+        save_sub_product unless params[:sub_product].nil? 
+        save_single_sub_product if params[:sub_product].nil? 
+        save_sub_product_prices        
+        
         format.html { redirect_to product_path(@product), notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
       else
@@ -275,8 +282,6 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       if @product.update(product_params)
-        generate_product_sku @product
-        save_product_prices
         format.html { redirect_to product_path(@product), notice: 'Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @product }
       else
@@ -507,12 +512,14 @@ class ProductsController < ApplicationController
       end
     end
 
-    def save_product_prices
+    def save_sub_product_prices
       Price.where(product_id: @product.id).destroy_all
       unless params[:product][:prices_attributes].nil? 
         params[:product][:prices_attributes].each do |index, item| 
-          price = @product.prices.new(name: item[:name], value: item[:value], price_type: @product.selling_price_type)
-          price.save
+          @product.sub_products.each do |elem|
+            price = elem.prices.new(name: item[:name], value: item[:value], price_type: @product.selling_price_type, product_id: @product.id)
+            price.save
+          end
         end        
       end
     end
@@ -532,15 +539,24 @@ class ProductsController < ApplicationController
       product.save
     end
 
-    def create_product_prices
-      params[:product][:prices_attributes].each do |index, elem|
-        price = Price.where(product_id: @product.id, name: elem[:name]).first
-        unless price.nil?
-          price.destroy_all
+    def generate_sub_product_sku elem
+      # @product.sub_products.each do |elem|
+        sku_string = ""
+
+        sku_string += @product.category.name[0].upcase unless @product.category.nil?
+        sku_string += @product.brand.name[0].upcase unless @product.brand.nil?
+
+        name_array = @product.name.split(' ')
+        name_array.each do |item|
+          sku_string += item[0].upcase if %w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z).include? (item[0].upcase)
         end
-        price = @product.prices.new(name: elem[:name], value: elem[:value], price_type: @product.selling_price_type)
-        price.save          
-      end
+
+        sku_string += "-" + elem.value1.strip.upcase.first(5) unless elem.value1.blank?
+        sku_string += "-" + elem.value2.strip.upcase.first(5) unless elem.value1.blank?
+        sku_string += "-" + elem.value3.strip.upcase.first(5) unless elem.value1.blank?
+
+        return sku_string + elem.id.to_s        
+      # end
     end
 
     def calculate_mp (purchase, selling)
@@ -581,12 +597,17 @@ class ProductsController < ApplicationController
                 0 order_id,
                 'Open Quantity' customer_name,
                 0 customer_id,
-                pr.open_qty quantity,
+                SUM(sp.open_qty) quantity,
                 '' as status,
-                'Open' as type    
+                'Open' as type,
+                '' as value1,
+                '' as value2,
+                '' as value3
             FROM products pr
+            LEFT JOIN sub_products sp ON sp.product_id = pr.id
             WHERE
                 pr.id = #{params[:id]}
+            GROUP BY pr.id
             )
             UNION ALL
             (
@@ -599,12 +620,36 @@ class ProductsController < ApplicationController
                 cu.id customer_id,
                 si.quantity as quantity,
                 so.status as status,
-                'Sale Order' as type
-            FROM products pr
+                'Sale Order' as type,
+                pr.value1 as value1,
+                pr.value2 as value2,
+                pr.value3 as value3
+            FROM sub_products pr
             LEFT JOIN sales_items si ON pr.id = si.sold_item_id
             LEFT JOIN sales_orders so ON si.sales_order_id = so.id
             LEFT JOIN customers cu ON so.customer_id = cu.id
-            WHERE so.status <> 'quote' AND pr.id = #{params[:id]}
+            WHERE so.status <> 'quote' AND pr.product_id = #{params[:id]}
+            )
+            UNION ALL
+            (
+            SELECT 
+                pr.id id,
+                po.order_date move_date,
+                po.token token,
+                po.id order_id,
+                concat(sp.first_name, ' ', sp.last_name) as customer_name,
+                sp.id customer_id,
+                pi.quantity as quantity,
+                po.status as status,
+                'Purchase Order' as type,
+                pr.value1 as value1,
+                pr.value2 as value2,
+                pr.value3 as value3
+            FROM sub_products pr
+            LEFT JOIN purchase_items pi ON pr.id = pi.purchased_item_id
+            LEFT JOIN purchase_orders po ON pi.purchase_order_id = po.id
+            LEFT JOIN suppliers sp ON po.supplier_id = sp.id
+            WHERE po.status <> 'quote' AND pr.product_id = #{params[:id]}
             )
         ) AS pr
         ORDER BY pr.move_date DESC
@@ -683,65 +728,136 @@ class ProductsController < ApplicationController
         if xlsx.sheets.count > 0
           if xlsx.last_row > 1
             2.upto(xlsx.last_row) do |line|              
-              product = Product.find_by(barcode: xlsx.cell(line, 'A').to_s.strip)
+              product = Product.find_by(barcode: xlsx.cell(line, 'C').to_s.strip)
               if product.nil? 
                 product = Product.new
+                product.barcode = xlsx.cell(line, 'A').to_s.strip unless xlsx.cell(line, 'A').nil?
+                product.sku = xlsx.cell(line, 'B').to_s.strip unless xlsx.cell(line, 'B').nil?
+                product.name = xlsx.cell(line, 'C').to_s.strip unless xlsx.cell(line, 'C').nil?
+                product.description = ''
+                product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'D').to_s.strip.capitalize) unless xlsx.cell(line, 'D').nil?
+                product.category = Category.find_or_create_by(name: xlsx.cell(line, 'E').to_s.strip.capitalize) unless xlsx.cell(line, 'E').nil?
+                product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'F').to_s.strip.capitalize) unless xlsx.cell(line, 'F').nil?
+                product.warehouse = Warehouse.find_or_create_by(name: xlsx.cell(line, 'P').to_s.strip.capitalize) unless xlsx.cell(line, 'P').nil?
+                product.reorder_qty = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
+                product.open_qty = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
+                product.selling_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
+                product.purchase_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
+
+                purchase_value = 0
+                sell_value = 0
+                unless xlsx.cell(line, 'I').nil?                
+                  purchase_value = (xlsx.cell(line, 'I').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'I').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'I').to_f
+                  product.purchase_price_ex = purchase_value
+                  product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
+                end
+
+                if xlsx.cell(line, 'J').nil? && !xlsx.cell(line, 'K').nil?
+                  product.selling_price = product.purchase_price_ex * (100 + xlsx.cell(line, 'K').to_f) * 0.01
+                  product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+                elsif !xlsx.cell(line, 'J').nil?
+                  sell_value = (xlsx.cell(line, 'J').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'J').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'J').to_f
+                  product.selling_price = sell_value
+                  product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
+                end
+                product.selling_price_type  = false
+                product.purchase_price_type = true
+                product.quantity = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
+                product.save
+
+                price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
+                if price.nil?
+                  price = product.prices.new(name: "Wholesale")
+                end
+                price.price_type = 0
+
+                if xlsx.cell(line, 'M').nil? && !xlsx.cell(line, 'N').nil?
+                  price.value = product.purchase_price_ex * (100 + xlsx.cell(line, 'N').to_f) * 0.01
+                elsif !xlsx.cell(line, 'M').nil?
+                  sell_value = (xlsx.cell(line, 'M').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'M').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'M').to_f
+                  price.value = sell_value
+                end
+
+                price_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
+                price.tax_value = price_tax.rate unless price_tax.nil?
+                price.save
               end
-              product.barcode = xlsx.cell(line, 'A').to_s.strip unless xlsx.cell(line, 'A').nil?
-              product.sku = xlsx.cell(line, 'B').to_s.strip unless xlsx.cell(line, 'B').nil?
-              product.name = xlsx.cell(line, 'C').to_s.strip unless xlsx.cell(line, 'C').nil?
-              product.description = ''
-              product.brand = Brand.find_or_create_by(name: xlsx.cell(line, 'D').to_s.strip.capitalize) unless xlsx.cell(line, 'D').nil?
-              product.category = Category.find_or_create_by(name: xlsx.cell(line, 'E').to_s.strip.capitalize) unless xlsx.cell(line, 'E').nil?
-              product.product_line = ProductLine.find_or_create_by(name: xlsx.cell(line, 'F').to_s.strip.capitalize) unless xlsx.cell(line, 'F').nil?
-              product.warehouse = Warehouse.find_or_create_by(name: xlsx.cell(line, 'P').to_s.strip.capitalize) unless xlsx.cell(line, 'P').nil?
-              product.reorder_qty = xlsx.cell(line, 'G').to_i unless xlsx.cell(line, 'G').nil?
-              product.open_qty = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
-              product.selling_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
-              product.purchase_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
-
-              purchase_value = 0
-              sell_value = 0
-              unless xlsx.cell(line, 'I').nil?                
-                purchase_value = (xlsx.cell(line, 'I').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'I').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'I').to_f
-                product.purchase_price_ex = purchase_value
-                product.purchase_price = (product.purchase_tax.nil?) ? purchase_value : purchase_value * (product.purchase_tax.rate + 100) * 0.01
-              end
-
-              if xlsx.cell(line, 'J').nil? && !xlsx.cell(line, 'K').nil?
-                product.selling_price = product.purchase_price_ex * (100 + xlsx.cell(line, 'K').to_f) * 0.01
-                product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
-              elsif !xlsx.cell(line, 'J').nil?
-                sell_value = (xlsx.cell(line, 'J').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'J').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'J').to_f
-                product.selling_price = sell_value
-                product.selling_price_ex = (product.selling_tax.nil?) ? product.selling_price : product.selling_price * (100 - product.selling_tax.rate) * 0.01
-              end
-              product.selling_price_type  = false
-              product.purchase_price_type = true
-              product.quantity = xlsx.cell(line, 'H').to_i unless xlsx.cell(line, 'H').nil?
-              product.save
-
-              price = (product.prices.nil?) ? nil : product.prices.find_by(name: "Wholesale");
-              if price.nil?
-                price = product.prices.new(name: "Wholesale")
-              end
-              price.price_type = 0
-
-              if xlsx.cell(line, 'M').nil? && !xlsx.cell(line, 'N').nil?
-                price.value = product.purchase_price_ex * (100 + xlsx.cell(line, 'N').to_f) * 0.01
-              elsif !xlsx.cell(line, 'M').nil?
-                sell_value = (xlsx.cell(line, 'M').to_s.strip.chars.first == '$') ? xlsx.cell(line, 'M').to_s.strip.slice!(1..-1).to_f : xlsx.cell(line, 'M').to_f
-                price.value = sell_value
-              end
-
-              price_tax = Tax.find_by(name: xlsx.cell(line, 'S'))
-              price.tax_value = price_tax.rate unless price_tax.nil?
-              price.save
-
+              
               generate_product_sku product if xlsx.cell(line, 'B').nil?
             end        
           end
         end
+      end
+    end
+    
+    def save_product_variant
+      index = 1
+      params[:variants].each do |variant|
+        @product.variants.create(name: variant[1][:name], value: variant[1][:value], order_num: index)
+        index += 1
+      end
+    end
+
+    def save_sub_product
+      params[:sub_product].each do |item|
+        sub_product = @product.sub_products.create(
+          option1: item[1][:option1],
+          value1: item[1][:value1],
+          option2: item[1][:option2],
+          value2: item[1][:value2],
+          option3: item[1][:option3],
+          value3: item[1][:value3],
+          sku: item[1][:sku],
+          barcode: item[1][:barcode],
+          open_qty: item[1][:open_qty],
+          quantity: item[1][:open_qty],
+          purchase_price: @product.purchase_price,
+          selling_price: @product.selling_price,
+          warehouse_id: @product.warehouse_id,
+          reorder_qty: @product.reorder_qty,
+          selling_tax_id:  @product.selling_tax_id,
+          purchase_tax_id: @product.purchase_tax_id,
+          selling_price_ex: @product.selling_price_ex,
+          purchase_price_ex: @product.purchase_price_ex,
+          selling_price_type: @product.selling_price_type,
+          purchase_price_type: @product.purchase_price_type,
+          warehouse_id: @product.warehouse_id
+          )
+
+        if sub_product.sku.blank?
+          sub_product.sku = generate_sub_product_sku sub_product
+          sub_product.save          
+        end
+      end
+    end
+
+    def save_single_sub_product
+      sub_product = @product.sub_products.create(
+        option1: '',
+        value1: '',
+        option2: '',
+        value2: '',
+        option3: '',
+        value3: '',
+        sku: @product.sku,
+        barcode: @product.barcode,
+        open_qty: @product.open_qty,
+        quantity: @product.open_qty,
+        purchase_price: @product.purchase_price,
+        selling_price: @product.selling_price,
+        warehouse_id: @product.warehouse_id,
+        reorder_qty: @product.reorder_qty,
+        stock_status: @product.stock_status,
+        selling_tax_id:  @product.selling_tax_id,
+        purchase_tax_id: @product.purchase_tax_id,
+        selling_price_ex: @product.selling_price_ex,
+        purchase_price_ex: @product.purchase_price_ex,
+        selling_price_type: @product.selling_price_type,
+        purchase_price_type: @product.purchase_price_type
+        )
+      if sub_product.sku.blank?
+        sub_product.sku = generate_sub_product_sku sub_product
+        sub_product.save          
       end
     end
 end

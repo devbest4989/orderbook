@@ -1,7 +1,7 @@
 class SalesOrdersController < ApplicationController  
   before_action :set_sales_order, only: [
       :show, :edit, :update, :destroy, 
-      :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status,
+      :book, :cancel, :return, :ship, :pack, :remove_activity, :invoice, :update_status, :update_items,
       :package_detail_info, :shipment_detail_info, :invoice_detail_info, :invoice_list]
 
   before_filter do
@@ -96,9 +96,9 @@ class SalesOrdersController < ApplicationController
         @sales_order.attributes = safe_params
         @sales_order.order_date = Date.strptime(safe_params[:order_date],  "%d-%m-%Y")
         @sales_order.estimate_ship_date = Date.strptime(safe_params[:estimate_ship_date], "%d-%m-%Y")
-      else
-        @sales_order.sales_items.delete_all
-        @sales_order.sales_custom_items.delete_all
+      #else
+        #@sales_order.sales_items.delete_all
+        #@sales_order.sales_custom_items.delete_all
       end
 
       if @sales_order.update(safe_params)
@@ -121,6 +121,38 @@ class SalesOrdersController < ApplicationController
     end
   end
 
+  def update_items
+    respond_to do |format|
+      result = {}
+      unless safe_item_params[:sales_items_attributes].nil?        
+        safe_item_params[:sales_items_attributes].each_with_index do |item, index|
+          unless item[1][:id].nil?
+            sales_item = SalesItem.find(item[1][:id])
+            sales_item.update(item[1])
+          else
+            sales_item = @sales_order.sales_items.create(item[1])          
+            sales_item.save
+          end
+        end
+      end
+
+      unless safe_item_params[:sales_custom_items_attributes].nil?
+        safe_item_params[:sales_custom_items_attributes].each_with_index do |item, index|
+          unless item[1][:id].nil?
+            sales_item = SalesCustomItem.find(item[1][:id])
+            sales_item.update(item[1])
+          else
+            sales_item = @sales_order.sales_custom_items.create(item[1])          
+            sales_item.save
+          end
+        end
+      end
+
+      @sales_order.quote!
+      result = {:Result => "OK", :Record => @sales_order, :url => sales_order_url(@sales_order, {type: 'all'})}
+      format.json {render :json => result}
+    end
+  end
   # DELETE /customers/1
   # DELETE /customers/1.json
   def destroy
@@ -718,6 +750,13 @@ class SalesOrdersController < ApplicationController
         :notes,        
         sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
         sales_custom_items_attributes: [:item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
+      )
+    end
+
+    def safe_item_params
+      params[:sales_order].permit(
+        sales_items_attributes: [:id, :sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
+        sales_custom_items_attributes: [:id, :item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
       )
     end
 

@@ -1,4 +1,4 @@
-.col-md-6.col-sm-6.col-xs-12.overview
+.col-sm-6.overview
   %h4 Product Details
   %table.info-list
     %tr
@@ -19,60 +19,61 @@
     %tr
       %td SKU:
       %td= @product.sku
-.col-md-6.col-sm-6.col-xs-12.overview
+.col-sm-6.overview
   %table.info-list
     %tr
       %td.product-image 
         =image_tag(@product.image.url(:medium), class: 'product-thumbnail')        
-.col-md-12.col-sm-12.col-xs-12.overview
-  %h4 Price Information
-  .col-lg-4.col-md-12.col-sm-12.col-xs-12.overview.no-padding
-    %span Purchase Price
-    %table.info-list
-      %tr
-        %td Purchase Cost:
-        %td
-          = number_to_currency(@product.main_purchase_price)
-          %input.purchase_value{type: 'hidden', value: "#{@product.main_purchase_price}"}
-      %tr
-        %td Purchase Tax:
-        %td= @product.purchase_tax.short_desc if @product.purchase_tax
-      %tr
-        %td{colspan: 2} 
-          Including Tax
-          = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
-          Excluding Tax
-  .col-lg-8.col-md-12.col-sm-12.col-xs-12.overview.no-padding
-    %span Selling Price
-    %table.info-list
-      %tr.sell-price-row
-        %td RRP:
-        %td
-          = number_to_currency(@product.main_selling_price)
-          %input.sell-price{type: 'hidden', value: "#{@product.main_selling_price}"}
-        %td MP:
-        %td.mp-percent
-        %td GP:
-        %td.gp-percent
-      - @product.prices.each do |item|
-        %tr.sell-price-row
-          %td= "#{item.name}:"            
+- unless @product.has_variant?
+  .col-md-12.overview
+    %h4 Price Information
+    .col-lg-4.col-md-12.overview.no-padding
+      %span Purchase Price
+      %table.info-list
+        %tr
+          %td Purchase Cost:
           %td
-            = number_to_currency(item.value)
-            %input.sell-price{type: 'hidden', value: "#{item.value}"}
+            = number_to_currency(@product.main_purchase_price)
+            %input.purchase_value{type: 'hidden', value: "#{@product.main_purchase_price}"}
+        %tr
+          %td Purchase Tax:
+          %td= @product.purchase_tax.short_desc if @product.purchase_tax
+        %tr
+          %td{colspan: 2} 
+            Including Tax
+            = check_box_tag :purchase_price_type, "1", @product.purchase_price_type, class: 'js-switch', :disabled => :true
+            Excluding Tax
+    .col-lg-8.col-md-12.overview.no-padding
+      %span Selling Price
+      %table.info-list
+        %tr.sell-price-row
+          %td RRP:
+          %td
+            = number_to_currency(@product.main_selling_price)
+            %input.sell-price{type: 'hidden', value: "#{@product.main_selling_price}"}
           %td MP:
           %td.mp-percent
           %td GP:
           %td.gp-percent
-      %tr
-        %td Selling Tax:
-        %td= @product.selling_tax.short_desc if @product.selling_tax
-      %tr
-        %td{colspan: 2} 
-          Including Tax
-          = check_box_tag :selling_price_type, "1", @product.selling_price_type,  class: 'js-switch', :disabled => :true
-          Excluding Tax
-.col-md-12.col-sm-12.col-xs-12.overview
+        - @product.prices.each do |item|
+          %tr.sell-price-row
+            %td= "#{item.name}:"            
+            %td
+              = number_to_currency(item.value)
+              %input.sell-price{type: 'hidden', value: "#{item.value}"}
+            %td MP:
+            %td.mp-percent
+            %td GP:
+            %td.gp-percent
+        %tr
+          %td Selling Tax:
+          %td= @product.selling_tax.short_desc if @product.selling_tax
+        %tr
+          %td{colspan: 2} 
+            Including Tax
+            = check_box_tag :selling_price_type, "1", @product.selling_price_type,  class: 'js-switch', :disabled => :true
+            Excluding Tax
+.col-md-12.overview
   %h4 Inventory Information
   %table.info-list
     %tr
@@ -81,16 +82,17 @@
     %tr
       %td Stock:
       %td= @product.stock
-    %tr
-      %td Opening Stock:
-      %td= @product.open_qty
-    %tr
-      %td On Hand Qty:
-      %td= @product.quantity
-    %tr
-      %td Re-Order Point:
-      %td= @product.reorder_qty
+    - unless @product.has_variant?      
+      %tr
+        %td Opening Stock:
+        %td= @product.open_qty
+      %tr
+        %td On Hand Qty:
+        %td= @product.quantity
+      %tr
+        %td Re-Order Point:
+        %td= @product.reorder_qty
 :javascript
   jQuery(document).ready(function() {
     ProductDetail.initProductOverview();
-  });      
+  });

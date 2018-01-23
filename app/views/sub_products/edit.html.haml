@@ -1,0 +1,38 @@
+.right_col.products-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_sub_product', active_elem: "sub-nav-#{@sub_product.id}", nav_name: 'Variants', sub_elems: @sub_product_list
+  .right-content
+    .x_panel
+      .x_title
+        .product-name
+          %h2="#{@sub_product.product.name} #{@sub_product.variant_name}"
+          - if @sub_product.removed == true
+            %span.label.label-default= @sub_product.status_label
+          - elsif @sub_product.status == true
+            %span.label.label-success= @sub_product.status_label
+          - else
+            %span.label.label-danger= @sub_product.status_label
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+              More..
+              %span.caret
+            %ul.dropdown-menu.more-action{:role => "menu"}
+              %li
+                =link_to product_path(@sub_product.product, tab: 'variant'), class: 'product-header-link' do
+                  Go to Product
+              %li
+                %a{:href => action_sub_product_path(@sub_product, :action_name => "clone")}  Clone Sub Product
+              %li.divider
+              %li
+                =link_to sub_product_path(@sub_product), method: :delete, data: { confirm: 'Are you sure?' }, class: 'product-header-link' do
+                  Delete
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content.form-group-no-margin
+        = render 'form'

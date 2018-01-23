@@ -102,7 +102,7 @@ var SalesOrdersProductTable = function () {
     addProductBlankLine();
 
     $.ajax({
-      url: "/products/list_by_id",
+      url: "/sub_products/list_by_id",
       type: 'POST',
       datatype: 'json',
       data: {

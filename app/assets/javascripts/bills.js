@@ -106,7 +106,7 @@ var BillList = function(){
             delay: 3000
           });              
         }   
-      });      
+      });
     });
 
     $('#payment_date').daterangepicker({

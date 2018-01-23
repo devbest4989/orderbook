@@ -221,20 +221,20 @@ class PlainpageController < ApplicationController
   # Ajax Product Request
   def product_search
 
-    products = Product.lived.main_like(params[:key]).limit(20)
+    products = SubProduct.lived.main_like(params[:key]).limit(20)
     result_product = []
     products.each do | elem |
       item = {
         :icon => 'fa-cube',
-        :name => elem.name,
+        :name => "#{elem.product.name} #{elem.variant_name}",
         :sku => elem.sku,
         :id => elem.id,
-        :brand => elem.brand.name,
-        :brand_id => elem.brand.id,
-        :category => elem.category.name,
-        :category_id => elem.category.id,
-        :product_line => elem.product_line.name,
-        :product_line_id => elem.product_line.id,
+        :brand => elem.product.brand.name,
+        :brand_id => elem.product.brand.id,
+        :category => elem.product.category.name,
+        :category_id => elem.product.category.id,
+        :product_line => elem.product.product_line.name,
+        :product_line_id => elem.product.product_line.id,
         :quantity => elem.stock
       }
       result_product << item
@@ -250,19 +250,19 @@ class PlainpageController < ApplicationController
   end
 
   def product_by_id
-    product = Product.find(params[:id])
+    sub_product = SubProduct.find(params[:id])
 
     result_product = {
-      :name => product.name,
-      :sku => product.sku,
-      :id => product.id,
-      :brand => product.brand.name,
-      :brand_id => product.brand.id,
-      :category => product.category.name,
-      :category_id => product.category.id,
-      :product_line => product.product_line.name,
-      :product_line_id => product.product_line.id,
-      :quantity => product.stock
+      :name => "#{sub_product.product.name} #{sub_product.variant_name}",
+      :sku => sub_product.sku,
+      :id => sub_product.id,
+      :brand => sub_product.product.brand.name,
+      :brand_id => sub_product.product.brand.id,
+      :category => sub_product.product.category.name,
+      :category_id => sub_product.product.category.id,
+      :product_line => sub_product.product.product_line.name,
+      :product_line_id => sub_product.product.product_line.id,
+      :quantity => sub_product.stock
     }
 
     respond_to do |format|

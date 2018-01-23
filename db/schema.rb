@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171027082404) do
+ActiveRecord::Schema.define(version: 20171215130013) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,11 +242,12 @@ ActiveRecord::Schema.define(version: 20171027082404) do
     t.integer  "product_id"
     t.string   "name"
     t.integer  "price_type"
-    t.decimal  "value",      precision: 8, scale: 2
+    t.decimal  "value",          precision: 8, scale: 2
     t.integer  "cond"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.decimal  "tax_value",  precision: 8, scale: 2
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.decimal  "tax_value",      precision: 8, scale: 2
+    t.integer  "sub_product_id"
   end
 
   create_table "product_lines", force: :cascade do |t|
@@ -256,6 +257,17 @@ ActiveRecord::Schema.define(version: 20171027082404) do
   end
 
   add_index "product_lines", ["name"], name: "index_product_lines_on_name", unique: true, using: :btree
+
+  create_table "product_variants", force: :cascade do |t|
+    t.string   "name"
+    t.text     "value"
+    t.integer  "order_num"
+    t.integer  "product_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "product_variants", ["product_id"], name: "index_product_variants_on_product_id", using: :btree
 
   create_table "products", force: :cascade do |t|
     t.string   "sku"
@@ -286,6 +298,7 @@ ActiveRecord::Schema.define(version: 20171027082404) do
     t.string   "barcode"
     t.integer  "warehouse_id"
     t.integer  "open_qty"
+    t.string   "slug"
   end
 
   add_index "products", ["brand_id"], name: "index_products_on_brand_id", using: :btree
@@ -497,6 +510,41 @@ ActiveRecord::Schema.define(version: 20171027082404) do
   add_index "stock_level_adjustments", ["item_id"], name: "index_stock_level_adjustments_on_item_id", using: :btree
   add_index "stock_level_adjustments", ["parent_type", "parent_id"], name: "index_stock_level_adjustments_on_parent_type_and_parent_id", using: :btree
 
+  create_table "sub_products", force: :cascade do |t|
+    t.string   "option1",                                     default: ""
+    t.string   "value1",                                      default: ""
+    t.string   "option2",                                     default: ""
+    t.string   "value2",                                      default: ""
+    t.string   "option3",                                     default: ""
+    t.string   "value3",                                      default: ""
+    t.string   "sku"
+    t.integer  "quantity"
+    t.string   "barcode"
+    t.integer  "open_qty"
+    t.integer  "reorder_qty"
+    t.integer  "stock_status"
+    t.integer  "warehouse_id"
+    t.boolean  "status",                                      default: true
+    t.boolean  "removed",                                     default: false
+    t.decimal  "purchase_price",      precision: 8, scale: 2
+    t.decimal  "selling_price",       precision: 8, scale: 2
+    t.integer  "selling_tax_id"
+    t.integer  "purchase_tax_id"
+    t.decimal  "selling_price_ex",    precision: 8, scale: 2
+    t.decimal  "purchase_price_ex",   precision: 8, scale: 2
+    t.boolean  "selling_price_type"
+    t.boolean  "purchase_price_type"
+    t.string   "image_file_name"
+    t.string   "image_content_type"
+    t.integer  "image_file_size"
+    t.datetime "image_updated_at"
+    t.integer  "product_id"
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
+  end
+
+  add_index "sub_products", ["product_id"], name: "index_sub_products_on_product_id", using: :btree
+
   create_table "suppliers", force: :cascade do |t|
     t.string   "first_name"
     t.string   "last_name"
@@ -572,6 +620,7 @@ ActiveRecord::Schema.define(version: 20171027082404) do
   add_foreign_key "contacts", "suppliers"
   add_foreign_key "documents", "customers"
   add_foreign_key "documents", "suppliers"
+  add_foreign_key "product_variants", "products"
   add_foreign_key "products", "brands"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "product_lines"
@@ -581,4 +630,5 @@ ActiveRecord::Schema.define(version: 20171027082404) do
   add_foreign_key "sales_item_activities", "sales_items"
   add_foreign_key "sales_items", "sales_orders"
   add_foreign_key "sales_orders", "customers"
+  add_foreign_key "sub_products", "products"
 end

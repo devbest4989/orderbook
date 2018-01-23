@@ -1,7 +1,8 @@
 = form_for(@sales_order, html: { class: 'form-horizontal form-label-left', 'data-parsley-validate' => '', id: 'edit_order_product_form' }) do |f|
   .col-md-12.text-right
-    %a.btn-save.btn.btn-info.btn-order-product{:href => 'javascript:;'}
-      Save
+    - if @sales_order.status == 'confirmed' || @sales_order.status == 'quote'
+      %a.btn-save.btn.btn-info.btn-order-product{:href => 'javascript:;'}
+        Save
   .col-md-12{:style => "overflow:auto;"}
     %h4 Product Information
     / start project list
@@ -40,6 +41,8 @@
                     %i.fa.fa-icon.fa-trash
               %td
                 %input.product-field.item-id{type: 'hidden', 'data-row' => index + 1, 'data-field' => "sold_item_id", value: item.sold_item_id, class: "row-#{index + 1}"}
+              %td
+                %input.product-field.item-id{type: 'hidden', 'data-row' => index + 1, 'data-field' => "id", value: item.id, class: "row-#{index + 1}"}
 
           - item_count = @sales_order.sales_items.length
           - @sales_order.sales_custom_items.each_with_index do |item, index|
@@ -63,6 +66,8 @@
                     %i.fa.fa-icon.fa-trash
               %td
                 %input.product-field.item-id{type: 'hidden', 'data-row' => index + 1 + item_count, 'data-field' => "sold_item_id", value: "-1", class: "row-#{index + 1 + item_count}"}
+              %td
+                %input.product-field.item-id{type: 'hidden', 'data-row' => index + 1 + item_count, 'data-field' => "id", value: item.id, class: "row-#{index + 1 + item_count}"}
 
       %table.table.projects
         %tbody

@@ -2,8 +2,9 @@ class Price < ActiveRecord::Base
     include ActionView::Helpers::NumberHelper
     
     belongs_to :product
+    belongs_to :sub_product
 
-    validates :product_id, uniqueness: {scope: :name}
+    validates :sub_product, uniqueness: {scope: :name}
 
     def price_tax_exclude
         ex_value = 0

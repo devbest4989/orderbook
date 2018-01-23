@@ -14,6 +14,9 @@ class Product < ActiveRecord::Base
 
   has_many :prices
 
+  has_many :variants, class_name: 'ProductVariant'
+  has_many :sub_products
+
   belongs_to :selling_tax, class_name: 'Tax'
   belongs_to :purchase_tax, class_name: 'Tax'
 
@@ -23,9 +26,11 @@ class Product < ActiveRecord::Base
   has_attached_file :image, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/nothumb.png"
   validates_attachment_content_type :image, :content_type => /\Aimage\/.*\Z/
 
-  validates :barcode, presence: true, uniqueness: true
+  #validates :barcode, presence: true, uniqueness: true
+  validates :slug, presence: true, uniqueness: true
 
-  accepts_nested_attributes_for :prices
+
+  accepts_nested_attributes_for :prices, allow_destroy: true
 
   scope :main_like, ->(search) { where("(LOWER(products.name) LIKE :search) or (LOWER(products.sku) LIKE :search)", :search => "%#{search.downcase}%") }
   scope :name_like, ->(search) { where("LOWER(name) LIKE :search", :search => "%#{search.downcase}%") }
@@ -61,7 +66,7 @@ class Product < ActiveRecord::Base
 
   def stock!
     #stock_level_adjustments.sum(:adjustment)
-    self.quantity = open_qty - sales_qty + purchase_qty - return_qty + credit_note_qty
+    self.quantity = self.sub_products.sum(:quantity)
     if self.quantity.to_i > self.reorder_qty.to_i
       self.stock_status = :instock
     else
@@ -115,4 +120,49 @@ class Product < ActiveRecord::Base
     # end
   end
 
+  def has_variant?
+    return !self.variants.blank?
+  end
+
+  def sync_with_sub_product_alone
+    single_sub_product = self.sub_products.first
+
+    single_sub_product.sku = self.sku
+    single_sub_product.quantity = self.quantity
+    single_sub_product.barcode = self.barcode
+    single_sub_product.open_qty = self.open_qty
+    single_sub_product.reorder_qty = self.reorder_qty
+    single_sub_product.stock_status = self.stock_status
+    single_sub_product.warehouse_id = self.warehouse_id
+    single_sub_product.status = self.status
+    single_sub_product.removed = self.removed
+    single_sub_product.purchase_price = self.purchase_price
+    single_sub_product.selling_price = self.selling_price
+    single_sub_product.selling_tax_id = self.selling_tax_id
+    single_sub_product.purchase_tax_id = self.purchase_tax_id
+    single_sub_product.selling_price_ex = self.selling_price_ex
+    single_sub_product.purchase_price_ex = self.purchase_price_ex
+    single_sub_product.selling_price_type = self.selling_price_type
+    single_sub_product.purchase_price_type = self.purchase_price_type
+    single_sub_product.image = self.image
+
+    single_sub_product.save
+  end
+
+  def referesh_variants
+    self.variants.each do |item|
+      if item.order_num == 1
+        item.value = self.sub_products.group(:value1).select(:value1).map{|e| e.value1}.join(',')
+      elsif item.order_num == 2
+        item.value = self.sub_products.group(:value2).select(:value2).map{|e| e.value2}.join(',')
+      else
+        item.value = self.sub_products.group(:value3).select(:value3).map{|e| e.value3}.join(',')
+      end
+      item.save
+    end
+  end
+
+  def is_last_variant?
+    return self.variants.length == 1 && self.variants.first.value.split(',').length == 1
+  end
 end

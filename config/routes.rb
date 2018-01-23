@@ -75,6 +75,7 @@ Rails.application.routes.draw do
   end
 
   resources :documents
+
   resources :contacts do
     member do
       get :remove, :defaults => { :format => 'json' }
@@ -84,6 +85,7 @@ Rails.application.routes.draw do
   resources :sales_orders do
     member do
       post :update_status
+      post :update_items
       post :book
       post :cancel
       post :return
@@ -199,6 +201,21 @@ Rails.application.routes.draw do
       post :change
       post :append
       post :list_option
+    end
+  end
+
+  resources :sub_products do
+    collection do
+      post :list_by_id
+    end
+    member do
+      get  :action
+    end
+  end
+
+  resources :product_variants do
+    member do
+      post  :remove_value, :defaults => { :format => 'json' }
     end
   end
 

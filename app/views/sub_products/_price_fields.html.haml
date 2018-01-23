@@ -1,0 +1,13 @@
+%tr.sell-price-row
+  %td
+    = f.select :name, options_for_select(Price.all.group_by(&:name).keys, :selected => f.object.name), {include_blank: false}, {class: 'form-control additional-price', :required => 'true'}
+  %td
+    = f.text_field :value, class: 'form-control sell-price', :placeholder => "Additional Price"
+  %td.text-left{style: 'padding-left: 0'} 
+    = custom_link_to_remove_fields '<i class="fa fa-icon fa-minus-circle"></i>', f, {class: 'remove-sell-price'}
+  %td MP(%):
+  %td
+    = text_field_tag :mp_percent, '', class: 'form-control mp-percent', :placeholder => "Markup %"
+  %td GP(%):
+  %td
+    = text_field_tag :gp_percent, '', class: 'form-control gp-percent', :placeholder => "GP %", :readonly => true

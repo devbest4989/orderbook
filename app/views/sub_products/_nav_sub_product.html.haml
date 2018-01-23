@@ -1,0 +1,20 @@
+.x_panel
+  .x_title
+    %h2
+      = nav_name
+    .clearfix
+  #product_side_menu.x_content{:style => "max-height:800px;"}
+    .sub_menu_side
+      %ul.nav.side-menu
+        - sub_elems.each do |elem|
+          %li{ :class => "sub-nav-#{elem.id} element" }
+            %a{:href => edit_sub_product_path(elem)}
+              %p.product-name= "#{elem.variant_name}"
+              %p.product-stock
+                %span= "#{elem.quantity}"
+                available
+      %input{type: 'hidden', id: 'active_elem', data: { elem: "#{active_elem}"}}
+:javascript
+  jQuery(document).ready(function() {
+    ProductDetail.initProductNavList();
+  });

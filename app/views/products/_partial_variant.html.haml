@@ -1,0 +1,56 @@
+- if @product.has_variant?
+  .col-md-12
+    %h4 Product Variants
+    #product_variant_list
+      %table.info-list
+        - @product.variants.each do |item|
+          %tr
+            %td Name
+            %td
+              %input.form-control.variant-option{"data-id": item.id, value: item.name}
+            %td Values
+            %td
+              %input.form-control.variant-values{"data-id": item.id, value: item.value, "data-value": item.value}
+        %tr
+          %td.text-right{colspan: 4}
+            %a#save_variants.btn.btn-primary{href: 'javascript:;'} Save
+    #sub_product_list
+      %h4 Sub Products
+      %table.table.projects{width: "100%"}
+        %thead
+          %tr
+            %th
+            - @product.variants.each do |elem|
+              %th=elem.name
+            %th Quantity
+            %th Sell Price
+            %th Purchase Price
+            %th SKU
+            %th Barcode
+            %th
+        %tbody
+          - @product.sub_products.each do |item|
+            %tr
+              %td
+              - @product.variants.each do |elem|
+                %td= item.option_value(elem.order_num)
+              %td= item.stock
+              %td= item.purchase_price
+              %td= item.selling_price
+              %td= item.sku
+              %td= item.barcode
+              %td.text-right{style: "position: relative;"}
+                %button.btn.btn-default.btn-sm.dropdown-toggle.btn-more{"aria-expanded" => "false", "data-toggle" => "dropdown", :type => "button"}
+                  Actions
+                  %span.caret
+                %ul.dropdown-menu.more-action{:role => "menu", style: "right: 10px; left: auto; top: 35px;"}
+                  %li
+                    %a.edit-sub-product{href: edit_sub_product_path(item)} Edit
+                  %li
+                    %a.edit-sub-product{href: action_sub_product_path(item, action_name: 'clone')} Clone
+                  %li
+                    = link_to 'Remove', item, :method => :delete, :data => { :confirm => 'Are you sure?' }
+:javascript
+  jQuery(document).ready(function() {
+    ProductsVariant.initProductShow();
+  });    

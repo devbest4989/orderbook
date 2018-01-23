@@ -3,7 +3,7 @@ class PurchaseItem < ActiveRecord::Base
     after_destroy :update_product_qty
 
     belongs_to :purchase_order, class_name: 'PurchaseOrder', touch: true, inverse_of: :purchase_items
-    belongs_to :purchased_item, class_name: 'Product'
+    belongs_to :purchased_item, class_name: 'SubProduct'
 
     validates :quantity, numericality: true
     validates :purchased_item, presence: true

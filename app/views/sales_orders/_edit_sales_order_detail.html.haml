@@ -10,10 +10,11 @@
         %a.btn.btn-xs.add-customer{href: new_customer_path()}
           %i.fa.fa-icon.fa-plus-circle
     .col-md-6.col-sm-6.col-xs-12.text-right
-      %a.btn-save.btn.btn-info.btn-order-detail{:href => 'javascript:;'}
-        Save
-      %a.btn-confirm.btn.btn-primary.btn-order-detail{:href => 'javascript:;'}
-        Confirm
+      - if @sales_order.status == 'confirmed' || @sales_order.status == 'quote'
+        %a.btn-save.btn.btn-info.btn-order-detail{:href => 'javascript:;'}
+          Save
+        %a.btn-confirm.btn.btn-primary.btn-order-detail{:href => 'javascript:;'}
+          Confirm
       = f.hidden_field :token
       = f.hidden_field :id
       = hidden_field_tag :save_action

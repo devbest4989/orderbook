@@ -1,51 +1,52 @@
-= form_for(@product, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
+= form_for(@sub_product, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
   .row
-    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
-      - if @product.errors.any?
+    .col-sm-6.col-md-offset-3
+      - if flash[:alert]
         .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
           %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
             %span{"aria-hidden" => "true"} ×   
-          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@product.errors.count, "error")}."
+          %h2{'style' => "text-align:center;"}= flash[:alert]
+
+      - if @sub_product.errors.any?
+        .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
+          %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
+            %span{"aria-hidden" => "true"} ×   
+          %h2{'style' => "text-align:center;"}= "There are #{pluralize(@sub_product.errors.count, "error")}."
           %ul
-            - @product.errors.full_messages.each do |msg|
+            - @sub_product.errors.full_messages.each do |msg|
               %li= msg
   .row{:style => 'margin-bottom: 10px;'}
-    .col-md-6.col-sm-6.col-xs-12
-      %h4 Primary Details
-    .col-md-6.col-sm-6.col-xs-12.text-right
-      %a{:href => list_by_type_products_path(:type => 'all'), class: 'btn btn-default'} Cancel
+    .col-sm-6
+      %h4 Options
+    .col-sm-6.text-right
+      %a{:href => product_path(@sub_product.product, :type => 'all'), class: 'btn btn-default'} Cancel
       = f.submit "Save", class: 'btn btn-primary'
-  .form-group
-    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+  .form-group  
+    = f.hidden_field :product_id
+    .col-sm-6{:style => "padding-right: 0;"}
+      - unless @sub_product.option1.blank? || @sub_product.value1.blank?
+        .row
+          %label.col-sm-4.control-label=@sub_product.option1
+          = f.hidden_field :option1
+          .col-sm-8.form-group
+            = f.text_field :value1, autofocus: true, class: 'form-control', :placeholder => "Value", :required => 'true'
+      - unless @sub_product.option2.blank? || @sub_product.value2.blank?
+        .row
+          %label.col-sm-4.control-label=@sub_product.option2
+          = f.hidden_field :option2
+          .col-sm-8.form-group
+            = f.text_field :value2, class: 'form-control', :placeholder => "Value", :required => 'true'
+      - unless @sub_product.option3.blank? || @sub_product.value3.blank?
+        .row
+          %label.col-sm-4.control-label=@sub_product.option3
+          = f.hidden_field :option3
+          .col-sm-8.form-group
+            = f.text_field :value3, class: 'form-control', :placeholder => "Value", :required => 'true'
+    .col-sm-6{:style => "padding-right: 0;"}  
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Barcode
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.text_field :barcode, autofocus: true, class: 'form-control', :placeholder => "Barcode"
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Name*
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.text_field :name, class: 'form-control', :required => 'true', :placeholder => "Product Name"
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Category*
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :category_name, options_from_collection_for_select(Category.all, :name, :name, (@product.category.nil?) ? '' : @product.category.name), {class: 'form-control', include_blank: true, :required => 'true'}          
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Line*
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :product_line_name, options_from_collection_for_select(ProductLine.all, :name, :name, (@product.product_line.nil?) ? '' : @product.product_line.name), {class: 'form-control', include_blank: true, :required => 'true'}
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Brand*
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = select_tag :brand_name, options_from_collection_for_select(Brand.all, :name, :name, (@product.brand.nil?) ? '' : @product.brand.name), {class: 'form-control', include_blank: true, :required => 'true'}
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Description
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          = f.text_area :description, class: 'form-control', :placeholder => "Product Description", rows: 4
-    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
-      .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Image
-        .col-md-8.col-sm-8.col-xs-12.form-group
-          %input{type: 'hidden', id: 'product_image_url', value: @product.image.url(:medium)}
+        %label.col-sm-4.control-label Product Image
+        .col-sm-8.form-group
+          %input{type: 'hidden', id: 'sub_product_image_url', value: @sub_product.id.nil? ? '' : @sub_product.image.url(:medium)}
           #kv-avatar-errors.center-block{:style => "display:none"}
           = f.file_field :image, style: 'padding-top: 7px;'
   .ln_solid
@@ -114,9 +115,17 @@
       %h4 Inventory Information
       %table.info-list
         %tr
+          %td SKU
+          %td
+            = f.text_field :sku, class: 'form-control', :placeholder => "SKU"
+        %tr
+          %td Barcode
+          %td
+            = f.text_field :barcode, class: 'form-control', :placeholder => "Barcode"
+        %tr
           %td Product Location*
           %td
-            = select_tag :warehouse_name, options_from_collection_for_select(Warehouse.all, :id, :name, (@product.warehouse.nil?) ? '' : @product.warehouse.id), {class: 'form-control', include_blank: true, :required => 'true'}
+            = select_tag :warehouse_name, options_from_collection_for_select(Warehouse.all, :id, :name, (@sub_product.warehouse.nil?) ? '' : @sub_product.warehouse.id), {class: 'form-control', include_blank: true, :required => 'true'}
         %tr
           %td Opening Stock Qty
           %td
@@ -126,29 +135,7 @@
           %td
             = f.text_field :reorder_qty, class: 'form-control', :placeholder => "Re-Order Point Qty"                
   .ln_solid
-  .form-group
-    .col-md-12
-      %h4 Product Variants
-      #product_variant_list
-        %table.info-list
-          %tr#add_variant_block
-            %td
-              %a#add_variant{href: '#'}
-                %b + Add Variant
-      #sub_product_list
-        %h5 Modify the variants to be created:
-        %table.info-list
-          %thead
-            %tr
-              %th
-              %th Variant
-              %th Inventory
-              %th SKU
-              %th Barcode
-          %tbody
-  .ln_solid
 :javascript
   jQuery(document).ready(function() {
-    Products.initProductNewForm();
-    ProductsVariant.initNewForm();
+    SubProducts.initSubProductNewForm();
   });

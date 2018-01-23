@@ -158,10 +158,10 @@ var SalesOrdersEdit = function(){
           }
         }
 
-        var reqUrl = "/sales_orders/" + $('#sales_order_id').val();
+        var reqUrl = "/sales_orders/" + $('#sales_order_id').val() + "/update_items";
         $.ajax({
           url: reqUrl,
-          type: "PATCH",
+          type: "POST",
           datatype: 'json',
           data: reqData,
           success: function(data){

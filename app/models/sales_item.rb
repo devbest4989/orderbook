@@ -3,7 +3,7 @@ class SalesItem < ActiveRecord::Base
     after_destroy :update_product_qty
 
     belongs_to :sales_order, class_name: 'SalesOrder', touch: true, inverse_of: :sales_items
-    belongs_to :sold_item, class_name: 'Product'
+    belongs_to :sold_item, class_name: 'SubProduct'
 
     validates :quantity, numericality: true
     validates :sold_item, presence: true
