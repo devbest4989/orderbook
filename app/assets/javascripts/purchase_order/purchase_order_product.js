@@ -33,6 +33,20 @@ var PurchaseOrdersProductTable = function () {
       }
     });
 
+    $('#product_item_list').on('focusout', 'td .product-field', function(event){      
+      if($(this).hasClass('item-qty')){
+        $(row_class + '.item-price').focus().select();
+      } else if($(this).hasClass('item-price')){
+        $(row_class + '.item-tax').focus().select();
+      } else if($(this).hasClass('item-tax')){
+      } else if($(this).hasClass('custom-item-name')){
+        $(row_class + '.item-qty').focus().select();
+      }
+      calculateLineAmount(this);
+      event.stopPropagation();
+      return false;
+    });
+
     $('.add-custom-product').click(function(e){
       addNewCustomProductLine();
     });

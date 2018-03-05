@@ -9,6 +9,9 @@ class InvoicesController < ApplicationController
   # GET /invoices/1
   # GET /invoices/1.json
   def show
+    if params[:type].nil?
+      params[:type] = 'all'
+    end
     get_sub_invoices
     set_sales_order
 
@@ -357,17 +360,25 @@ class InvoicesController < ApplicationController
   def remove_extra_item
     invoice = Invoice.find(params[:id])
 
-    extra_items = invoice.paid_extra_items
-    extra_items.each do |item|
-      sales_item_id = item.sales_item.id
+    extra_items = []
+    if params[:extra_item_type] == 'paid_back'
+      extra_items = invoice.paid_extra_items
+      extra_items.each do |item|
+        sales_item_id = item.sales_item.id
 
-      item.is_paid = 0
-      item.paid_invoice_id = 0
-      item.paid_invoice_type = invoice.class
-      item.save
+        item.is_paid = 0
+        item.paid_invoice_id = 0
+        item.paid_invoice_type = invoice.class
+        item.save
 
-      sales_item = SalesItem.find(sales_item_id)
-      sales_item.confirm!
+        sales_item = SalesItem.find(sales_item_id)
+        sales_item.confirm!
+      end      
+    else
+      extra_item = InvoiceExtraItem.find(params[:extra_item])
+      unless extra_item.nil?
+        extra_item.delete
+      end
     end
 
     invoice.remove_extra_item!

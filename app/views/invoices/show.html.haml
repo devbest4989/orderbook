@@ -227,7 +227,7 @@
             .col-md-12{:style => "overflow:auto;"}
               %h4 
                 Payback Records for Credit Notes
-                =link_to remove_extra_item_invoice_path(@invoice, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                =link_to remove_extra_item_invoice_path(@invoice, type: params[:type], extra_item_type: 'paid_back'), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                   %i.fa.fa-icon.fa-minus-circle
               %div
                 %table.activity_list.table.table-bordered.projects.margin-bottom-5
@@ -303,7 +303,7 @@
                         %td
                           =item.total
                         %td
-                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type], extra_item_type: 'credit_note'), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                             %i.fa.fa-icon.fa-minus-circle
                 %table.table.projects
                   %tbody
@@ -342,7 +342,7 @@
                         %td 
                           =item.note
                         %td
-                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type]), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
+                          =link_to remove_extra_item_invoice_path(@invoice, extra_item: item.id, type: params[:type], extra_item_type: 'write_off'), class: 'remove_extra_item_link', :method=> :delete, :data => { :confirm => 'Are you sure?' } do
                             %i.fa.fa-icon.fa-minus-circle
 
   .modal.fade{"aria-hidden" => "true", :role => "dialog", :style => "display: none;", :tabindex => "-1", :id => "record_payment_modal"}

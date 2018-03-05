@@ -37,6 +37,23 @@ var SalesOrdersProductTable = function () {
 
     $('.add-custom-product').click(function(e){
       addNewCustomProductLine();
+    });    
+
+    $('#product_item_list').on('focusout', 'td .product-field', function(event){      
+      var row_class = '.row-' + $(this).data('row');
+      if($(this).hasClass('item-qty')){
+        $(row_class + '.item-price').focus().select();
+      } else if($(this).hasClass('item-price')){
+        $(row_class + '.item-discount').focus().select();
+      } else if($(this).hasClass('item-discount')){
+        $(row_class + '.item-tax').focus().select();
+      } else if($(this).hasClass('item-tax')){
+      } else if($(this).hasClass('custom-item-name')){
+        $(row_class + '.item-qty').focus().select();
+      }
+      calculateLineAmount(this);
+      event.stopPropagation();
+      return false;
     });
   } 
 

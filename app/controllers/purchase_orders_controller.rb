@@ -177,7 +177,9 @@ class PurchaseOrdersController < ApplicationController
 
     if request.xhr?
       result = {:Result => "OK" }
-      format.json {render :json => result}
+      respond_to do |format|
+        format.json {render :json => result}
+      end
     else
       redirect_to purchase_order_url(@purchase_order)
     end

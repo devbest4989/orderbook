@@ -59,6 +59,7 @@ var ProductsVariant = function () {
 
     var template = '';
     var uniq = 0;
+    var selling_price = $('#product_selling_price').val();
     switch(option_list.length){
       case 1:
         for(var i = 0; i < option_list[0].length; i++){
@@ -66,7 +67,7 @@ var ProductsVariant = function () {
           var hidden_values = '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option1]" value="'+option_names[0]+'"> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value1]" value="'+option_list[0][i]+'">';
           hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option2]" value=""> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value2]" value="">';
           hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option3]" value=""> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value3]" value="">';
-          template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td></tr>';
+          template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][selling_price]" value="' + selling_price + '"></td></tr>';
           uniq++;
         }
       break;
@@ -78,7 +79,7 @@ var ProductsVariant = function () {
             hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option2]" value="'+option_names[1]+'"> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value2]" value="'+option_list[1][j]+'">';
             hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option3]" value=""> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value3]" value="">';
 
-            template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td></tr>';
+            template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][selling_price]" value="' + selling_price + '"></td></tr>';
             uniq++;
           }
         }
@@ -91,7 +92,7 @@ var ProductsVariant = function () {
               var hidden_values = '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option1]" value="'+option_names[0]+'"> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value1]" value="'+option_list[0][i]+'">';
               hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option2]" value="'+option_names[1]+'"> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value2]" value="'+option_list[1][j]+'">';
               hidden_values += '<input type="hidden" class="form-control" name="[sub_product]['+uniq+'][option3]" value="'+option_names[2]+'"> <input type="hidden" class="form-control" name="[sub_product]['+uniq+'][value3]" value="'+option_list[2][k]+'">';
-              template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td></tr>';
+              template += '<tr><td>'+hidden_values+'<input type="checkbox" class="sub-product-selector" checked></td><td>'+variant_text+'</td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][open_qty]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][sku]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][barcode]"></td><td><input type="text" class="form-control" name="[sub_product]['+uniq+'][selling_price]" value="' + selling_price + '"></td></tr>';
               uniq++;
             }
           }

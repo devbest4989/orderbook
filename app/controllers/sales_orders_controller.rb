@@ -183,7 +183,9 @@ class SalesOrdersController < ApplicationController
 
     if request.xhr?
       result = {:Result => "OK" }
-      format.json {render :json => result}
+      respond_to do |format|
+        format.json {render :json => result}
+      end
     else
       redirect_to sales_order_url(@sales_order)
     end

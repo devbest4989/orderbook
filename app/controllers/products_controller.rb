@@ -261,7 +261,8 @@ class ProductsController < ApplicationController
         save_product_variant unless params[:variants].nil? 
         save_sub_product unless params[:sub_product].nil? 
         save_single_sub_product if params[:sub_product].nil? 
-        save_sub_product_prices        
+        save_sub_product_prices
+        @product.stock!
         
         format.html { redirect_to product_path(@product), notice: 'Product was successfully created.' }
         format.json { render :show, status: :created, location: @product }
@@ -812,7 +813,7 @@ class ProductsController < ApplicationController
           open_qty: item[1][:open_qty],
           quantity: item[1][:open_qty],
           purchase_price: @product.purchase_price,
-          selling_price: @product.selling_price,
+          selling_price: (item[1][:selling_price]) ? item[1][:selling_price] : @product.selling_price,
           warehouse_id: @product.warehouse_id,
           reorder_qty: @product.reorder_qty,
           selling_tax_id:  @product.selling_tax_id,
