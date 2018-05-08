@@ -256,6 +256,7 @@ var InvoiceList = function(){
               template += '<tr><td>'+value.sku+'</td>';
               template += '<td>'+value.name+'</td>';
               template += '<td>'+value.quantity+'</td>';
+              template += '<td>'+value.unit_name+'</td>';
               template += '<td class="editable" contentEditable="true">0</td>';
               template += '<td>'+value.unit_price+'</td>';
               template += '<td>'+value.discount_rate+'</td>';
@@ -307,13 +308,13 @@ var InvoiceList = function(){
       var invoiceItemData = new Array();
       $( '#product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
-          "quantity" : $(tr).find('td:eq(3)').text().trim(),
-          "discount" : $(tr).find('td:eq(5)').text().trim(),
-          "tax" : $(tr).find('td:eq(6)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
-          "note" : $(tr).find('td:eq(8)').text().trim(),
-          "id" : $(tr).find('td:eq(9)').text().trim(),
-          "total" : $(tr).find('td:eq(10)').text().trim()
+          "quantity" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(6)').text().trim(),
+          "tax" : $(tr).find('td:eq(7)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(8)').text().trim(),
+          "note" : $(tr).find('td:eq(9)').text().trim(),
+          "id" : $(tr).find('td:eq(10)').text().trim(),
+          "total" : $(tr).find('td:eq(11)').text().trim()
         });    
       }); 
 
@@ -369,8 +370,7 @@ var InvoiceList = function(){
 
     $(document).on('focusout', '#product_list td.editable', function(){
       $(this).removeClass("edit-focus");
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-      calculateInvoice(modalId);
+      calculateInvoice();
     });
 
     $(document).on('keydown', '#product_list td.editable', function(event){
@@ -391,20 +391,20 @@ var InvoiceList = function(){
           change = 0;        
       $( '#product_list tbody tr').each(function(row, tr){
         var row_amount = 0;
-        var quantity = $(tr).find('td:eq(3)').text().trim();
-        var price = $(tr).find('td:eq(4)').text().trim();
-        var discount = $(tr).find('td:eq(5)').text().trim();
-        var tax = $(tr).find('td:eq(6)').text().trim();
+        var quantity = $(tr).find('td:eq(4)').text().trim();
+        var price = $(tr).find('td:eq(5)').text().trim();
+        var discount = $(tr).find('td:eq(6)').text().trim();
+        var tax = $(tr).find('td:eq(7)').text().trim();
         row_amount = quantity * price * (100 -discount) * 0.01;
-        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
+        $(tr).find('td:eq(8)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(7)').text().trim();
+        row_amount = $(tr).find('td:eq(8)').text().trim();
 
         subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;
         taxTotal += quantity * price * tax * 0.01;
         total += (row_amount * 1) + quantity * price * tax * 0.01;
-        $(tr).find('td:eq(10)').text(total.toFixed(2));
+        $(tr).find('td:eq(11)').text(total.toFixed(2));
       });
 
       var paid = 0;//$( '#paid_amount').val();
@@ -533,13 +533,13 @@ var InvoiceDetail = function () {
       $( '#product_list tbody tr').each(function(row, tr){
         var row_amount = 0;
         var quantity = $(tr).find('td:eq(2)').text().trim();
-        var price = $(tr).find('td:eq(3)').text().trim();
-        var discount = $(tr).find('td:eq(4)').text().trim();
-        var tax = $(tr).find('td:eq(5)').text().trim();
+        var price = $(tr).find('td:eq(4)').text().trim();
+        var discount = $(tr).find('td:eq(5)').text().trim();
+        var tax = $(tr).find('td:eq(6)').text().trim();
         row_amount = quantity * price * (100 -discount) * 0.01;
-        $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
+        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(6)').text().trim();
+        row_amount = $(tr).find('td:eq(7)').text().trim();
 
         subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;
@@ -574,11 +574,12 @@ var InvoiceDetail = function () {
       $( '#product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "unit_price" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim(),
+          "type" : $(tr).find('td:eq(9)').text().trim()
         });    
       }); 
       var reqUrl = $(this).data('url');
@@ -601,8 +602,7 @@ var InvoiceDetail = function () {
 
     $("#product_list td.editable").focusout(function(){
       $(this).removeClass("edit-focus");
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-      calculateInvoice(modalId);
+      calculateInvoice();
     });
 
     $("#product_list td.editable").keydown(function(event){
@@ -651,6 +651,7 @@ var InvoiceDetail = function () {
               template += '<tr><td>'+value.sku+'</td>';
               template += '<td>'+value.name+'</td>';
               template += '<td>'+value.quantity+'</td>';
+              template += '<td>'+value.unit_name+'</td>';
               template += '<td class="editable" contentEditable="true">0</td>';
               template += '<td>'+value.unit_price+'</td>';
               template += '<td>'+value.discount_rate+'</td>';
@@ -702,13 +703,13 @@ var InvoiceDetail = function () {
       var invoiceItemData = new Array();
       $( '#product_list_modal tbody tr').each(function(row, tr){
         invoiceItemData.push({
-          "quantity" : $(tr).find('td:eq(3)').text().trim(),
-          "discount" : $(tr).find('td:eq(5)').text().trim(),
-          "tax" : $(tr).find('td:eq(6)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
-          "note" : $(tr).find('td:eq(8)').text().trim(),
-          "id" : $(tr).find('td:eq(9)').text().trim(),
-          "total" : $(tr).find('td:eq(10)').text().trim()
+          "quantity" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(6)').text().trim(),
+          "tax" : $(tr).find('td:eq(7)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(8)').text().trim(),
+          "note" : $(tr).find('td:eq(9)').text().trim(),
+          "id" : $(tr).find('td:eq(10)').text().trim(),
+          "total" : $(tr).find('td:eq(11)').text().trim()
         });    
       }); 
 
@@ -765,20 +766,20 @@ var InvoiceDetail = function () {
           change = 0;        
       $( '#product_list_modal tbody tr').each(function(row, tr){
         var row_amount = 0;
-        var quantity = $(tr).find('td:eq(3)').text().trim();
-        var price = $(tr).find('td:eq(4)').text().trim();
-        var discount = $(tr).find('td:eq(5)').text().trim();
-        var tax = $(tr).find('td:eq(6)').text().trim();
+        var quantity = $(tr).find('td:eq(4)').text().trim();
+        var price = $(tr).find('td:eq(5)').text().trim();
+        var discount = $(tr).find('td:eq(6)').text().trim();
+        var tax = $(tr).find('td:eq(7)').text().trim();
         row_amount = quantity * price * (100 -discount) * 0.01;
-        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
+        $(tr).find('td:eq(8)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(7)').text().trim();
+        row_amount = $(tr).find('td:eq(8)').text().trim();
 
         subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;
         taxTotal += quantity * price * tax * 0.01;
         total += (row_amount * 1) + quantity * price * tax * 0.01;
-        $(tr).find('td:eq(10)').text(total.toFixed(2));
+        $(tr).find('td:eq(11)').text(total.toFixed(2));
       });
 
       var paid = 0;//$( '#paid_amount').val();

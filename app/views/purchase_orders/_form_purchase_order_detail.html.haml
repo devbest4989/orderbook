@@ -75,7 +75,7 @@
             %td 
               =item.tax_rate
             %td 
-              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price}" 
         - @purchase_order.purchase_custom_items.each do |item|
           %tr
             %td 
@@ -87,7 +87,7 @@
             %td 
               =item.tax_rate
             %td
-              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price - item.discount_amount}" 
+              ="#{Setting.value_by('format.currency')} #{item.quantity * item.unit_price}" 
       %table.table.projects
         %tbody
           %tr

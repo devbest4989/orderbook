@@ -123,10 +123,10 @@ class PurchaseOrder < ActiveRecord::Base
     def sub_total
         sub_total = 0
         purchase_items.each do |item|
-            sub_total += item.sub_total - item.discount_amount
+            sub_total += item.sub_total
         end
         purchase_custom_items.each do |item|
-            sub_total += item.sub_total - item.discount_amount
+            sub_total += item.sub_total
         end
         sub_total
     end

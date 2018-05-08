@@ -23,6 +23,7 @@ class SalesOrder < ActiveRecord::Base
       save!
 
       sales_items.each(&:confirm!)
+      sales_custom_items.each(&:confirm!)
 
       # Send an email to the customer
       deliver_booked_order_email

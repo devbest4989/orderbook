@@ -267,6 +267,16 @@ var SalesOrdersNew = function () {
             if(field != '' && field != undefined){
                 row[field] = $(this).children("input").val();
             }
+
+            if($(this).children("select").hasClass('item-unit')){
+              row['unit_id'] = $(this).children("select").val();
+              row['unit_name'] = $(this).children("select").children("option:checked").text();
+              row['unit_ratio'] = $(this).children("select").data('ratio');
+            }
+
+            if($(this).children("input").hasClass('item-price')){
+              row['unit_one_price'] = $(this).children("input").data('price');
+            }
         });
 
         if(row['sold_item_id'] > 0){

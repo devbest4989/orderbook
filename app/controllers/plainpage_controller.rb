@@ -128,7 +128,28 @@ class PlainpageController < ApplicationController
   def shipping_method
   end
 
-  def config_payment_term
+  def add_unit_measure
+    UnitMeasure.where(:unit_category_id => params[:unit_class]).delete_all
+    params[:unit].each do |unit|
+      unless unit[1][:ratio].blank? || unit[1][:name].blank?
+        unit_measure = UnitMeasure.new
+        unit_measure.ratio = unit[1][:ratio]
+        unit_measure.name = unit[1][:name]
+        unit_measure.unit_category_id = params[:unit_class]
+        unit_measure.save
+      end
+    end
+    redirect_to config_unit_path
+  end
+
+  def add_unit_category
+    @unit_category = UnitCategory.where(:name => params[:unit_class_name])
+    if @unit_category.nil?
+      @unit_category = UnitCategory.new
+      @unit_category.name = params[:unit_class_name]
+      @unit_category.save
+    end
+    redirect_to config_unit_path
   end
 
   # Ajax Request

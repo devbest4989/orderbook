@@ -95,12 +95,31 @@ class InvoicesController < ApplicationController
     params[:invoice_attributes].each do |elem|
       invoice_item = InvoiceItem.new
       invoice_item.invoice_id = invoice.id
+      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
       invoice_item.quantity   = elem[1][:quantity].to_i
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
-      invoice_item.sales_item_id = (elem[1][:type] == 'product') ? elem[1][:id].to_i : 0
+      invoice_item.unit_price     = elem[1][:unit_price]
       invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+
+      if elem[1][:type] == 'product'
+        item = SalesItem.find(elem[1][:id])
+        unless item.nil?
+          invoice_item.unit_id        = item.unit_id
+          invoice_item.unit_name      = item.unit_name
+          invoice_item.unit_ratio     = item.unit_ratio
+          invoice_item.unit_one_price = item.unit_one_price          
+        end
+      else
+        item = SalesCustomItem.find(elem[1][:id])
+        unless item.nil?
+          invoice_item.unit_id        = 0
+          invoice_item.unit_name      = ''
+          invoice_item.unit_ratio     = 1
+          invoice_item.unit_one_price = item.unit_price
+        end        
+      end
       invoice_item.save
     end
 
@@ -292,6 +311,7 @@ class InvoicesController < ApplicationController
           sku: item.sales_item.sold_item.sku,
           name: item.sales_item.sold_item.name,
           quantity: item.available_quantity,
+          unit_name: item.sales_item.unit_name,
           unit_price: item.sales_item.unit_price,
           discount_rate: item.sales_item.discount_rate,
           tax_rate: item.sales_item.tax_rate,        

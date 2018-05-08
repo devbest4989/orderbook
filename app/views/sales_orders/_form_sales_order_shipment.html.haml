@@ -42,6 +42,7 @@
               %th SKU
               %th Product Name
               %th Packaging Date
+              %th Packaging Unit
               %th Packaging Qty
               %th Note
               %th Updated By
@@ -63,11 +64,17 @@
                 %td 
                   =item.created_at.to_date
                 %td 
+                  =item.unit_name
+                %td 
                   =item.quantity
                 %td 
                   =item.note
                 %td 
                   =item.updated_by.email      
+                %td{:style => "display: none;"} 
+                  =item.unit_ratio
+                %td{:style => "display: none;"} 
+                  =item.unit_id
                 - prev_data = item.token
   .ln_solid
   .row.no-margin
@@ -92,7 +99,7 @@
               -if prev_data != ''
                 ="</table></td></tr>".html_safe
               ="<tr class='odd'><td>#{item.token}</td><td>#{item.created_at.to_date}</td><td>#{item.track_number}</td><td>#{item.updated_by.email}</td><td><a class='remove_track_link' href='javascript:;'' data-activity='#{item.token}'><i class='fa fa-icon fa-minus-circle'></i></a></td></tr>".html_safe
-              = "<tr class='even'><td colspan='6'><table class='table projects margin-bottom-5'><thead><tr><th>Packaging Number</th><th>SKU</th><th>Product Name</th><th>Shipped Qty</th><th>Note</th></tr></thead>".html_safe          
+              = "<tr class='even'><td colspan='6'><table class='table projects margin-bottom-5'><thead><tr><th>Packaging Number</th><th>SKU</th><th>Product Name</th><th>Shipped Unit</th><th>Shipped Qty</th><th>Note</th></tr></thead>".html_safe          
             %tr
               %td
                 =item.activity_data              
@@ -100,6 +107,8 @@
                 =item.sales_item.sold_item.sku
               %td 
                 =item.sales_item.sold_item.name
+              %td 
+                =item.unit_name
               %td 
                 =item.quantity
               %td 

@@ -262,6 +262,7 @@ class ProductsController < ApplicationController
         save_sub_product unless params[:sub_product].nil? 
         save_single_sub_product if params[:sub_product].nil? 
         save_sub_product_prices
+        save_product_unit unless params[:product_unit].nil? 
         @product.stock!
         
         format.html { redirect_to product_path(@product), notice: 'Product was successfully created.' }
@@ -280,6 +281,7 @@ class ProductsController < ApplicationController
     @product.product_line = ProductLine.find_or_create_by(name: params[:product_line_name].capitalize)
     @product.brand = Brand.find_or_create_by(name: params[:brand_name].capitalize)
     @product.warehouse = Warehouse.find_or_create_by(name: params[:warehouse_name].capitalize)    
+    update_product_units
 
     respond_to do |format|
       if @product.update(product_params)
@@ -858,7 +860,38 @@ class ProductsController < ApplicationController
         )
       if sub_product.sku.blank?
         sub_product.sku = generate_sub_product_sku sub_product
-        sub_product.save          
+        sub_product.save
+      end
+    end
+
+    def save_product_unit
+      params[:product_unit].each do |index, item|
+        unless item[:name].blank? or item[:ratio].blank?
+          product_unit = @product.units.create(
+            name: item[:name],
+            ratio: item[:ratio]
+          )
+          product_unit.save
+        end
+      end
+    end
+
+    def update_product_units
+      params[:product_unit].each do |index, item|
+        if item[:id].blank?
+          product_unit = @product.units.create(
+            name: item[:name],
+            ratio: item[:ratio]
+          )
+          product_unit.save
+        else
+          unless item[:name].blank? or item[:ratio].blank?
+            product_unit = ProductUnit.find(item[:id])
+            product_unit.name = item[:name]
+            product_unit.ratio = item[:ratio]
+            product_unit.save
+          end          
+        end
       end
     end
 end

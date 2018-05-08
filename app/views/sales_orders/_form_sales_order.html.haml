@@ -14,7 +14,7 @@
       .form-group{style: 'margin-top: 10px;'}
         %label.col-md-4.col-sm-4.col-xs-12.control-label Customer Name*
         .col-md-7.col-sm-7.col-xs-12.form-group.customer-box
-          = collection_select :customer_id, '', Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+          = collection_select :customer_id, '', Customer.ordered, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true", :autocomplete => "name"}
         .col-md-1.col-sm-1.col-xs-12.form-group.no-padding
           %a.btn.btn-xs.add-customer{href: new_customer_path()}
             %i.fa.fa-icon.fa-plus-circle
@@ -31,51 +31,51 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Sales Person*
         .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:selected => current_user.id}, {:class => 'form-control', :required => "true"}
+          = f.collection_select :booked_by_id, User.all, :id, :full_name, {:selected => current_user.id}, {:class => 'form-control', :required => "true", :autocomplete => "booked_by_id"}
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Issue Date*
         .col-md-8.col-sm-8.col-xs-12
           %fieldset.xdisplay_inputx.has-feedback
-            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date"
+            = f.text_field :order_date, class: 'form-control has-feedback-left', :id => "order_date", :required => 'true', "aria-describedby" => "inputSuccess2Status4", :placeholder => "Issue Date", :autocomplete => "order_date"
             %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
             %span#inputSuccess2Status4.sr-only (success)        
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Estimated Ship Date
         .col-md-8.col-sm-8.col-xs-12
           %fieldset.xdisplay_inputx.has-feedback
-            = f.text_field :estimate_ship_date, class: 'form-control has-feedback-left', :id => "estimate_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Estimated Ship Date"
+            = f.text_field :estimate_ship_date, class: 'form-control has-feedback-left', :id => "estimate_ship_date", "aria-describedby" => "inputSuccess2Status4", :placeholder => "Estimated Ship Date", :autocomplete => "estimate_ship_date"
             %span.fa.fa-calendar-o.form-control-feedback.left.col-12{"aria-hidden" => "true"}
             %span#inputSuccess2Status4.sr-only (success)        
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Shipping Method*
         .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :shipping_method_id, ShippingMethod.all, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true"}
+          = f.collection_select :shipping_method_id, ShippingMethod.all, :id, :name, {:include_blank => true}, {:class => 'form-control', :required => "true", :autocomplete => "shipping_method_id"}
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Price List
         .col-md-8.col-sm-8.col-xs-12
-          = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control'}
+          = f.collection_select :price_name, Price.select(:name).group(:name), :name, :name, {:include_blank => true}, {:class => 'form-control', :autocomplete => "price_name"}
     .col-md-6.col-sm-6.col-xs-12
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Person
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_field :contact_name, {:class => 'form-control'}
+          = f.text_field :contact_name, {:class => 'form-control', :autocomplete => "contact_name"}
           #contact_container
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Phone
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_field :contact_phone, class: 'form-control', :placeholder => "Contact Phone"
+          = f.text_field :contact_phone, class: 'form-control', :placeholder => "Contact Phone", :autocomplete => "contact_phone"
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Contact Email
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_field :contact_email, class: 'form-control', :placeholder => "Contact Email"
+          = f.text_field :contact_email, class: 'form-control', :placeholder => "Contact Email", :autocomplete => "contact_email"
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Payment Terms*
         .col-md-8.col-sm-8.col-xs-12
-          = f.select :payment_term_id, PaymentTerm.all.map{|x| [x.name, x.id]}, {}, {:class => 'form-control', :required => "true"}
+          = f.select :payment_term_id, PaymentTerm.all.map{|x| [x.name, x.id]}, {}, {:class => 'form-control', :required => "true", :autocomplete => "payment_term_id"}
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Reference Number
         .col-md-8.col-sm-8.col-xs-12
-          = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number"
+          = f.text_field :ref_no, class: 'form-control', :placeholder => "Reference Number", :autocomplete => "ref_no"
       .row
         .col-md-6.col-sm-6.col-xs-12.text-center
           %a.btn{href: '#', data: {toggle: 'modal', target: '.bs-billing-modal'}}
@@ -98,23 +98,23 @@
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :bill_street, '', class: 'form-control', :placeholder => "Street"
+                      = text_field_tag :bill_street, '', class: 'form-control', :placeholder => "Street", :autocomplete => "bill_street"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :bill_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                      = text_field_tag :bill_suburb, '', class: 'form-control', :placeholder => "Suburb", :autocomplete => "bill_suburb"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 City
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :bill_city, '', class: 'form-control', :placeholder => "City"
+                      = text_field_tag :bill_city, '', class: 'form-control', :placeholder => "City", :autocomplete => "bill_city"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 State
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :bill_state, '', class: 'form-control', :placeholder => "State"
+                      = text_field_tag :bill_state, '', class: 'form-control', :placeholder => "State", :autocomplete => "bill_state"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :bill_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                      = text_field_tag :bill_postcode, '', class: 'form-control', :placeholder => "Postcode", :autocomplete => "bill_postcode"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
                     .col-md-8.col-sm-8.col-xs-12
@@ -144,27 +144,27 @@
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Street
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :ship_street, '', class: 'form-control', :placeholder => "Street"
+                      = text_field_tag :ship_street, '', class: 'form-control', :placeholder => "Street", :autocomplete => "ship_street"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Suburb
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :ship_suburb, '', class: 'form-control', :placeholder => "Suburb"
+                      = text_field_tag :ship_suburb, '', class: 'form-control', :placeholder => "Suburb", :autocomplete => "ship_suburb"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 City
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :ship_city, '', class: 'form-control', :placeholder => "City"
+                      = text_field_tag :ship_city, '', class: 'form-control', :placeholder => "City", :autocomplete => "ship_city"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 State
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :ship_state, '', class: 'form-control', :placeholder => "State"
+                      = text_field_tag :ship_state, '', class: 'form-control', :placeholder => "State", :autocomplete => "ship_state"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Postcode
                     .col-md-8.col-sm-8.col-xs-12
-                      = text_field_tag :ship_postcode, '', class: 'form-control', :placeholder => "Postcode"
+                      = text_field_tag :ship_postcode, '', class: 'form-control', :placeholder => "Postcode", :autocomplete => "ship_postcode"
                   .form-group
                     %label.control-label.col-md-4.col-sm-4.col-xs-12 Country
                     .col-md-8.col-sm-8.col-xs-12
-                      = country_select :ship_country, '', priority: %w(NZ), class: 'form-control', prompt: 'Select a Country'
+                      = country_select :ship_country, '', priority: %w(NZ), class: 'form-control', prompt: 'Select a Country', :autocomplete => "ship_country"
                 .modal-footer
                   %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
                   %button#btn_ship_save.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save changes
@@ -177,6 +177,7 @@
           %tr
             %th Product Details
             %th Quantity
+            %th Unit
             %th 
             %th Unit Price
             %th Discount(%)
@@ -229,7 +230,7 @@
       .form-group
         %label.control-label.col-md-4.col-sm-4.col-xs-12 Terms & Condition*
         .col-md-8.col-sm-8.col-xs-12
-          = f.select :condition_term_id, ConditionTerm.all.map{|x| [x.title, x.id]}, {}, {:class => 'form-control', :required => "true"}
+          = f.select :condition_term_id, ConditionTerm.all.map{|x| [x.title, x.id]}, {}, {:class => 'form-control', :required => "true", :autocomplete => "condition_term_id"}
 
 
 :javascript

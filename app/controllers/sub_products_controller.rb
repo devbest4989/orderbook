@@ -80,7 +80,7 @@ class SubProductsController < ApplicationController
 
   def list_by_id
     if params[:id]
-      @sub_product = SubProduct.select('sku, id, selling_price_ex, selling_tax_id').includes(:selling_tax).includes(:prices).find(params[:id])
+      @sub_product = SubProduct.select('sku, id, selling_price_ex, selling_tax_id, product_id').includes(:selling_tax).includes(:prices).find(params[:id])      
     end
 
     respond_to do |format|
@@ -88,7 +88,21 @@ class SubProductsController < ApplicationController
       price_value = (price.nil?) ? 'nil' : price.price_tax_exclude
       format.json {render :json => {product: @sub_product, 
                                     tax: @sub_product.selling_tax, 
-                                    price: price_value}
+                                    price: price_value,
+                                    units: @sub_product.product.units}
+                                  }
+    end
+  end
+
+  def list_purchase_by_id
+    if params[:id]
+      @sub_product = SubProduct.select('sku, id, purchase_price_ex, purchase_tax_id, product_id').includes(:purchase_tax).find(params[:id])
+    end
+
+    respond_to do |format|
+      format.json {render :json => {product: @sub_product, 
+                                    units: @sub_product.product.units,
+                                    tax: @sub_product.purchase_tax}
                   }
     end
   end

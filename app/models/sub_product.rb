@@ -51,7 +51,7 @@ class SubProduct < ActiveRecord::Base
 	end
 
 	def sales_qty
-		SalesItem.includes(:sales_order).where(sold_item: self.id).where("sales_orders.status NOT IN ('quote', 'cancelled')").sum(:quantity)
+		SalesItem.includes(:sales_order).where(sold_item: self.id).where("sales_orders.status NOT IN ('quote', 'cancelled')").sum("quantity * unit_ratio")
 	end
 
 	def purchase_qty

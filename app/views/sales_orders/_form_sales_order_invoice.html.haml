@@ -211,12 +211,13 @@
             .col-md-12{:style => "overflow:auto;"}
               / start project list
               %div
-                %table#product_list.table.table-bordered.projects.margin-bottom-5
+                %table#product_list.table.table-bordered.projects.margin-bottom-5{"data-invoice" => item.id}
                   %thead
                     %tr
                       %th{:style => "width: 15%"} SKU
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"} Unit
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
@@ -231,7 +232,8 @@
                         %td.editable{"contentEditable" => "true"}
                           =elem.quantity
                         %td 
-                          =elem.sales_custom_item.unit_price
+                        %td.editable{"contentEditable" => "true"}
+                          =elem.unit_price
                         %td 
                           =elem.sales_custom_item.discount_rate
                         %td 
@@ -249,7 +251,9 @@
                         %td.editable{"contentEditable" => "true"}
                           =elem.quantity
                         %td 
-                          =elem.sales_item.unit_price
+                          =elem.unit_name
+                        %td 
+                          =elem.unit_price
                         %td 
                           =elem.sales_item.discount_rate
                         %td 

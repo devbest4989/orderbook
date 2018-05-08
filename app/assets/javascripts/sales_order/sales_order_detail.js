@@ -30,10 +30,14 @@ var SalesOrderDetail = function () {
     $("#tab_pack #btn_pack_submit").click(function(){
       var packItemData = new Array();
       $('#tab_pack #product_list tbody tr').each(function(row, tr){
+        var qty = $(tr).find('td:eq(5)').text().trim() * $(tr).find('td:eq(8)').text().trim();
         packItemData.push({
-          "quantity" : $(tr).find('td:eq(4)').text().trim(),
-          "note" :$(tr).find('td:eq(5)').text().trim(),
-          "id" : $(tr).find('td:eq(6)').text().trim()
+          "quantity" : $(tr).find('td:eq(5)').text().trim(),
+          "note" :$(tr).find('td:eq(6)').text().trim(),
+          "id" : $(tr).find('td:eq(7)').text().trim(),
+          "unit_ratio" : $(tr).find('td:eq(8)').text().trim(),
+          "unit_id" : $(tr).find('td:eq(9)').text().trim(),
+          "unit_name" : $(tr).find('td:eq(3)').text().trim()
         });    
       }); 
       var reqUrl = $('#pack_req_url').val();
@@ -62,9 +66,12 @@ var SalesOrderDetail = function () {
       var packItemData = new Array();
       $('#package_modal #product_list tbody tr').each(function(row, tr){
         packItemData.push({
-          "quantity" : $(tr).find('td:eq(4)').text().trim(),
-          "note" :$(tr).find('td:eq(5)').text().trim(),
-          "id" : $(tr).find('td:eq(6)').text().trim()
+          "quantity" : $(tr).find('td:eq(5)').text().trim(),
+          "note" :$(tr).find('td:eq(6)').text().trim(),
+          "id" : $(tr).find('td:eq(7)').text().trim(),
+          "unit_ratio" : $(tr).find('td:eq(8)').text().trim(),
+          "unit_id" : $(tr).find('td:eq(9)').text().trim(),
+          "unit_name" : $(tr).find('td:eq(3)').text().trim()
         });    
       }); 
       var reqUrl = $('#pack_req_url').val();
@@ -317,11 +324,12 @@ var SalesOrderDetail = function () {
       $('#invoice_modal #product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "unit_price" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim(),
+          "type" : $(tr).find('td:eq(9)').text().trim()
         });    
       }); 
       var reqUrl = $('#invoice_req_url').val();
@@ -375,13 +383,13 @@ var SalesOrderDetail = function () {
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
         var row_amount = 0;
         var quantity = $(tr).find('td:eq(2)').text().trim();
-        var price = $(tr).find('td:eq(3)').text().trim();
-        var discount = $(tr).find('td:eq(4)').text().trim();
-        var tax = $(tr).find('td:eq(5)').text().trim();
+        var price = $(tr).find('td:eq(4)').text().trim();
+        var discount = $(tr).find('td:eq(5)').text().trim();
+        var tax = $(tr).find('td:eq(6)').text().trim();
         row_amount = quantity * price * (100 - discount) * 0.01;
-        $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
+        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(6)').text().trim();
+        row_amount = $(tr).find('td:eq(7)').text().trim();
 
         subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;
@@ -400,17 +408,18 @@ var SalesOrderDetail = function () {
 
     $(".invoice_detail_modal #btn_update_invoice").click(function(){
       var invoiceItemData = new Array();
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+      var modalId = '#inovice_detail_modal_' + $(this).data('itemid');
       var action_name = ($(this).hasClass('btn-primary')) ? 'update' : 'confirm';
 
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "unit_price" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim(),
+          "type" : $(tr).find('td:eq(9)').text().trim()
         });    
       }); 
       var reqUrl = $(this).data('url');
@@ -433,7 +442,7 @@ var SalesOrderDetail = function () {
 
     $(".invoice_detail_modal #product_list td.editable").focusout(function(){
       $(this).removeClass("edit-focus");
-      var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+      var modalId = '#inovice_detail_modal_' + $(this).parent().parent().parent().data('invoice');
       calculateInvoice(modalId);
     });
 
@@ -441,24 +450,12 @@ var SalesOrderDetail = function () {
       code = (event.keyCode ? event.keyCode : event.which);
       switch(code) {
       case 13:
-        var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
+        var modalId = '#inovice_detail_modal_' + $(this).parent().parent().parent().data('invoice');
         calculateInvoice(modalId);
         event.preventDefault();
         break;
       }
     });
-
-    $(".invoice_detail_modal #paid_amount").keydown(function(event){
-      code = (event.keyCode ? event.keyCode : event.which);
-      switch(code) {
-      case 13:
-        var modalId = '#' + $(this).parents().find('.invoice_detail_modal').attr('id');
-        calculateInvoice(modalId);
-        event.preventDefault();
-        break;
-      }
-    });
-
   }
 
   var handleInvoiceAction = function() {

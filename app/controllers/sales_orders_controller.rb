@@ -319,7 +319,28 @@ class SalesOrdersController < ApplicationController
       invoice_item.discount   = elem[1][:discount]
       invoice_item.tax        = elem[1][:tax]
       invoice_item.sub_total  = elem[1][:sub_total]
+      invoice_item.unit_price     = elem[1][:unit_price]
       invoice_item.sales_custom_item_id = (elem[1][:type] != 'product') ? elem[1][:id].to_i : 0
+
+      if elem[1][:type] == 'product'
+        item = SalesItem.find(elem[1][:id])
+        unless item.nil?
+          invoice_item.unit_id        = item.unit_id
+          invoice_item.unit_name      = item.unit_name
+          invoice_item.unit_ratio     = item.unit_ratio
+          invoice_item.unit_one_price = item.unit_one_price          
+        end
+      else
+        item = SalesCustomItem.find(elem[1][:id])
+        unless item.nil?
+          invoice_item.unit_id        = 0
+          invoice_item.unit_name      = ''
+          invoice_item.unit_ratio     = 1
+          invoice_item.unit_one_price = item.unit_price
+        end        
+      end
+
+
       invoice_item.save
     end
 
@@ -358,6 +379,9 @@ class SalesOrdersController < ApplicationController
       ship_activity.total = elem.total_amount
       ship_activity.sales_order_id = params[:id]
       ship_activity.track_number = params[:track_number]
+      ship_activity.unit_id = elem.unit_id
+      ship_activity.unit_ratio = elem.unit_ratio
+      ship_activity.unit_name = elem.unit_name
 
       ship_activity.save
     end
@@ -410,7 +434,7 @@ class SalesOrdersController < ApplicationController
     package_number = GlobalMap.package_number
     params[:pack_attributes].each do |elem|
       sales_item = SalesItem.find(elem[1][:id].to_i);
-      sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, package_number)
+      sales_item.pack!(elem[1][:quantity], elem[1][:note], current_user, package_number, elem[1][:unit_id], elem[1][:unit_name],elem[1][:unit_ratio])
     end
 
     add_action_history('packaging', 'create', package_number)
@@ -527,14 +551,17 @@ class SalesOrdersController < ApplicationController
   def package_detail_info
     package_items = []
     @sales_order.sales_items.each do |item|
-      stock = item.sold_item.stock + item.quantity unless @sales_order.quote? || @sales_order.shipped?
+      stock = item.sold_item.stock + item.quantity * item.unit_ratio unless @sales_order.quote?
       stock = item.sold_item.stock if @sales_order.quote? || @sales_order.shipped?
       elem = {
         sku: item.sold_item.sku,
         name: item.sold_item.name,
         stock: stock,
         qty_to_package: item.quantity_to_pack,
-        id: item.id
+        id: item.id,
+        unit_id: item.unit_id,
+        unit_name: item.unit_name,
+        unit_ratio: item.unit_ratio
       }
       package_items << elem
     end
@@ -565,7 +592,10 @@ class SalesOrdersController < ApplicationController
           created_date: item.created_at.to_date,
           quantity: item.quantity,
           note: item.note,
-          updater: item.updated_by.email          
+          updater: item.updated_by.email,
+          unit_id: item.unit_id,
+          unit_name: item.unit_name,
+          unit_ratio: item.unit_ratio
         }
         shipment_items << elem
       end
@@ -592,6 +622,7 @@ class SalesOrdersController < ApplicationController
         sku: item.sold_item.sku,
         name: item.sold_item.name,
         quantity: item.quantity,
+        unit_name: item.unit_name,
         unit_price: item.unit_price,
         discount_rate: item.discount_rate,
         tax_rate: item.tax_rate,
@@ -607,6 +638,7 @@ class SalesOrdersController < ApplicationController
         sku: '',
         name: item.item_name,
         quantity: item.quantity,
+        unit_name: '',
         unit_price: item.unit_price,
         discount_rate: item.discount_rate,
         tax_rate: item.tax_rate,
@@ -750,14 +782,14 @@ class SalesOrdersController < ApplicationController
         :total_amount,        
         :customer_id,
         :notes,        
-        sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
+        sales_items_attributes: [:sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate, :unit_id, :unit_name, :unit_ratio, :unit_one_price],
         sales_custom_items_attributes: [:item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
       )
     end
 
     def safe_item_params
       params[:sales_order].permit(
-        sales_items_attributes: [:id, :sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate],
+        sales_items_attributes: [:id, :sold_item_id, :quantity, :unit_price, :discount_rate, :tax_rate, :unit_id, :unit_name, :unit_ratio, :unit_one_price],
         sales_custom_items_attributes: [:id, :item_name, :quantity, :unit_price, :discount_rate, :tax_rate]
       )
     end
@@ -807,7 +839,12 @@ class SalesOrdersController < ApplicationController
         invoice_item.quantity       = elem.quantity
         invoice_item.discount       = elem.discount_rate
         invoice_item.tax            = elem.tax_rate
-        invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        invoice_item.sub_total      = elem.unit_ratio * elem.quantity * elem.unit_one_price - elem.discount_amount
+        invoice_item.unit_id        = elem.unit_id
+        invoice_item.unit_name      = elem.unit_name
+        invoice_item.unit_ratio     = elem.unit_ratio
+        invoice_item.unit_one_price = elem.unit_one_price
+        invoice_item.unit_price     = elem.unit_price
         invoice_item.sales_custom_item_id = 0
         invoice_item.save
       end
@@ -820,6 +857,11 @@ class SalesOrdersController < ApplicationController
         invoice_item.discount       = elem.discount_rate
         invoice_item.tax            = elem.tax_rate
         invoice_item.sub_total      = elem.quantity * elem.unit_price - elem.discount_amount
+        invoice_item.unit_id        = 0
+        invoice_item.unit_name      = ''
+        invoice_item.unit_ratio     = 1
+        invoice_item.unit_one_price = 1
+        invoice_item.unit_price     = elem.unit_price
         invoice_item.sales_custom_item_id = elem.id
         invoice_item.save
       end

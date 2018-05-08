@@ -1,0 +1,144 @@
+.right_col.config-wrapper{:role => "main"}
+  .left-sub-sidebar
+    = render 'nav_config', add_url: '', active_elem: "sub-nav-unit", nav_name: 'Configuration'
+  .right-content
+    .x_panel{:style => ""}
+      .x_title
+        %h2
+          %i.fa.fa-bars
+          Unit of Measure
+        %ul.nav.navbar-right.panel_toolbox
+          %li
+            %a.collapse-link
+              %i.fa.fa-chevron-up
+          %li
+            %a.close-link
+              %i.fa.fa-close
+        .clearfix
+      .x_content
+        .row
+          .col-lg-8
+            = form_tag("/add_unit_measure", method: "post", class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '')
+            .row{:style => 'margin: 0 0 10px 0;'}
+              .col-md-12.text-right
+                = submit_tag "Add Unit", class: 'btn btn-primary'
+            .row
+              .col-md-12
+                %table.info-list
+                  %tr
+                    %td Unit of Measure Class
+                    %td Units of Measure
+                    %td Conversion Factor
+                  %tr
+                    %td{rowspan: 3, style: "vertical-align: top;"}
+                      = select_tag "unit_class", options_from_collection_for_select(UnitCategory.all, :id, :name), class: 'form-control', :placeholder => "Unit of Measure Class", :required => true
+                    %td= text_field_tag "unit[0][name]", '', class: 'form-control', :placeholder => "Unit of Measure", :required => true
+                    %td= text_field_tag "unit[0][ratio]", '1', class: 'form-control', :placeholder => "Conversion Factor", :readonly => true, :required => true
+                  %tr
+                    %td= text_field_tag "unit[1][name]", '', class: 'form-control', :placeholder => "Unit of Measure"
+                    %td= number_field_tag "unit[1][ratio]", '', class: 'form-control', :placeholder => "Conversion Factor"
+                  %tr
+                    %td= text_field_tag "unit[2][name]", '', class: 'form-control', :placeholder => "Unit of Measure"
+                    %td= number_field_tag "unit[2][ratio]", '', class: 'form-control', :placeholder => "Conversion Factor"
+        %hr
+        .row
+          .col-md-4
+            %h5 Unit of Measure Class
+            #category_container
+          .col-md-8
+            %h5 Unit of Measure
+            #unit_container
+
+:javascript
+  $(document).ready(function () {
+    $('#category_container').jtable({
+        title: 'Unit of Measure Class',
+        paging: false, //Enable paging
+        sorting: true, //Enable sorting
+        actions: {
+          listAction: '#{list_unit_categories_path()}',
+          deleteAction: '#{remove_unit_categories_path()}',
+          updateAction: '#{change_unit_categories_path()}',
+          createAction: '#{append_unit_categories_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            name: {
+                title: 'Class Name',
+                inputClass: 'form-control validate[required]'                
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+    //Load student list from server
+    $('#category_container').jtable('load');
+
+    $('#unit_container').jtable({
+        title: 'Unit of Measure',
+        paging: false, //Enable paging
+        sorting: true, //Enable sorting
+        actions: {
+          listAction: '#{list_unit_measures_path()}',
+          deleteAction: '#{remove_unit_measures_path()}',
+          updateAction: '#{change_unit_measures_path()}'
+        },
+        fields: {
+            id: {
+                key: true,
+                create: false,
+                edit: false,
+                list: false
+            },
+            unit_category_name: {
+                title: 'Unit of Measure Class',
+                edit: false,
+            },
+            name: {
+                title: 'Unit of Measure',
+                inputClass: 'form-control validate[required]'                
+            },
+            ratio: {
+                title: 'Conversion Factor',
+                inputClass: 'form-control validate[required]'                
+            },
+            unit_category_id: {
+                list: false,
+                title: 'Unit of Measure Class',
+                inputClass: 'form-control validate[required]',
+                options: '#{list_option_unit_categories_path()}'
+            }
+        },
+        //Initialize validation logic when a form is created
+        formCreated: function (event, data) {
+          data.form.validationEngine();
+        },
+        //Validate form when it is being submitted
+        formSubmitting: function (event, data) {
+          return data.form.validationEngine('validate');
+        },
+        //Dispose validation logic when form is closed
+        formClosed: function (event, data) {
+          data.form.validationEngine('hide');
+          data.form.validationEngine('detach');
+        }
+    });
+    //Load student list from server
+    $('#unit_container').jtable('load');
+  });

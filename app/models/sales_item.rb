@@ -136,7 +136,7 @@ class SalesItem < ActiveRecord::Base
     end
 
     # Trigged when the associated order is shipped..
-    def pack!(amount, description, user, data)
+    def pack!(amount, description, user, data, unit_id, unit_name, unit_ratio)
         if quantity_to_pack >= amount.to_i && amount.to_i > 0
             self.sales_item_activities.create!( sales_item: self, 
                                                 quantity: amount, 
@@ -144,7 +144,11 @@ class SalesItem < ActiveRecord::Base
                                                 activity: 'pack', 
                                                 updated_by: user, 
                                                 token: data,
-                                                sales_order_id: self.sales_order.id)
+                                                sales_order_id: self.sales_order.id,
+                                                unit_id: unit_id,
+                                                unit_name: unit_name,
+                                                unit_ratio: unit_ratio
+                                                )
             save!
         end
     end

@@ -73,7 +73,7 @@
             Including Tax
             = check_box_tag :selling_price_type, "1", @product.selling_price_type,  class: 'js-switch', :disabled => :true
             Excluding Tax
-.col-md-12.overview
+.col-md-6.overview
   %h4 Inventory Information
   %table.info-list
     %tr
@@ -92,6 +92,18 @@
       %tr
         %td Re-Order Point:
         %td= @product.reorder_qty
+
+.col-md-6.overview
+  %h4 Unit of Measure
+  %table.info-list
+    %tr
+      %td Unit Name
+      %td Unit Ratio
+    - @product.units.each do |item|
+      %tr
+        %td=item.name
+        %td=item.ratio
+
 :javascript
   jQuery(document).ready(function() {
     ProductDetail.initProductOverview();

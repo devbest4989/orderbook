@@ -24,10 +24,13 @@ Rails.application.routes.draw do
   get '/config_shipping_method' => 'plainpage#shipping_method'
   get '/config_payment_term' => 'plainpage#config_payment_term'
   get '/config_condition_term' => 'plainpage#config_condition_term'
-
+  get '/config_unit' => 'plainpage#config_unit'
+  
   put '/edit_config_company' => 'plainpage#edit_config_company'
   put '/edit_config_format' => 'plainpage#edit_config_format'
   put '/edit_config_email' => 'plainpage#edit_config_email'
+  post '/add_unit_measure' => 'plainpage#add_unit_measure'
+  post '/add_unit_category' => 'plainpage#add_unit_category'
 
   get '/preview_invoice/:token' => 'preview#invoice', as: 'preview_invoice'
   get '/preview_bill/:token' => 'preview#bill', as: 'preview_bill'
@@ -138,6 +141,26 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :unit_categories do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+      post :list_option
+    end
+  end
+
+  resources :unit_measures do
+    collection do
+      post :list
+      post :remove
+      post :change
+      post :append
+      get  :by_category
+    end
+  end
+
   resources :payment_terms do
     collection do
       post :list
@@ -207,6 +230,7 @@ Rails.application.routes.draw do
   resources :sub_products do
     collection do
       post :list_by_id
+      post :list_purchase_by_id
     end
     member do
       get  :action

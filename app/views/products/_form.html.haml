@@ -1,6 +1,6 @@
 = form_for(@product, html: { class: 'form-horizontal form-label-left input_mask', 'data-parsley-validate' => '' }) do |f|
   .row
-    .col-md-6.col-sm-6.col-xs-12.col-md-offset-3
+    .col-sm-6.col-md-offset-3
       - if @product.errors.any?
         .alert.alert-danger.alert-dismissible.fade.in{:role => "alert"}
           %button.close{"aria-label" => "Close", "data-dismiss" => "alert", :type => "button"}
@@ -10,41 +10,41 @@
             - @product.errors.full_messages.each do |msg|
               %li= msg
   .row{:style => 'margin-bottom: 10px;'}
-    .col-md-6.col-sm-6.col-xs-12
+    .col-sm-6
       %h4 Primary Details
-    .col-md-6.col-sm-6.col-xs-12.text-right
+    .col-sm-6.text-right
       %a{:href => list_by_type_products_path(:type => 'all'), class: 'btn btn-default'} Cancel
       = f.submit "Save", class: 'btn btn-primary'
   .form-group
-    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+    .col-sm-6{:style => "padding-right: 0;"}  
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Barcode
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Barcode
+        .col-sm-8.form-group
           = f.text_field :barcode, autofocus: true, class: 'form-control', :placeholder => "Barcode"
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Name*
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Product Name*
+        .col-sm-8.form-group
           = f.text_field :name, class: 'form-control', :required => 'true', :placeholder => "Product Name"
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Category*
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Category*
+        .col-sm-8.form-group
           = select_tag :category_name, options_from_collection_for_select(Category.all, :name, :name, (@product.category.nil?) ? '' : @product.category.name), {class: 'form-control', include_blank: true, :required => 'true'}          
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Line*
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Product Line*
+        .col-sm-8.form-group
           = select_tag :product_line_name, options_from_collection_for_select(ProductLine.all, :name, :name, (@product.product_line.nil?) ? '' : @product.product_line.name), {class: 'form-control', include_blank: true, :required => 'true'}
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Brand*
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Brand*
+        .col-sm-8.form-group
           = select_tag :brand_name, options_from_collection_for_select(Brand.all, :name, :name, (@product.brand.nil?) ? '' : @product.brand.name), {class: 'form-control', include_blank: true, :required => 'true'}
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Description
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Product Description
+        .col-sm-8.form-group
           = f.text_area :description, class: 'form-control', :placeholder => "Product Description", rows: 4
-    .col-md-6.col-sm-6.col-xs-12{:style => "padding-right: 0;"}  
+    .col-sm-6{:style => "padding-right: 0;"}  
       .row
-        %label.col-md-4.col-sm-4.col-xs-12.control-label Product Image
-        .col-md-8.col-sm-8.col-xs-12.form-group
+        %label.col-sm-4.control-label Product Image
+        .col-sm-8.form-group
           %input{type: 'hidden', id: 'product_image_url', value: @product.image.url(:medium)}
           #kv-avatar-errors.center-block{:style => "display:none"}
           = f.file_field :image, style: 'padding-top: 7px;'
@@ -125,6 +125,60 @@
           %td Re-Order Point Qty
           %td
             = f.text_field :reorder_qty, class: 'form-control', :placeholder => "Re-Order Point Qty"                
+
+      %h4 Unit of Measure
+      %table.info-list
+        %tr
+          %td Unit of Measure
+          %td= select_tag "unit_class", options_from_collection_for_select(UnitCategory.all, :id, :name), class: 'form-control', :placeholder => "Unit of Measure Class", :required => true, :include_blank => 'Select Unit Class'
+        %tr
+          %td Unit Name
+          %td Unit Ratio
+        - if @product.units[0]
+          %tr
+            %td
+              = hidden_field_tag "product_unit[0][id]", @product.units[0].id
+              = text_field_tag "product_unit[0][name]", @product.units[0].name, class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[0][ratio]", @product.units[0].ratio, class: 'form-control', :placeholder => "Unit Ratio", :readonly => true
+        - else
+          %tr
+            %td
+              = hidden_field_tag "product_unit[0][id]", 0
+              = text_field_tag "product_unit[0][name]", 'pc', class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[0][ratio]", '1', class: 'form-control', :placeholder => "Unit Ratio", :readonly => true
+
+        - if @product.units[1]
+          %tr
+            %td
+              = hidden_field_tag "product_unit[1][id]", @product.units[1].id
+              = text_field_tag "product_unit[1][name]", @product.units[1].name, class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[1][ratio]", @product.units[1].ratio, class: 'form-control', :placeholder => "Unit Ratio"
+        - else
+          %tr
+            %td
+              = hidden_field_tag "product_unit[1][id]", 0
+              = text_field_tag "product_unit[1][name]", '', class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[1][ratio]", '', class: 'form-control', :placeholder => "Unit Ratio"
+
+        - if @product.units[2]
+          %tr
+            %td
+              = hidden_field_tag "product_unit[2][id]", @product.units[2].id
+              = text_field_tag "product_unit[2][name]", @product.units[2].name, class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[2][ratio]", @product.units[2].ratio, class: 'form-control', :placeholder => "Unit Ratio"
+        - else
+          %tr
+            %td
+              = hidden_field_tag "product_unit[2][id]", 0
+              = text_field_tag "product_unit[2][name]", '', class: 'form-control', :placeholder => "Unit Name"
+            %td
+              = text_field_tag "product_unit[2][ratio]", '', class: 'form-control', :placeholder => "Unit Ratio"
+
   .ln_solid
   .form-group
     .col-md-12
@@ -152,4 +206,28 @@
   jQuery(document).ready(function() {
     Products.initProductNewForm();
     ProductsVariant.initNewForm();
+    $('#unit_class').change(function(){
+      if($(this).val()){
+        $.ajax({
+          url: '/unit_measures/by_category?category_id=' + $(this).val(),
+          type: 'GET',
+          datatype: 'json',
+          success: function(data){
+            if(data.Result == "OK" && data.TotalRecordCount > 0){
+              for(var i = 0; i < data.TotalRecordCount; i++){
+                $('#product_unit_'+i+'_name').val(data.Records[i]['name']);
+                $('#product_unit_'+i+'_ratio').val(data.Records[i]['ratio']);
+              }
+            }
+          },
+          error:function(){
+            new PNotify({
+              title: 'Error!',
+              text: 'Order request is not processed.',
+              type: 'error'
+            });              
+          }   
+        });
+      }
+    });
   });

@@ -165,10 +165,13 @@ var SalesOrderList = function(){
               template += '<tr><td>'+value.sku+'</td>';
               template += '<td>'+value.name+'</td>';
               template += '<td>'+value.stock+'</td>';
+              template += '<td>'+value.unit_name+'</td>';
               template += '<td>'+value.qty_to_package+'</td>';
               template += '<td class="editable" contentEditable="true">'+value.qty_to_package+'</td>';
               template += '<td class="editable" contentEditable="true"></td>';
-              template += '<td style="display:none; ">'+value.id+'</td></tr>';
+              template += '<td style="display:none; ">'+value.id+'</td>';
+              template += '<td style="display:none; ">'+value.unit_ratio+'</td>';
+              template += '<td style="display:none; ">'+value.unit_id+'</td></tr>';
             });
             $('#product_list_body').html(template);
 
@@ -201,9 +204,12 @@ var SalesOrderList = function(){
       var packageItemData = new Array();
       $('#package_modal #product_list tbody tr').each(function(row, tr){
         packageItemData.push({
-          "quantity" : $(tr).find('td:eq(4)').text().trim(),
-          "note" :$(tr).find('td:eq(5)').text().trim(),
-          "id" : $(tr).find('td:eq(6)').text().trim()
+          "quantity" : $(tr).find('td:eq(5)').text().trim(),
+          "note" :$(tr).find('td:eq(6)').text().trim(),
+          "id" : $(tr).find('td:eq(7)').text().trim(),
+          "unit_ratio" : $(tr).find('td:eq(8)').text().trim(),
+          "unit_id" : $(tr).find('td:eq(9)').text().trim(),
+          "unit_name" : $(tr).find('td:eq(3)').text().trim()
         });    
       }); 
 
@@ -259,9 +265,13 @@ var SalesOrderList = function(){
               template += '<td>'+value.sku+'</td>';
               template += '<td>'+value.name+'</td>';
               template += '<td>'+value.created_date+'</td>';
+              template += '<td>'+value.unit_name+'</td>';
               template += '<td>'+value.quantity+'</td>';
               template += '<td>'+value.note+'</td>';
-              template += '<td>'+value.updater+'</td></tr>';
+              template += '<td>'+value.updater+'</td>';
+              template += '<td style="display:none; ">'+value.id+'</td>';
+              template += '<td style="display:none; ">'+value.unit_ratio+'</td>';
+              template += '<td style="display:none; ">'+value.unit_id+'</td></tr>';
               prev_data = value.token;
             });
             $('#shipment_product_list_body').html(template);
@@ -604,7 +614,8 @@ var SalesOrderList = function(){
               template += '<tr><td>'+value.sku+'</td>';
               template += '<td>'+value.name+'</td>';
               template += '<td class="editable" contentEditable="true">'+value.quantity+'</td>';
-              template += '<td>'+value.unit_price+'</td>';
+              template += '<td>'+value.unit_name+'</td>';
+              template += (value.type == "product") ? '<td>'+value.unit_price+'</td>' : '<td class="editable" contentEditable="true">'+value.unit_price+'</td>';
               template += '<td>'+value.discount_rate+'</td>';
               template += '<td>'+value.tax_rate+'</td>';
               template += '<td>'+value.sub_total+'</td>';
@@ -647,11 +658,12 @@ var SalesOrderList = function(){
       $('#invoice_modal #product_list tbody tr').each(function(row, tr){
         invoiceItemData.push({
           "quantity" : $(tr).find('td:eq(2)').text().trim(),
-          "discount" : $(tr).find('td:eq(4)').text().trim(),
-          "tax" : $(tr).find('td:eq(5)').text().trim(),
-          "sub_total" : $(tr).find('td:eq(6)').text().trim(),
-          "id" : $(tr).find('td:eq(7)').text().trim(),
-          "type" : $(tr).find('td:eq(8)').text().trim()
+          "unit_price" : $(tr).find('td:eq(4)').text().trim(),
+          "discount" : $(tr).find('td:eq(5)').text().trim(),
+          "tax" : $(tr).find('td:eq(6)').text().trim(),
+          "sub_total" : $(tr).find('td:eq(7)').text().trim(),
+          "id" : $(tr).find('td:eq(8)').text().trim(),
+          "type" : $(tr).find('td:eq(9)').text().trim()
         });    
       }); 
       var reqUrl = $('#invoice_req_url').val();
@@ -691,13 +703,13 @@ var SalesOrderList = function(){
       $( modalId + ' #product_list tbody tr').each(function(row, tr){
         var row_amount = 0;
         var quantity = $(tr).find('td:eq(2)').text().trim();
-        var price = $(tr).find('td:eq(3)').text().trim();
-        var discount = $(tr).find('td:eq(4)').text().trim();
-        var tax = $(tr).find('td:eq(5)').text().trim();
+        var price = $(tr).find('td:eq(4)').text().trim();
+        var discount = $(tr).find('td:eq(5)').text().trim();
+        var tax = $(tr).find('td:eq(6)').text().trim();
         row_amount = quantity * price * (100 - discount) * 0.01;
-        $(tr).find('td:eq(6)').text(row_amount.toFixed(2));
+        $(tr).find('td:eq(7)').text(row_amount.toFixed(2));
 
-        row_amount = $(tr).find('td:eq(6)').text().trim();
+        row_amount = $(tr).find('td:eq(7)').text().trim();
 
         subTotal += (row_amount * 1);
         discountTotal += quantity * price * discount * 0.01;

@@ -15,6 +15,8 @@ class Product < ActiveRecord::Base
   has_many :prices
 
   has_many :variants, class_name: 'ProductVariant'
+  has_many :units, class_name: 'ProductUnit'
+  
   has_many :sub_products
 
   belongs_to :selling_tax, class_name: 'Tax'

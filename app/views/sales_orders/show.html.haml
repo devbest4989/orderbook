@@ -162,7 +162,8 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 30%"} Product Name
                     %th{:style => "width: 15%"} Qty on Hand
-                    %th{:style => "width: 15%"} Qty on Ordered
+                    %th{:style => "width: 10%"} Unit on Ordered
+                    %th{:style => "width: 10%"} Qty on Ordered
                     %th{:style => "width: 10%"} Qty on Pack
                     %th{:style => "width: 10%"} Note
                 %tbody
@@ -173,8 +174,10 @@
                     %td 
                       =item.sold_item.name
                     %td 
-                      =item.sold_item.stock + item.quantity unless @sales_order.quote? || @sales_order.shipped?
+                      =item.sold_item.stock + item.quantity * item.unit_ratio unless @sales_order.quote?
                       =item.sold_item.stock if @sales_order.quote? || @sales_order.shipped?
+                    %td 
+                      =item.unit_name
                     %td 
                       =item.quantity_to_pack
                     %td.editable{"contentEditable" => "true"}
@@ -182,6 +185,10 @@
                     %td.editable{"contentEditable" => "true"} 
                     %td{:style => "display: none;"} 
                       =item.id
+                    %td{:style => "display: none;"} 
+                      =item.unit_ratio
+                    %td{:style => "display: none;"} 
+                      =item.unit_id
       .modal-footer
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         - if @sales_order.confirmed?        
@@ -269,6 +276,7 @@
                     %th SKU
                     %th Product Name
                     %th Packaging Date
+                    %th Packaging Unit
                     %th Packaging Qty
                     %th Note
                     %th Updated By
@@ -289,6 +297,8 @@
                         =item.sales_item.sold_item.name
                       %td 
                         =item.created_at.to_date
+                      %td 
+                        =item.unit_name
                       %td 
                         =item.quantity
                       %td 
@@ -388,6 +398,7 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"} Unit
                     %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                     %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
@@ -401,6 +412,8 @@
                       =item.sold_item.name
                     %td.editable{"contentEditable" => "true"}
                       =item.quantity
+                    %td 
+                      =item.unit_name
                     %td 
                       =item.unit_price
                     %td 
@@ -420,6 +433,7 @@
                     %td.editable{"contentEditable" => "true"}
                       =item.quantity
                     %td 
+                    %td.editable{"contentEditable" => "true"} 
                       =item.unit_price
                     %td 
                       =item.discount_rate

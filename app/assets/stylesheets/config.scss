@@ -1,3 +1,13 @@
 .config-wrapper{
-  
+    table.info-list{
+      margin-left: 10px;
+      th{
+        padding: 5px;
+      }
+      tr{
+        td{
+          padding: 5px;
+        }
+      }
+    }  
 }

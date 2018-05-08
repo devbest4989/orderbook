@@ -55,7 +55,22 @@ var SalesOrdersProductTable = function () {
       event.stopPropagation();
       return false;
     });
+
+    $('#product_item_list').on('change', 'td .product-field', function(event){      
+      var row_name = '.row-' + $(this).data('row');
+      var qty = $('.item-qty'+row_name).val();
+      var ratio = $('.item-unit'+row_name+' option:checked').data('ratio');
+      var unit_price = $('.item-price'+row_name).data('price');
+      var price = (unit_price) ? $('.item-price'+row_name).data('price') * ratio : $('.item-price'+row_name).val() * ratio;
+      $('.item-unit'+row_name).data('ratio', ratio);
+      $('.item-price'+row_name).val(price);
+
+      calculateLineAmount(this);
+      event.stopPropagation();
+      return false;
+    });
   } 
+
 
   var calculateLineAmount = function(item){
     var row_name = '.row-' + $(item).data('row');
@@ -129,7 +144,15 @@ var SalesOrdersProductTable = function () {
       success: function(data){
         var price_data = (data.price == 'nil') ? data.product.selling_price_ex : data.price;
         $('.'+row_class+'.item-price').val(price_data);
+        $('.'+row_class+'.item-price').data('price', price_data);
         $('.'+row_class+'.item-tax').val(data.tax.rate);
+
+        var template = '';
+        for(var i = 0; i < data.units.length; i++){
+          template += '<option value="'+data.units[i].id+'" data-ratio="'+data.units[i].ratio+'">'+data.units[i].name+'</option>';
+        }
+
+        $('.'+row_class+'.item-unit').html(template);
       },
       error:function(){
         $('td#'+namecell).empty().text('');
@@ -158,7 +181,9 @@ var SalesOrdersProductTable = function () {
     $('#product_row_0 td.product-action').html(removeTemplate);
     $('#product_row_0').attr('id', row_id);
 
-    addProductBlankLine();    
+    addProductBlankLine();
+    $('.'+row_class+'.item-unit').html('<option value="0" data-ratio="1">-</option>');
+    $('.item-unit'+row_number).data('ratio', 1);
   }
 
   var removeProductLine = function(){
@@ -244,10 +269,13 @@ var SalesOrdersProductTable = function () {
           <td>\
             <input class="form-control row-0 product-field item-qty text-right" data-row="0" readonly data-field="quantity" type="text" data-parsley-type="number" value="0">\
           </td>\
+          <td class="product-unit" width="10%">\
+            <select class="row-0 product-field item-unit form-control" data-ratio="0"></select>\
+          </td>\
           <td class="text-center available-qty">\
           </td>\
           <td>\
-            <input class="form-control row-0 product-field item-price text-right" data-row="0" readonly data-field="unit_price" type="text" data-parsley-type="number" value="0">\
+            <input class="form-control row-0 product-field item-price text-right" data-row="0" readonly data-price="0" data-field="unit_price" type="text" data-parsley-type="number" value="0">\
           </td>\
           <td>\
             <input class="form-control row-0 product-field item-discount text-right" data-row="0" readonly data-field="discount_rate" type="text" data-parsley-type="number" value="0">\

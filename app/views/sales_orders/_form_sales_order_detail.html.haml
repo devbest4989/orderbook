@@ -70,6 +70,7 @@
           %tr
             %th{ width: '30%' } Product Name
             %th Quantity
+            %th Unit
             %th Unit Price
             %th Discount (%)
             %th Tax (%)
@@ -81,6 +82,8 @@
               =item.sold_item.name    
             %td 
               =item.quantity
+            %td 
+              =item.unit_name
             %td 
               ="#{Setting.value_by('format.currency')} #{item.unit_price}"
             %td 
@@ -95,6 +98,7 @@
               =item.item_name    
             %td 
               =item.quantity
+            %td 
             %td 
               ="#{Setting.value_by('format.currency')} #{item.unit_price}"
             %td 

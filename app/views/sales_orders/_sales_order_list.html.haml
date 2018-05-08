@@ -136,26 +136,11 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 30%"} Product Name
                     %th{:style => "width: 15%"} Qty on Hand
-                    %th{:style => "width: 15%"} Qty on Ordered
+                    %th{:style => "width: 10%"} Unit on Ordered
+                    %th{:style => "width: 10%"} Qty on Ordered
                     %th{:style => "width: 10%"} Qty on Pack
                     %th{:style => "width: 10%"} Note
                 %tbody#product_list_body
-                / - @sales_order.sales_items.each do |item|
-                /   %tr
-                /     %td 
-                /       =item.sold_item.sku    
-                /     %td 
-                /       =item.sold_item.name
-                /     %td 
-                /       =item.sold_item.stock + item.quantity unless @sales_order.quote? || @sales_order.shipped?
-                /       =item.sold_item.stock if @sales_order.quote? || @sales_order.shipped?
-                /     %td 
-                /       =item.quantity_to_pack
-                /     %td.editable{"contentEditable" => "true"}
-                /       =item.quantity_to_pack
-                /     %td.editable{"contentEditable" => "true"} 
-                /     %td{:style => "display: none;"} 
-                /       =item.id
       .modal-footer
         %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"} Close
         %button#btn_create_package.btn.btn-primary{:type => "button", "data-dismiss" => "modal"} Save
@@ -202,6 +187,7 @@
                     %th SKU
                     %th Product Name
                     %th Packaging Date
+                    %th Packaging Unit
                     %th Packaging Qty
                     %th Note
                     %th Updated By
@@ -340,6 +326,7 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"} Unit
                     %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                     %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)

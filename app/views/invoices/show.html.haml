@@ -111,6 +111,7 @@
                     %th{:style => "width: 15%"} SKU
                     %th{:style => "width: 25%"} Product Name
                     %th{:style => "width: 10%"} Quantity
+                    %th{:style => "width: 10%"} Unit
                     %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                     %th{:style => "width: 10%"} Discount (%)
                     %th{:style => "width: 10%"} Tax (%)
@@ -125,6 +126,7 @@
                       %td.editable{"contentEditable" => "true"}
                         =elem.quantity
                       %td 
+                      %td.editable{"contentEditable" => "true"} 
                         =elem.sales_custom_item.unit_price
                       %td 
                         =elem.sales_custom_item.discount_rate
@@ -143,6 +145,8 @@
                           =elem.sales_item.sold_item.name                      
                       %td.editable{"contentEditable" => "true"}
                         =elem.quantity
+                      %td 
+                        =elem.sales_item.unit_name
                       %td 
                         =elem.sales_item.unit_price
                       %td 
@@ -236,6 +240,7 @@
                       %th SKU
                       %th Product Name
                       %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"} Unit
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
@@ -250,6 +255,8 @@
                             =item.sales_item.sold_item.name                      
                         %td
                           =item.quantity
+                        %td
+                          =item.sales_item.unit_name
                         %td 
                           =item.sales_item.unit_price
                         %td 
@@ -279,6 +286,7 @@
                       %th{:style => "width: 15%"} SKU
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"} Unit
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 10%"} Discount (%)
                       %th{:style => "width: 10%"} Tax (%)
@@ -294,6 +302,8 @@
                             =item.sales_item.sold_item.name                      
                         %td
                           =item.quantity
+                        %td 
+                          =item.sales_item.unit_name
                         %td 
                           =item.sales_item.unit_price
                         %td 
@@ -324,6 +334,7 @@
                       %th{:style => "width: 15%"} SKU
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Quantity
+                      %th{:style => "width: 10%"} Unit
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 30%"} Notes
                       %th
@@ -337,6 +348,8 @@
                             =item.sales_item.sold_item.name                      
                         %td
                           =item.quantity
+                        %td
+                          =item.sales_item.unit_name
                         %td 
                           =item.sales_item.unit_price
                         %td 
@@ -418,6 +431,7 @@
                       %th{:style => "width: 10%"} SKU
                       %th{:style => "width: 25%"} Product Name
                       %th{:style => "width: 10%"} Available Quantity
+                      %th{:style => "width: 10%"} Unit
                       %th{:style => "width: 10%"} Quantity To Action
                       %th{:style => "width: 10%"}= "Price (#{Setting.value_by('format.currency')})"
                       %th{:style => "width: 5%"} Discount (%)

@@ -34,6 +34,7 @@ var PurchaseOrdersProductTable = function () {
     });
 
     $('#product_item_list').on('focusout', 'td .product-field', function(event){      
+      var row_class = '.row-' + $(this).data('row');
       if($(this).hasClass('item-qty')){
         $(row_class + '.item-price').focus().select();
       } else if($(this).hasClass('item-price')){
@@ -111,7 +112,7 @@ var PurchaseOrdersProductTable = function () {
     addProductBlankLine();
 
     $.ajax({
-      url: "/products/list_purchase_by_id",
+      url: "/sub_products/list_purchase_by_id",
       type: 'POST',
       datatype: 'json',
       data: {
@@ -120,7 +121,15 @@ var PurchaseOrdersProductTable = function () {
       success: function(data){
         var price_data = data.product.purchase_price_ex;
         $('.'+row_class+'.item-price').val(price_data);
-        $('.'+row_class+'.item-tax').val(data.tax.rate);
+        $('.'+row_class+'.item-tax').val(data.tax.rate);        
+
+        var template = '';
+        for(var i = 0; i < data.units.length; i++){
+          template += '<option value="'+data.units[i].id+'" data-ratio="'+data.units[i].ratio+'">'+data.units[i].name+'</option>';
+        }
+
+        // $('.'+row_class+'.item-unit').html(template);
+
       },
       error:function(){
         $('td#'+namecell).empty().text('');

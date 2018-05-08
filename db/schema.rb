@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171215130013) do
+ActiveRecord::Schema.define(version: 20180508064042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -200,6 +200,11 @@ ActiveRecord::Schema.define(version: 20171215130013) do
     t.datetime "created_at",                                                 null: false
     t.datetime "updated_at",                                                 null: false
     t.integer  "sales_custom_item_id"
+    t.integer  "unit_id"
+    t.string   "unit_name"
+    t.integer  "unit_ratio"
+    t.decimal  "unit_one_price",       precision: 8, scale: 2, default: 0.0
+    t.decimal  "unit_price",           precision: 8, scale: 2, default: 0.0
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -257,6 +262,16 @@ ActiveRecord::Schema.define(version: 20171215130013) do
   end
 
   add_index "product_lines", ["name"], name: "index_product_lines_on_name", unique: true, using: :btree
+
+  create_table "product_units", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "ratio"
+    t.integer  "product_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "product_units", ["product_id"], name: "index_product_units_on_product_id", using: :btree
 
   create_table "product_variants", force: :cascade do |t|
     t.string   "name"
@@ -348,8 +363,12 @@ ActiveRecord::Schema.define(version: 20171215130013) do
     t.decimal  "discount_amount",   precision: 8, scale: 2
     t.integer  "purchase_order_id"
     t.integer  "purchased_item_id"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
+    t.integer  "unit_id"
+    t.string   "unit_name"
+    t.integer  "unit_ratio"
+    t.decimal  "unit_one_price",    precision: 8, scale: 2, default: 0.0
   end
 
   add_index "purchase_items", ["purchase_order_id"], name: "index_purchase_items_on_purchase_order_id", using: :btree
@@ -419,6 +438,9 @@ ActiveRecord::Schema.define(version: 20171215130013) do
     t.decimal  "discount",       precision: 8, scale: 2, default: 0.0
     t.decimal  "tax",            precision: 8, scale: 2, default: 0.0
     t.string   "track_number"
+    t.integer  "unit_id"
+    t.string   "unit_name"
+    t.integer  "unit_ratio"
   end
 
   add_index "sales_item_activities", ["sales_item_id"], name: "index_sales_item_activities_on_sales_item_id", using: :btree
@@ -432,10 +454,14 @@ ActiveRecord::Schema.define(version: 20171215130013) do
     t.decimal  "tax_rate",        precision: 8, scale: 2
     t.integer  "sales_order_id"
     t.integer  "sold_item_id"
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
     t.decimal  "discount_rate",   precision: 8, scale: 2
     t.decimal  "discount_amount", precision: 8, scale: 2
+    t.integer  "unit_id"
+    t.string   "unit_name"
+    t.integer  "unit_ratio"
+    t.decimal  "unit_one_price",  precision: 8, scale: 2, default: 0.0
   end
 
   add_index "sales_items", ["sales_order_id"], name: "index_sales_items_on_sales_order_id", using: :btree
@@ -584,6 +610,20 @@ ActiveRecord::Schema.define(version: 20171215130013) do
     t.string   "name"
   end
 
+  create_table "unit_categories", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "unit_measures", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "ratio"
+    t.integer  "unit_category_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -620,6 +660,7 @@ ActiveRecord::Schema.define(version: 20171215130013) do
   add_foreign_key "contacts", "suppliers"
   add_foreign_key "documents", "customers"
   add_foreign_key "documents", "suppliers"
+  add_foreign_key "product_units", "products"
   add_foreign_key "product_variants", "products"
   add_foreign_key "products", "brands"
   add_foreign_key "products", "categories"
