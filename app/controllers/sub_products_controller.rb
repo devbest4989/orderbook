@@ -43,6 +43,7 @@ class SubProductsController < ApplicationController
       if @sub_product.update(sub_product_params)
         @sub_product.product.referesh_variants
         save_sub_product_prices
+        @sub_product.stock!
 
         format.html { redirect_to edit_sub_product_path(@sub_product), notice: 'Sub Product was successfully updated.' }
         format.json { render :show, status: :ok, location: @sub_product }
