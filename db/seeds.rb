@@ -36,3 +36,14 @@ PaymentTerm.create(name: "20th of Following Month : Due on 20th of following mon
 
 p "Create Shipping Method"
 ShippingMethod.create(name: "Ground Shipping")
+
+p "Create Terms & Service"
+ConditionTerm.create(title: "Terms & Condition", description: "Terms & Condition")
+
+p "Create Unit of Category"
+UnitCategory.create(name: "Quantity")
+
+p "Create Unit of Measure"
+UnitMeasure.create(name: "each", ratio: 1, unit_category_id: 1)
+UnitMeasure.create(name: "box", ratio: 6, unit_category_id: 1)
+UnitMeasure.create(name: "dozen", ratio: 12, unit_category_id: 1)
