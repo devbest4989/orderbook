@@ -2,173 +2,181 @@
 @import "font-awesome";
 
 .preview-print-box{
-	width: 840px;
-	margin: 30px auto 0px auto;
+    width: 840px;
+    margin: 30px auto 0px auto;
+
+    a.preview-command{
+        color: #444;
+        font-size: 22px;
+        vertical-align: middle;
+        text-decoration: none        
+    }
 }
 
 .preview-invoice-box{
-	width: 840px;
-	margin: 10px auto 50px auto;
-	background: #fff;
-	font-family: Arial;
-	box-shadow: 3px 3px 10px #bbb;
+    width: 840px;
+    margin: 10px auto 50px auto;
+    background: #fff;
+    font-family: Arial;
+    box-shadow: 3px 3px 10px #bbb;
 }
 
 .sales-order-box{
-	width: 100%;
-	border-spacing: 2px;
-	border-collapse: collapse;
-	font-size: 12px;
-	border: none;
-	tr{
-		padding: 10px;
-		td{
-			padding: 10px;
-			p{
-				padding: 1px 0;
-				margin: 0;
-			}
-		}
-	}
-	.main-info-box{
-		border-bottom: 1px solid #333;
-	}
+    width: 100%;
+    border-spacing: 2px;
+    border-collapse: collapse;
+    font-size: 12px;
+    border: none;
+    tr{
+        td{
+            vertical-align: top;
+            p{
+                padding: 1px 0;
+                margin: 0;
+            }
+        }
+    }
+    .main-info-box{
+    }
 
-	.address-box{
-		td{
-			// border: 1px solid #333;
-			padding-top: 30px;
-			font-weight: 600;
-		}
-	}
+    .address-box{
+        td{
+            // border: 1px solid #333;
+            padding-top: 30px;
+            font-weight: 600;
+        }
+    }
 
-	.details-box{
-		// border: 1px solid #333;
-		td{
-			padding: 0;
-			vertical-align: top;
-		}
-	}
+    .details-box{
+        // border: 1px solid #333;
+        td{
+            padding: 0;
+            vertical-align: top;
+        }
+    }
 
-	.signature-box{
-		border-top: 1px solid #333;
-		tr{
-			td{
-				&.terms-info{
-					font-size: 6px;
-				}
-			}
-		}
-	}
+    .signature-box{
+        tr{
+            td{
+                &.terms-info{
+                    font-size: 10px;
+                }
+            }
+        }
+    }
 
-	.balance-box{
-		td{
-			border-top: 1px solid #333;
-			border-bottom: 1px solid #333;
-		}
+    .balance-box{
+        td{
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
 
-		table{
-			&.total-info{
-				height: 100%;
-				tr td{
-					padding: 10px 5px;
-				}
-			}
-			width: 100%;
-			border-spacing: 2px;
-			border-collapse: collapse;
-			tr{
-				&.product-header{
-					background: #eee;
-					border-bottom: 1px solid #333;
-				}
+        table{
+            &.total-info{
+                height: 100%;
+                tr td{
+                    padding: 10px 5px;
+                }
+            }
+            width: 100%;
+            border-spacing: 2px;
+            border-collapse: collapse;
+            tr{
+                &.product-header{
+                    background: #eee;
+                    border-bottom: 1px solid #333;
+                }
 
-				td{
-					border: none;
-					padding: 0 5px;
-				}				
-			}
-		}
-	}
+                td{
+                    border: none;
+                    padding: 0 5px;
+                }               
+            }
+        }
+    }
 
-	.footer-box{
-		td{
-			padding-bottom: 20px;
-		}
-		// border: 1px solid #333;
-	}
+    .footer-box{
+        td{
+            padding-bottom: 20px;
+        }
+        // border: 1px solid #333;
+    }
 
-	table.order-main-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;
-		margin-top: 30px;
+    table.order-main-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;
+        margin-top: 30px;
+        margin-bottom: 20px;
 
-		.company-logo img{
-			max-width: 300px;
-			max-height: 100px;
-		}
-	}
+        .company-logo img{
+            max-width: 150px;
+            max-height: 70px;
+        }
+    }
 
-	table.order-product-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;
-		tr{
-			&.product-header{
-				background: #eee;
-				border-bottom: 1px solid #333;
-			}
+    table.order-product-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;
+        tr{
+            background: #eee;
+            border-top: 2px solid #fff;
+            &.product-header{
+                background: #337ab7;
+                color: #fff;
+                text-transform: uppercase;
+            }
 
-			td{
-				padding: 5px 10px;
-			}
-		}		
-	}
+            td{
+                padding: 5px 10px;
+            }
+        }       
+    }
 
-	table.order-sign-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;		
-		tr{
-			padding: 0;
-			td{
-				padding: 0;
-				
-				&.terms-info{
-					font-size: 8px;
-					width: 60%;
-				}
-				&.signature-info{
-					padding: 0px 10px;
-					p{
-						padding: 10px 0;
-						span{
-							text-decoration: underline;
-						}
-					}
+    table.order-sign-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;      
+        tr{
+            padding: 0;
+            td{
+                padding: 0;
+                
+                &.terms-info{
+                    font-size: 10px;
+                    width: 60%;
+                }
+                &.signature-info{
+                    padding: 0px 10px;
+                    p{
+                        padding: 10px 0;
+                        span{
+                            text-decoration: underline;
+                        }
+                    }
 
-					table{
-						width: 100%;
-						border-spacing: 2px;
-						border-collapse: collapse;
-						tr{
-							td{
-								padding: 10px 0;
-								&.td-underline{
-									div{
-										height: 15px;
-										width: 100%;
-										border-bottom: 1px solid #333;
-									}									
-								}
-							}
-						}
-					}
-				}
-			}
-		}				
-	}
+                    table{
+                        width: 100%;
+                        border-spacing: 2px;
+                        border-collapse: collapse;
+                        tr{
+                            td{
+                                padding: 5px 0;
+                                &.td-underline{
+                                    div{
+                                        height: 15px;
+                                        width: 100%;
+                                        border-bottom: 1px solid #333;
+                                    }                                   
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }               
+    }
 }
 
 div.alwaysbreak { page-break-before: always; }
@@ -176,165 +184,165 @@ div.nobreak:before { clear:both; }
 div.nobreak { page-break-inside: avoid; }
 
 .text-right{
-	text-align: right;
+    text-align: right;
 }
 
 .text-left{
-	text-align: left;
+    text-align: left;
 }
 
 .text-center{
-	text-align: center;
+    text-align: center;
 }
 
 .no-padding{
-	padding: 0 !important;
+    padding: 0 !important;
 }
 
 .pack-order-box{
-	color: #333;
-	tr{
-		padding: 10px;
-		td{
-			padding: 10px;
-			p{
-				padding: 1px 0;
-				margin: 0;
-			}
-		}
-	}
-	.main-info-box{
-		border: 1px solid #333;
-	}
+    color: #333;
+    tr{
+        padding: 10px;
+        td{
+            padding: 10px;
+            p{
+                padding: 1px 0;
+                margin: 0;
+            }
+        }
+    }
+    .main-info-box{
+        border: 1px solid #333;
+    }
 
-	.address-box{
-		td{
-			border: 1px solid #333;
-			font-weight: 600;
-		}
-	}
+    .address-box{
+        td{
+            border: 1px solid #333;
+            font-weight: 600;
+        }
+    }
 
-	.details-box{
-		border: 1px solid #333;
-		td{
-			padding: 0;
-			vertical-align: top;
-		}
-	}
+    .details-box{
+        border: 1px solid #333;
+        td{
+            padding: 0;
+            vertical-align: top;
+        }
+    }
 
-	.signature-box{
-		border: 1px solid #333;
-		tr{
-			td{
-				&.terms-info{
-					font-size: 6px;
-				}
-			}
-		}
-	}
+    .signature-box{
+        border: 1px solid #333;
+        tr{
+            td{
+                &.terms-info{
+                    font-size: 6px;
+                }
+            }
+        }
+    }
 
-	.balance-box{
-		td{
-			border: 1px solid #333;
-		}
+    .balance-box{
+        td{
+            border: 1px solid #333;
+        }
 
-		table{
-			&.total-info{
-				height: 100%;
-				tr td{
-					padding: 10px 5px;
-				}
-			}
-			width: 100%;
-			border-spacing: 2px;
-			border-collapse: collapse;
-			tr{
-				&.product-header{
-					background: #eee;
-					border-bottom: 1px solid #333;
-					color: #555;
-				}
+        table{
+            &.total-info{
+                height: 100%;
+                tr td{
+                    padding: 10px 5px;
+                }
+            }
+            width: 100%;
+            border-spacing: 2px;
+            border-collapse: collapse;
+            tr{
+                &.product-header{
+                    background: #eee;
+                    border-bottom: 1px solid #333;
+                    color: #555;
+                }
 
-				td{
-					border: none;
-					padding: 0 5px;
-				}				
-			}
-		}
-	}
+                td{
+                    border: none;
+                    padding: 0 5px;
+                }               
+            }
+        }
+    }
 
-	.footer-box{
-		border: 1px solid #333;
-	}
+    .footer-box{
+        border: 1px solid #333;
+    }
 
-	table.order-main-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;
-		td{
-			&.company-title{
-				width: 50%;				
-			}
-		}
-	}
+    table.order-main-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;
+        td{
+            &.company-title{
+                width: 50%;             
+            }
+        }
+    }
 
-	table.order-product-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;
-		tr{
-			&.product-header{
-				background: #eee;
-				border-bottom: 1px solid #333;
-			}
+    table.order-product-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;
+        tr{
+            &.product-header{
+                background: #eee;
+                border-bottom: 1px solid #333;
+            }
 
-			td{
-				padding: 5px 10px;
-			}
-		}		
-	}
+            td{
+                padding: 5px 10px;
+            }
+        }       
+    }
 
-	table.order-sign-info{
-		width: 100%;
-		border-spacing: 2px;
-		border-collapse: collapse;		
-		tr{
-			padding: 0;
-			td{
-				padding: 0;
-				
-				&.terms-info{
-					font-size: 8px;
-					width: 60%;
-				}
-				&.signature-info{
-					padding: 0px 10px;
-					p{
-						padding: 10px 0;
-						span{
-							text-decoration: underline;
-						}
-					}
+    table.order-sign-info{
+        width: 100%;
+        border-spacing: 2px;
+        border-collapse: collapse;      
+        tr{
+            padding: 0;
+            td{
+                padding: 0;
+                
+                &.terms-info{
+                    font-size: 8px;
+                    width: 60%;
+                }
+                &.signature-info{
+                    padding: 0px 10px;
+                    p{
+                        padding: 10px 0;
+                        span{
+                            text-decoration: underline;
+                        }
+                    }
 
-					table{
-						width: 100%;
-						border-spacing: 2px;
-						border-collapse: collapse;
-						tr{
-							td{
-								padding: 10px 0;
-								&.td-underline{
-									div{
-										height: 15px;
-										width: 100%;
-										border-bottom: 1px solid #333;
-									}									
-								}
-							}
-						}
-					}
-				}
-			}
-		}				
-	}	
+                    table{
+                        width: 100%;
+                        border-spacing: 2px;
+                        border-collapse: collapse;
+                        tr{
+                            td{
+                                padding: 10px 0;
+                                &.td-underline{
+                                    div{
+                                        height: 15px;
+                                        width: 100%;
+                                        border-bottom: 1px solid #333;
+                                    }                                   
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }               
+    }   
 }

@@ -11,6 +11,12 @@ class PreviewController < ActionController::Base
       @company_profiles[info.key] = info.value
     end
 
+    profile_info = Setting.station
+    @standard_setting = {}
+    profile_info.each do |info|
+      @standard_setting[info.key] = info.value
+    end
+
     @invoice = Invoice.find_by(preview_token: params[:token])
   end
 

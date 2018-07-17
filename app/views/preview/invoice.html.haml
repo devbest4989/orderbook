@@ -1,51 +1,72 @@
 =content_for :title, "Invoice - #{@invoice.token}"
-.preview-print-box.text-right
-    =link_to generate_pdf_invoice_path(@invoice), class: 'btn btn-primary', method: :post, target: '_blank' do
-        Print
+.preview-print-box
+    .pull-left
+        %h4
+            Order: 
+            =@invoice.sales_order.token
+    .text-right.pull-right
+        =link_to sales_order_path(id: @invoice.sales_order.id, type: 'all'), class: 'preview-command' do
+            %i.fa.fa-icon.fa-file-text-o
+        =link_to generate_pdf_invoice_path(@invoice), class: 'preview-command', method: :post, target: '_blank' do
+            %i.fa.fa-icon.fa-print
+        =link_to generate_pdf_invoice_path(@invoice), class: 'preview-command', method: :post, target: '_blank' do
+            %i.fa.fa-icon.fa-download
+        =link_to list_by_type_invoices_path(:type => 'all'), class: 'btn btn-danger' do
+            Close
+    .clearfix
 .preview-invoice-box
-    %div{style: 'margin: 20px;'}
+    %div{style: 'margin: 10px 30px;'}
         %table.sales-order-box
             %tr.main-info-box
                 %td{colspan: 2}
                     %table.order-main-info
                         %tr
                             - if Setting.value_by('invoice.logo') == 'on' && !Setting.value_by('company.image').nil?
-                                %td.text-center.company-logo
+                                %td.company-logo
                                     = image_tag("/images/logo/#{Setting.value_by('company.image')}")
                             - else
                                 %td.no-padding
-                            %td.company-title
-                                %h2= @invoice.sales_order.customer.company_title
-                                %p= @invoice.sales_order.customer.billing_address
-                                %p="Phone: #{@invoice.sales_order.customer.phone}"
-                                %p="Fax: #{@invoice.sales_order.customer.fax}"
-                            %td.order-info.text-right
-                                %p=@invoice.token
-                                %p GST Number: 
+                            %td.company-title{colspan: 2}
+                                %h4="#{@company_profiles['company.name']}"
+                                %p="#{@company_profiles['company.address']}"
+                            %td.order-info{rowspan: 2}
+                                %p=@invoice.sales_order.token
                                 %p 
                                     Date:
                                     =@invoice.created_at.to_date
                                 %p Page
                         %tr
+                            %td
                             %td{colspan: 2}
-                                %h3
-                                    = Setting.value_by('invoice.title')
-                                    =@invoice.token
-                            %td.text-right
-                                %p="Sales Order: #{@invoice.sales_order.token}"
-                                %p="Processed By: #{@invoice.sales_order.booker.full_name}"
-            %tr.address-box
-                %td{width: "50%"}
-                    %p="#{@company_profiles['company.name']}"
-                    %p="#{@company_profiles['company.address']}"
-                %td{width: "50%"}
-                    %p Deliver To:
-                    %p="#{@invoice.sales_order.customer.company_title}"
-                    %p="#{@invoice.sales_order.ship_street} #{@invoice.sales_order.ship_suburb}"
-                    %p="#{@invoice.sales_order.ship_city} #{@invoice.sales_order.ship_postcode}"
-                    %p="#{@invoice.sales_order.ship_state} #{Country.coded(@invoice.sales_order.ship_country).name}"
+                                %h4
+                                    TO, 
+                                    =@invoice.sales_order.customer.company_title
+                        %tr
+                            %td
+                            %td
+                                %p 
+                                    %strong BILLING ADDRESS
+                                %p="#{@invoice.sales_order.bill_street} #{@invoice.sales_order.bill_suburb}"
+                                %p="#{@invoice.sales_order.bill_city} #{@invoice.sales_order.bill_postcode}"
+                                %p="#{@invoice.sales_order.bill_state}"
+                                %p="#{Country.coded(@invoice.sales_order.bill_country).name}"
+                            %td
+                                %p 
+                                    %strong DELIVERY ADDRESS
+                                %p="#{@invoice.sales_order.ship_street} #{@invoice.sales_order.ship_suburb}"
+                                %p="#{@invoice.sales_order.ship_city} #{@invoice.sales_order.ship_postcode}"
+                                %p="#{@invoice.sales_order.ship_state}"
+                                %p="#{Country.coded(@invoice.sales_order.ship_country).name}"
+                            %td
+                                %p="Account No: #{@invoice.sales_order.customer.id}"
+                                %p="Invoice No: #{@invoice.token}"
+                                %p
+                                    Terms : 
+                                    =@invoice.sales_order.condition_term.title unless @invoice.sales_order.condition_term.nil?
+                                %p Delivery via: 
+                                %p Payment Method : 
             %tr.details-box
-                %td{height: 400, colspan: 2}
+                %td{height: 600, colspan: 2}
                     %table.order-product-info
                         %tr.product-header
                             %td Product Name                        
@@ -77,51 +98,29 @@
                 %td{colspan: 2}
                     %table.order-sign-info
                         %tr
-                            %td.terms-info=@invoice.sales_order.condition_term.description unless @invoice.sales_order.condition_term.nil?
-                            %td.signature-info
-                                %table
-                                    %tr
-                                        %td.text-right{width: '25%'}
-                                            Signature
-                                        %td.td-underline{width: '35%'}
-                                            %div
-                                        %td.text-right{width: '15%'}
-                                            Date
-                                        %td.td-underline{width: '25%'}
-                                            %div
-                                    %tr
-                                        %td.text-right
-                                            Print Name
-                                        %td.td-underline
-                                            %div
-                                        %td
-                                        %td
-                                            
-            %tr.balance-box
-                %td
-                    %p Received with Thanks
-                    %table
-                        %tr
-                            %td Cash
-                            %td=@invoice.paid
-                        %tr
-                            %td Eftpos
-                            %td $285.35
+                            %td.terms-info
+                                %strong Terms & Conditions;
+                                %br
+                                %p{style: 'white-space: pre-wrap;'}=@invoice.sales_order.condition_term.description unless @invoice.sales_order.condition_term.nil?
+                                %br
 
-                %td.no-padding
-                    %table.total-info
-                        %tr.product-header
-                            %td SubTotal
-                            %td Total Discount
-                            %td Shipping Cost
-                            %td Tax
-                            %td Total
-                        %tr
-                            %td=@invoice.sub_total
-                            %td=@invoice.discount 
-                            %td
-                            %td=@invoice.tax
-                            %td=@invoice.total
+                            %td.signature-info
+                                %table.total-info
+                                    %tr
+                                        %td Sub-Total
+                                        %td="#{@standard_setting['format.currency']} #{@invoice.sub_total}"
+                                    %tr
+                                        %td Discount
+                                        %td="#{@standard_setting['format.currency']} #{@invoice.discount}"
+                                    %tr
+                                        %td Tax
+                                        %td="#{@standard_setting['format.currency']} #{@invoice.tax}"
+                                    %tr
+                                        %td Shipping Cost
+                                        %td="#{@standard_setting['format.currency']} 0.00"
+                                    %tr
+                                        %td Total Balance Due
+                                        %td="#{@standard_setting['format.currency']} #{@invoice.total}"
 
             %tr.footer-box
                 %td{colspan: 2}=@invoice.sales_order.notes
