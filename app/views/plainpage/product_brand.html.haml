@@ -44,8 +44,19 @@
             },
             name: {
                 title: 'Brand Name',
-                width: '100%',
                 inputClass: 'form-control input-sm validate[required]'                
+            },
+            product_count: {
+                title: 'Number Of Products',
+                create: false,
+                edit: false
+            },
+            actions: {
+                title: '',
+                sorting: false,
+                display: function (data) {
+                    return '<a href="/products/all/list_products?brand_id='+data.record.id+'">View Products</a>';
+                }
             }
         },
         //Initialize validation logic when a form is created

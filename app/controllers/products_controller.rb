@@ -209,6 +209,18 @@ class ProductsController < ApplicationController
       @products = Product.all.order(order_key)
     end
 
+    unless params[:category_id].nil? 
+      @products = @products.by_category(params[:category_id]) 
+    end
+
+    unless params[:brand_id].nil? 
+      @products = @products.by_brands(params[:brand_id]) 
+    end
+
+    unless params[:product_line_id].nil? 
+      @products = @products.by_line(params[:product_line_id]) 
+    end
+
     respond_to do |format|
       format.html { render "list" }
     end    

@@ -58,7 +58,7 @@
                                 %p="#{@invoice.sales_order.ship_state}"
                                 %p="#{Country.coded(@invoice.sales_order.ship_country).name}"
                             %td
-                                %p="Account No: #{@invoice.sales_order.customer.id}"
+                                %p="Account No: #{format('%08d', @invoice.sales_order.customer.id)}"
                                 %p="Invoice No: #{@invoice.token}"
                                 %p
                                     Terms : 
@@ -118,7 +118,7 @@
                                     %tr
                                         %td Shipping Cost
                                         %td="#{@standard_setting['format.currency']} 0.00"
-                                    %tr
+                                    %tr.total-row
                                         %td Total Balance Due
                                         %td="#{@standard_setting['format.currency']} #{@invoice.total}"
 

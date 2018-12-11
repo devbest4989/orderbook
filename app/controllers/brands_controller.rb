@@ -27,7 +27,7 @@ class BrandsController < ApplicationController
       @brands.paginate(page: params[:jtStartIndex].to_i / params[:jtPageSize].to_i + 1, per_page: params[:jtPageSize].to_i )
     end
     respond_to do |format|
-      result = {:Result => "OK", :TotalRecordCount => @brands.count, :Records => @brands}
+      result = {:Result => "OK", :TotalRecordCount => @brands.count, :Records => @brands.as_json(:only => [:id, :name], :methods => [:product_count])}
       format.json {render :json => result}
     end
   end

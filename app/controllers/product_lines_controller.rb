@@ -27,7 +27,7 @@ class ProductLinesController < ApplicationController
       @product_lines.paginate(page: params[:jtStartIndex].to_i / params[:jtPageSize].to_i + 1, per_page: params[:jtPageSize].to_i )
     end
     respond_to do |format|
-      result = {:Result => "OK", :TotalRecordCount => @product_lines.count, :Records => @product_lines}
+      result = {:Result => "OK", :TotalRecordCount => @product_lines.count, :Records => @product_lines.as_json(:only => [:id, :name], :methods => [:product_count])}
       format.json {render :json => result}
     end
   end
